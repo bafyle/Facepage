@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% block head %}
+            <title>{% block title%}{% endblock title %}</title>
+        {% endblock head %}
+    </head>
+    <body>
+    {% block body %}
+        <header>
+            {% block header %}
+            {% endblock %}
+        </header>
+        {% if messages %}
+            {% for m in messages %}
+                <div class="alert alert-{{m.tags}}">
+                    {{ m }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% block content %}
+        {% endblock content %}
+        <footer>
+            {% block footer %}
+            {% endblock footer %}
+        </footer>
+    {% endblock body%}
+    </body>
+</html>

@@ -1,0 +1,30 @@
+{% extends 'posts/base.html' %}
+
+{% block head%}
+<title>Search for {{search}}</title>
+{% endblock head %}
+{% block header %}
+<a href="{% url 'posts:home' %}">Home</a>
+{% endblock %}
+{% block content%}
+<div>
+    <h3>All people with '{{search}}': </h3>
+    </h3>
+    <ul>
+        {% for username in users%}
+        <li><a href="{% url 'profile' username %}">{{username}}</a></li>
+        {% endfor %}
+    </ul>
+</div>
+<div>
+    <h3>All posts that contains '{{search}}' in it:</h3>
+    <ul>
+        {% for post in posts %}
+        <li>
+            <p><a href="{% url 'profile' post.creator %}">{{post.creator}}</a></p>
+            <p>{{post.post_content}}</p>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

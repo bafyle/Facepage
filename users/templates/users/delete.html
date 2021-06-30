@@ -1,0 +1,25 @@
+{% extends 'users/index.html' %}
+{% block head %}
+    <title>Delete Account</title>
+{% endblock %}
+{% block header %}
+<a href="{% url 'posts:home' %}">Home</a>
+{% endblock %}
+{% block content %}
+
+    <div class="danger">
+        <p>
+            <strong>
+                By deleting your account, you will delete all comments and posts you shared
+                <br>
+                think twice about your decision
+                <br>
+                Type your username and "i want to delete my account" in the confirmation
+            </strong>
+        </p>
+        <form action="{% url 'users:delete' %}" method="post"> {%csrf_token%}
+            {{ form.as_p }}
+            <input type="submit" value="Delete">
+        </form>
+    </div>
+{% endblock %}

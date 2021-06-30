@@ -1,0 +1,57 @@
+{% extends 'messenger/base.html' %}
+{% load static %}
+{% block head %}
+    <title>
+        {% if his_username %}
+            {{his_username}}
+        {% else %}
+            chat
+        {% endif %}
+    </title>
+    <link rel="stylesheet" href="{% static 'messenger/css/chat.css'%}">
+{% endblock head %}
+
+{% block header %}
+<a href="{% url 'posts:home' %}">Home</a>
+{% endblock %}
+
+{% block content %}
+    <div id="friends-list">
+        <ul>
+            {% for friend in friends %}
+                <li><a href="{% url 'messenger:chat' friend %}">{{ friend }}</a></li>
+            {% endfor %}
+        </ul>
+    </div> 
+    <div>
+        {% if unseen_messages > 0 %}
+        <p>You have {{unseen_messages}} new message !</p>
+        {% endif %}
+    </div>
+    <div>
+        <fieldset class="fieldset-auto-width">
+            <legend>
+                {% if his_username %}
+                    {{his_username}}
+                {% else %}
+                    chat
+                {% endif %}
+            </legend>
+            <ul>
+                {% for message in chat %}
+                    <li>
+                        <p>{{ message.sender }}: {{ message.message_content }}</p>
+                        <small>{{ message.send_date }}</small>
+                    </li>
+                {% endfor %}
+            </ul>
+        </fieldset>
+    </div>
+    {% if his_username %}
+        <form action="{% url 'messenger:chat' his_username %}" method="post"> {% csrf_token %}
+            <!-- <textarea name="chat-input" id="chat-input" cols="30" rows="10"></textarea> -->
+            {{ form.as_p }}
+            <input type="submit" value="Send">
+        </form>
+    {% endif %}
+{% endblock %}
