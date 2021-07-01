@@ -109,7 +109,6 @@ def changeBioAndProfilePicture(request):
     if request.user.is_authenticated:
         if request.method == "POST":
             bioForm = ChangePictureBioForm(request.POST, request.FILES)
-            print(request.FILES)
             if bioForm.is_valid():
                 if bioForm.cleaned_data['profile_picture'] != 'profile_pics/default.jpg':
                     request.user.profile.profile_picture = bioForm.cleaned_data['profile_picture']
