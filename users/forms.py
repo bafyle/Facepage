@@ -1,4 +1,6 @@
 from django import forms
+from django.contrib.auth.models import User
+from django.forms.widgets import EmailInput
 from .models import Profile
 
 class DeleteAccountForm(forms.Form):
@@ -8,4 +10,5 @@ class DeleteAccountForm(forms.Form):
 class ChangePictureBioForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['bio', 'profile_picture', 'first_name', 'last_name']
+        fields = ['bio', 'profile_picture', 'first_name', 'last_name', 'phone_number', 'gender']
+

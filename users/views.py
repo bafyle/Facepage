@@ -60,7 +60,7 @@ def register(request):
 
 def accountSettings(request):
     """
-    Takes the new user email and password and check if they are vaild and save them
+    Takes the new user email and password and check if they are valid and save them
     after saving it redirects to the login page to login again with the new data
     """
     if request.user.is_authenticated:
@@ -87,16 +87,19 @@ def accountSettings(request):
                     user.save()
                     messages.success(request, "password has changed, you need to login again")
                 else:
-                    messages.error(request, "password must have a at least 1 capitcal letter and it cannot be entirely numeric")
+                    messages.error(request, "password must have a at least 1 uppercase letter and it cannot be entirely numeric")
                     return redirect('users:settings')
             return redirect('users:index')
         else:
-            default_values_for_form = dict()
-            default_values_for_form['bio'] = request.user.profile.bio
-            default_values_for_form['first_name'] = request.user.profile.first_name
-            default_values_for_form['last_name'] = request.user.profile.last_name
-            bio_form = ChangePictureBioForm(default_values_for_form)
-            return render(request, 'users/settings.html', {'username':request.user.username, 'email': request.user.email, 'bio_form': bio_form})
+            default_values_for_form = {
+                'bio': request.user.profile.bio,
+                'first_name': request.user.profile.first_name,
+                'last_name': request.user.profile.last_name,
+                'phone_number': request.user.profile.phone_number,
+                'gender': request.user.profile.gender,
+            }
+            profile_details = ChangePictureBioForm(default_values_for_form)
+            return render(request, 'users/settings.html', {'username':request.user.username, 'email': request.user.email, 'bio_form': profile_details})
     else:
         messages.error(request, "you must login first")
         return redirect('users:index')
@@ -115,6 +118,8 @@ def changeBioAndProfilePicture(request):
                 request.user.profile.bio = bioForm.cleaned_data['bio']
                 request.user.profile.first_name = bioForm.cleaned_data['first_name']
                 request.user.profile.last_name = bioForm.cleaned_data['last_name']
+                request.user.profile.phone_number = bioForm.cleaned_data['phone_number']
+                request.user.profile.gender = bioForm.cleaned_data['gender']
                 request.user.profile.save()
                 messages.success(request, "changes saved")
             else:
