@@ -131,3 +131,6 @@ STATIC_URL = '/static/'
 
 MEDIA_ROOT = Path.joinpath(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+# Default primary key to models
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
