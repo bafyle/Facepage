@@ -16,7 +16,7 @@ def index(request):
     """
     if request.user.is_authenticated:
         return redirect('posts:home')
-    return render(request, 'users/index.html', {})
+    return render(request, 'users/login.html')
 
 def loginFunction(request):
     """
@@ -28,7 +28,7 @@ def loginFunction(request):
         return redirect('posts:home')
     elif request.method == 'POST':
         username = request.POST['username']
-        pw = request.POST['password']
+        pw = request.POST['pass']
         user = authenticate(username=username, password=pw)
         if user is not None:
             login(request, user)
@@ -46,17 +46,14 @@ def logoutFunction(request):
 
 def register(request):
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            new_profile = Profile(user=User.objects.get(username=request.POST.get('username')))
-            new_profile.save()
-            messages.success(request, "New account has been created, you can login now")
-            return redirect('users:index')
-    else:
-        form = UserCreationForm()
-    context = {'form':form}
-    return render(request, 'users/register.html', context=context)
+        phone = False
+        if "!@#$%^&*()+=-/<>'\"\\\{\}:;" in request.POST['username']:
+            messages.error(request, 'invalid character in username')
+            return redirect('users:register')
+        if '@' not in request.POST['email']:
+            phone = True
+        
+    return render(request, 'users/register.html')
 
 def accountSettings(request):
     """
