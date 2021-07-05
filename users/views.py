@@ -55,21 +55,27 @@ def logoutFunction(request):
 def register(request):
     if request.method == "POST":
         form = RegisterForm(request.POST)
+        for data in form.data:
+            print(form.data[data])
         if form.is_valid():
-            try:
-                user = form.save()
-                new_profile = Profile(user=user)
-                new_profile.save()
-                sendEmail(request, user)
-            except Exception as e:
-                user.delete()
-                raise e
-            user.save()
-            return redirect('users:verification-sent')
+            print('From Valid')
+            # try:
+            #     user = form.save()
+            #     new_profile = Profile(user=user)
+            #     new_profile.save()
+            #     sendEmail(request, user)
+            # except Exception as e:
+            #     user.delete()
+            #     raise e
+            # user.save()
+            # return redirect('users:verification-sent')
+        else:
+            print('form not valid')
+        return redirect('users:register')
     else:
         form = RegisterForm()
     context = {'form':form}
-    return render(request, 'users/register.html', context=context)
+    return render(request, 'users/register2 copy.html', context=context)
 
 def accountSettings(request):
     """

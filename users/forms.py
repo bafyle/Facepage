@@ -14,8 +14,14 @@ class ChangePictureBioForm(forms.ModelForm):
         fields = ['bio', 'profile_picture', 'first_name', 'last_name', 'phone_number', 'gender']
 
 class RegisterForm(UserCreationForm):
-    email = forms.CharField(widget=EmailInput, max_length=150, help_text='Required')
-
+    first_name = forms.CharField(max_length=150)
+    last_name = forms.CharField(max_length=150)
+    birthday = forms.DateField()
+    gender = forms.NullBooleanField(widget=forms.RadioSelect(choices=[('M', 'Male'), ('F', 'Female')]))
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1', 'password2']
+        fields = [
+            'username',
+            'email',
+            'password'
+        ]
