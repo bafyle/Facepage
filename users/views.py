@@ -1,12 +1,20 @@
+from typing import Any
+from django.contrib.messages.constants import ERROR
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import UserCreationForm
-from .forms import DeleteAccountForm, ChangePictureBioForm
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.encoding import force_bytes, force_text
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.template.loader import render_to_string
+from facepage.tokens import account_activation_token
+from django.core.mail import EmailMessage
+
+from .forms import DeleteAccountForm, ChangePictureBioForm, RegisterForm
 from .models import Profile
 from pathlib import Path
-import os
 from django.contrib.auth.models import User
+import os
 
 # Create your views here.
 
@@ -46,14 +54,22 @@ def logoutFunction(request):
 
 def register(request):
     if request.method == "POST":
-        phone = False
-        if "!@#$%^&*()+=-/<>'\"\\\{\}:;" in request.POST['username']:
-            messages.error(request, 'invalid character in username')
-            return redirect('users:register')
-        if '@' not in request.POST['email']:
-            phone = True
-        
-    return render(request, 'users/register.html')
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            try:
+                user = form.save()
+                new_profile = Profile(user=user)
+                new_profile.save()
+                sendEmail(request, user)
+            except Exception as e:
+                user.delete()
+                raise e
+            user.save()
+            return redirect('users:verification-sent')
+    else:
+        form = RegisterForm()
+    context = {'form':form}
+    return render(request, 'users/register.html', context=context)
 
 def accountSettings(request):
     """
@@ -185,6 +201,42 @@ def deleteAccount(request):
         messages.error(request, "you must login first")
         return redirect('users:index')
 
+
+def sendEmail(request, user):
+    current_site = get_current_site(request)
+    mail_subject = 'Activate your blog account.'
+    message = render_to_string('users/acc_activate.html', {
+        'user': user,
+        'domain': current_site.domain,
+        'uid':urlsafe_base64_encode(force_bytes(user.pk)),
+        'token':account_activation_token.make_token(user),
+    })
+    to_email = user.email
+    email = EmailMessage(
+                mail_subject, message, to=[to_email]
+    )
+    email.send()
+
+def activate(request, uidb64, token):
+    try:
+        print(uidb64 + " " + token)
+        uid = force_text(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+        
+    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    if user is not None and account_activation_token.check_token(user, token):
+        user.profile.verified = True
+        user.profile.save()
+        login(request, user)
+        messages.success(request, 'Thank you for your email confirmation. Now you can login your account.')
+        return redirect('users:index')
+    else:
+        messages.success(request, 'Activation link is invalid!')
+        return redirect('users:login')
+
+def verifyEmailView(request):
+    return render(request, 'users/verificationSent.html')
 
 def deletePhoto(mediaPath):
     this_file_dir = Path(__file__).resolve().parent.parent

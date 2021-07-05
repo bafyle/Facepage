@@ -134,3 +134,10 @@ MEDIA_URL = '/media/'
 
 # Default primary key to models
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+# Email settings
+EMAIL_USE_SSL = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'androw240@gmail.com'
+EMAIL_HOST_PASSWORD = '0186522981'
+EMAIL_PORT = 465

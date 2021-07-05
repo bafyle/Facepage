@@ -30,7 +30,7 @@
     function validate (input) {
         if($(input).attr('type') == 'username' || $(input).attr('name') == 'username') {
             if($(input).val().trim().match(/^[a-zA-Z]^/ )== null) { 
-                return false;
+                return true;
             }
         }
         else {

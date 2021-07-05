@@ -10,6 +10,7 @@ class Profile(models.Model):
     last_name = models.CharField(max_length=100, null=True, blank=True)
     phone_number = models.CharField(max_length=50, null=True, blank=True)
 
+    verified = models.BooleanField(default=False)
     birthday = models.DateField(null=True)
 
     choices = [('M', 'Male'), ('F', 'Female'), ('O', 'Other')]
