@@ -56,8 +56,7 @@
                             <div class="col-2">
                                 <div class="input-group">
                                     <div class="input-group-icon">
-                                        <input id="{{form.birthday.id_for_label}}"class="input--style-4 js-datepicker" type="date" name="birthday" placeholder="Birthday">
-                                        <i class="zmdi zmdi-calendar-note input-icon js-btn-calendar"></i>
+                                        <input id="{{form.birthday.id_for_label}}"class="input--style-4" type="date" name="birthday" placeholder="Birthday">
                                     </div>
                                 </div>
                             </div>
@@ -85,18 +84,18 @@
                                     <input id="{{form.email.id_for_label}}" class="input--style-4" type="email" name="email" placeholder="Mobile number or email">
                                 </div>
                             </div>
-                            {{form.password1.errors}}
-                            <div class="col-2">
-                                <div class="input-group">
-                                    <input id="{{form.password1.id_for_label}}" class="input--style-4" type="password" name="password1" placeholder="Password">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row row-space">
                             {{form.username.errors}}
                             <div class="col-2">
                                 <div class="input-group">
                                     <input id="{{form.username.id_for_label}}" class="input--style-4" type="username" name="username" placeholder="Username">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row row-space">
+                            {{form.password1.errors}}
+                            <div class="col-2">
+                                <div class="input-group">
+                                    <input id="{{form.password1.id_for_label}}" class="input--style-4" type="password" name="password1" placeholder="Password">
                                 </div>
                             </div>
                             {{form.password2.errors}}
