@@ -16,3 +16,6 @@ class RegisterForm(UserCreationForm):
     last_name = forms.CharField(max_length=150)
     birthday = forms.DateField(widget=forms.DateInput())
     gender = forms.ChoiceField(widget=forms.RadioSelect, choices=[('M', 'Male'), ('F', 'Female')])
+
+
+    
