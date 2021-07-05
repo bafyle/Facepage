@@ -55,8 +55,8 @@ def logoutFunction(request):
 def register(request):
     if request.method == "POST":
         form = RegisterForm(request.POST)
-        for data in form.data:
-            print(form.data[data])
+        for key in form.data:
+            print(key + ' ' + form.data[key])
         if form.is_valid():
             print('From Valid')
             # try:
@@ -71,11 +71,9 @@ def register(request):
             # return redirect('users:verification-sent')
         else:
             print('form not valid')
-        return redirect('users:register')
     else:
         form = RegisterForm()
-    context = {'form':form}
-    return render(request, 'users/register2 copy.html', context=context)
+    return render(request, 'users/register.html', {'form':form})
 
 def accountSettings(request):
     """
