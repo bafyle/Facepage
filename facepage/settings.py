@@ -141,3 +141,12 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'androw240@gmail.com'
 EMAIL_HOST_PASSWORD = '0186522981'
 EMAIL_PORT = 465
+
+
+# Default cookie age
+SESSION_COOKIE_AGE = 60*60*24
+
+# Make Django modify the session every request
+# this is needed because we don't want the user
+# to be logged out automatically for inactivity
+SESSION_SAVE_EVERY_REQUEST = True

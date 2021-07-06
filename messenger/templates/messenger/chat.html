@@ -8,7 +8,6 @@
             chat
         {% endif %}
     </title>
-    <script lang="Javascript" src="{% static 'messenger/js/chat.js' %}"></script>
     <link rel="stylesheet" href="{% static 'messenger/css/chat.css'%}">
 {% endblock head %}
 
@@ -52,7 +51,7 @@
         <form action="{% url 'messenger:chat' his_username %}" method="post"> {% csrf_token %}
             <!-- <textarea name="chat-input" id="chat-input" cols="30" rows="10"></textarea> -->
             {{ form.as_p }}
-            <input type="submit" value="Send" onclick="testingJS()">
+            <input type="submit" value="Send">
         </form>
     {% endif %}
 {% endblock %}

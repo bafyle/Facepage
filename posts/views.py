@@ -1,3 +1,4 @@
+from django.http.response import Http404
 from django.shortcuts import redirect, render, get_object_or_404
 from .models import *
 from django.contrib import messages
@@ -62,19 +63,11 @@ def profile(request, username):
         paginator = Paginator(profile_posts, 5)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
-
-        height = user.profile.profile_picture.height
-        width = user.profile.profile_picture.width
-        if width * height > 10000:
-            height = height * 0.1
-            width = width * 0.1
         
         context['name'] = username
         context['page_obj'] = page_obj
         context['liked_posts'] = liked_posts
         context['profile_pic'] = user.profile.profile_picture
-        context['width'] =  width
-        context['height'] = height
         context['bio'] = user.profile.bio
         if user.first_name is not None:
             context['first_name'] = user.first_name
@@ -110,9 +103,13 @@ def addPost(request):
     This function create a new post with with data from 'new-post-content' that comes
     from a post request and redirects to the same page
     """
-    new_post = Post(post_content=request.POST['new-post-content'], creator=request.user)
-    new_post.save()
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    if request.user.is_authenticated:
+        new_post = Post(post_content=request.POST['new-post-content'], creator=request.user)
+        new_post.save()
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        messages.error(request, "You must be logged in first")
+        return redirect('users:index')
 
 
 def updatePost(request, post_id):
@@ -127,8 +124,7 @@ def updatePost(request, post_id):
                 post.save()
             return render(request, 'posts/update.html', {'post':post})
         else:
-            messages.error(request, "You can update your own posts only")
-            return redirect('posts:home')
+            raise Http404
     else:
         messages.error(request, "You must login first")
         return redirect('users:index')
@@ -138,13 +134,12 @@ def deletePost(request, post_id):
     This function delete a particular post by the id of that post
     and redirect to the same page
     """
-    post = Post.objects.get(id=post_id)
+    post = get_object_or_404(Post, id=post_id)
     if request.user == post.creator:
         post.delete()
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
-        messages.error(request, "you can delete your own posts only")
-        return redirect('posts:home')
+        raise Http404
 
 def likePost(request, post_id):
     """
@@ -152,14 +147,18 @@ def likePost(request, post_id):
     and update that post like number by recounting how many rows in the 
     like table for that post
     """
-    post = Post.objects.get(id=post_id)
-    isPostLiked = bool(Like.objects.filter(post=post, liker=request.user))
-    if not isPostLiked:
-        new_like = Like(post=post, liker=request.user)
-        new_like.save()
-        post.likes = Like.objects.filter(post=post).count()
-        post.save()
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    if request.user.is_authenticated:
+        post = Post.objects.get(id=post_id)
+        isPostLiked = bool(Like.objects.filter(post=post, liker=request.user))
+        if not isPostLiked:
+            new_like = Like(post=post, liker=request.user)
+            new_like.save()
+            post.likes = Like.objects.filter(post=post).count()
+            post.save()
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        messages.error(request, "You must be logged in first")
+        return redirect('users:index')
 
 def addComment(request, post_id):
     """
@@ -167,14 +166,18 @@ def addComment(request, post_id):
     GET request and recount how many comments for that post to update
     the comment counter for that post
     """
-    comment = request.GET['comment-content']
-    commented_post = Post.objects.get(id=post_id)
+    if request.user.is_authenticated:
+        comment = request.GET['comment-content']
+        commented_post = Post.objects.get(id=post_id)
 
-    new_comment = Comment(comment_content=comment, post=commented_post, creator=request.user)
-    new_comment.save()
-    commented_post.comments = Comment.objects.filter(post=commented_post).count()
-    commented_post.save()
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        new_comment = Comment(comment_content=comment, post=commented_post, creator=request.user)
+        new_comment.save()
+        commented_post.comments = Comment.objects.filter(post=commented_post).count()
+        commented_post.save()
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        messages.error(request, "You must be logged in first")
+        return redirect('users:index')
 
 def addFriend(request, username):
     """
