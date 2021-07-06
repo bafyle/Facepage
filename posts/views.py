@@ -81,13 +81,13 @@ def profile(request, username):
         context['width'] =  width
         context['height'] = height
         context['bio'] = user.profile.bio
-        if user.profile.first_name is not None:
-            context['first_name'] = user.profile.first_name
+        if user.first_name is not None:
+            context['first_name'] = user.first_name
         else:
             context['first_name'] = context['name']
         
-        if user.profile.last_name is not None:
-            context['last_name'] = user.profile.last_name
+        if user.last_name is not None:
+            context['last_name'] = user.last_name
         else:
             context['last_name'] = ''
 

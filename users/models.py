@@ -6,10 +6,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     profile_picture = models.ImageField(default='profile_pics/default.jpg', upload_to='profile_pics')
     bio = models.CharField(max_length=100, blank=True)
-    first_name = models.CharField(max_length=100, null=True, blank=True)
-    last_name = models.CharField(max_length=100, null=True, blank=True)
     phone_number = models.CharField(max_length=50, null=True, blank=True)
-
     verified = models.BooleanField(default=False)
     birthday = models.DateField(null=True)
 

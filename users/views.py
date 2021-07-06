@@ -1,5 +1,3 @@
-from typing import Any
-from django.contrib.messages.constants import ERROR
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -56,11 +54,15 @@ def register(request):
     if request.method == "POST":
         form = RegisterForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            new_profile = Profile(user=user)
-            new_profile.save()
-            sendEmail(request, user)
-            return redirect('users:verification-sent')
+            try:
+                user = form.save()
+                new_profile = Profile(user=user, birthday=form.cleaned_data['birthday'], gender=form.cleaned_data['gender'])
+                new_profile.save()
+                sendEmail(request, user)
+                return redirect('users:verification-sent')
+            except Exception as e:
+                user.delete()
+                raise e
         else:
             messages.error(request, "Invalid input")
             return render(request, 'users/register.html', {'form':form})
@@ -103,8 +105,8 @@ def accountSettings(request):
         else:
             default_values_for_form = {
                 'bio': request.user.profile.bio,
-                'first_name': request.user.profile.first_name,
-                'last_name': request.user.profile.last_name,
+                'first_name': request.user.first_name,
+                'last_name': request.user.last_name,
                 'phone_number': request.user.profile.phone_number,
                 'gender': request.user.profile.gender,
             }
@@ -126,11 +128,12 @@ def changeBioAndProfilePicture(request):
                 if bioForm.cleaned_data['profile_picture'] != 'profile_pics/default.jpg':
                     request.user.profile.profile_picture = bioForm.cleaned_data['profile_picture']
                 request.user.profile.bio = bioForm.cleaned_data['bio']
-                request.user.profile.first_name = bioForm.cleaned_data['first_name']
-                request.user.profile.last_name = bioForm.cleaned_data['last_name']
+                request.user.first_name = bioForm.cleaned_data['first_name']
+                request.user.last_name = bioForm.cleaned_data['last_name']
                 request.user.profile.phone_number = bioForm.cleaned_data['phone_number']
                 request.user.profile.gender = bioForm.cleaned_data['gender']
                 request.user.profile.save()
+                request.user.save()
                 messages.success(request, "changes saved")
             else:
                 messages.error(request, "invalid data has been entered")
@@ -153,8 +156,8 @@ def deleteMyProfilePicture(request):
             messages.error(request, "you dont have a profile picture to delete")
             return redirect('users:settings')
         new_profile = Profile(bio=request.user.profile.bio,
-                            first_name = request.user.profile.first_name,
-                            last_name = request.user.profile.last_name,
+                            first_name = request.user.first_name,
+                            last_name = request.user.last_name,
         )
         request.user.profile.delete()
         new_profile.user = request.user
@@ -210,13 +213,14 @@ def sendEmail(request, user):
     })
     to_email = user.email
     email = EmailMessage(
-                mail_subject, message, to=[to_email]
+            mail_subject,
+            message,
+            to=[to_email],
     )
     email.send()
 
 def activate(request, uidb64, token):
     try:
-        print(uidb64 + " " + token)
         uid = force_text(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
         
