@@ -8,8 +8,8 @@ class DeleteAccountForm(forms.Form):
     confirmation = forms.CharField(widget=forms.Textarea, label='Confirmation')
 
 class ChangePictureBioForm(forms.ModelForm):
-    first_name = forms.CharField(max_length=150, label='First name')
-    last_name = forms.CharField(max_length=150, label='Last name')
+    first_name = forms.CharField(max_length=150, label='First name', required=False)
+    last_name = forms.CharField(max_length=150, label='Last name', required=False)
     class Meta:
         model = Profile
         fields = ['bio', 'profile_picture', 'phone_number', 'gender']

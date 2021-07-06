@@ -153,15 +153,20 @@ def deleteMyProfilePicture(request):
         if old_image.split('/')[-1] != 'default.jpg':
             deletePhoto(old_image)
         else:
-            messages.error(request, "you dont have a profile picture to delete")
+            messages.error(request, "you don't have a profile picture to delete")
             return redirect('users:settings')
-        new_profile = Profile(bio=request.user.profile.bio,
-                            first_name = request.user.first_name,
-                            last_name = request.user.last_name,
+        old_profile = request.user.profile
+        new_profile = Profile(
+            bio=old_profile.bio,
+            phone_number=old_profile.phone_number,
+            verified=old_profile.verified,
+            birthday=old_profile.birthday,
+            gender=old_profile.gender,
         )
-        request.user.profile.delete()
+        old_profile.delete()
         new_profile.user = request.user
         new_profile.save()
+        request.user.save()
         messages.success(request, "Profile picture deleted")
         return redirect('users:settings')
     else:

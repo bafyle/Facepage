@@ -5,11 +5,6 @@ from django.http import HttpResponseRedirect
 from django.db.models import Q
 from django.core.paginator import Paginator
 
-# importing in django is related to the manage.py file
-# since users folder is in the same directory as manage.py
-# i can import it
-from users.models import Profile
-
 
 def home(request):
     """
