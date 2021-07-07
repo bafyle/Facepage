@@ -36,6 +36,7 @@ def home(request):
             'liked_posts': liked_posts,
             'my_last_post': my_last_post,
             'name': request.user.username,
+            'profile_pic': request.user.profile.profile_picture.url
         }
         return render(request, 'posts/home.html', context=context)
     else:
@@ -153,6 +154,26 @@ def likePost(request, post_id):
         if not isPostLiked:
             new_like = Like(post=post, liker=request.user)
             new_like.save()
+            post.likes = Like.objects.filter(post=post).count()
+            post.save()
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        messages.error(request, "You must be logged in first")
+        return redirect('users:index')
+
+
+def unlikePost(request, post_id):
+    """
+    This function removes a like from the database for a particular post
+    and update that post like number by recounting how many rows in the 
+    like table for that post
+    """
+    if request.user.is_authenticated:
+        post = Post.objects.get(id=post_id)
+        likeObject = Like.objects.filter(post=post, liker=request.user)
+        isPostLiked = bool(likeObject)
+        if isPostLiked:
+            likeObject.delete()
             post.likes = Like.objects.filter(post=post).count()
             post.save()
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
