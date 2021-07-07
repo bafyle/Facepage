@@ -1,77 +1,297 @@
-{% extends 'posts/base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8"> 
+        <meta charset="utf-8">
+        <title>Facepage home</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<link href="{% static 'posts/fonts/fontawesome-free-5.15.3-web/css/all.css'%}" rel="stylesheet">
+        <link href="{% static 'posts/css/bootstrap.css'%}" rel="stylesheet">
+        <!--[if lt IE 9]>
+          <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+        <link href="{% static 'posts/css/facebook.css'%}" rel="stylesheet">
+    </head>
+    
+    <body>
+        
+        <div class="wrapper">
+			<div class="box">
+										<!-- top nav -->
+										<div class="navbar navbar-blue navbar-static-top" style="width: 100%;">  
+											<div class="navbar-header">
+											  <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".navbar-collapse">
+												<span class="sr-only">Toggle</span>
+												<span class="icon-bar"></span>
+												<span class="icon-bar"></span>
+												<span class="icon-bar"></span>
+											  </button>
+											  <a href="" class="navbar-brand logo">F</a>
+											</div>
+											<nav class="collapse navbar-collapse" role="navigation">
+											<form class="navbar-form navbar-left">
+												<div class="input-group input-group-sm" style="max-width:360px;">
+												  <input class="form-control" placeholder="Search" name="srch-term" id="srch-term" type="text">
+												  <div class="input-group-btn">
+													<button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+												  </div>
+												</div>
+											</form>
+											<ul class="nav navbar-nav">
+											  <li>
+												<a href="#"><i class="glyphicon glyphicon-home"></i> Home</a>
+											  </li>
+											  <li>
+												<a href="#postModal" role="button" data-toggle="modal"><i class="glyphicon glyphicon-plus"></i> Post</a>
+											  </li>
+											  <li>
+												<a href="#"><i class="fab fa-rocketchat"></i> Chat</a>
+											  </li>
+											  <li>
+												<a href="#"><img src="posts/img/150.jpg" class="img-circle pull-left" style="width: 40px;height: 40px; margin-top: -10px;"><span class="badge">Abanoub</span></a>
+											  </li>
+											</ul>
+											<ul class="nav navbar-nav navbar-right">
+											  <li class="dropdown">
+												<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fas fa-caret-square-down fa-lg"></i></a>
+												<ul class="dropdown-menu">
+												  <li><a href=""><i class="fas fa-cog"></i> Settings</a></li>
+												  <li><a href=""><i class="fab fa-rocketchat"></i> Chat</a></li>
+												  <li><a href=""><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
+												  <!--<li><a href="">More</a></li>
+												  <li><a href="">More</a></li>
+												  <li><a href="">More</a></li> -->
+												</ul>
+											  </li>
+											</ul>
+											</nav>
+										</div>
+										<!-- /top nav -->
+				<div class="row row-offcanvas row-offcanvas-left">
+					
+					<!-- sidebar -->
+					<div class="column col-sm-2 col-xs-1 sidebar-offcanvas" id="sidebar">
+					  
+						<ul class="nav">
+							<li><a href="#" data-toggle="offcanvas" class="visible-xs text-center"><i class="glyphicon glyphicon-chevron-right"></i></a></li>
+						</ul>
+					   
+						<ul class="nav hidden-xs" id="lg-menu">
+							<li class="active"><a href=""><i class="glyphicon glyphicon-refresh"></i> Refresh</a></li>
+							<li><a href="#"><i class="glyphicon glyphicon-list"></i> Stories</a></li>
+							<li><a href="#"><i class="fas fa-user-friends"></i> Friends</a></li>
+							<li><a href="#"><i class="fas fa-history"></i> Memories</a></li>
+							<li><a href="#"><i class="fas fa-bookmark"></i> Saved</a></li>
+							<li><a href="#"><i class="fas fa-users"></i> Groups</a></li>										
+						</ul>
+						<ul class="list-unstyled hidden-xs" id="sidebar-footer">
+							<li>
+							 <p style="font-size: 11px;">Privacy· Terms· Advertising· <br>Ad Choices <i class="fas fa-angle-double-right"></i>· Cookies· More· Facepage © 2021</p>
+							</li>
+						</ul>
+					  
+						<!-- tiny only nav-->
+					  <ul class="nav visible-xs" id="xs-menu">
+						    <li><a href="" class="text-center"><i class="glyphicon glyphicon-refresh"></i></a></li>
+							<li><a href="#" class="text-center"><i class="glyphicon glyphicon-list"></i></a></li>
+							<li><a href="#" class="text-center"><i class="fas fa-user-friends"></i></a></li>
+							<li><a href="#" class="text-center"><i class="fas fa-history"></i></a></li>
+							<li><a href="#" class="text-center"><i class="fas fa-bookmark"></i></a></li>
+							<li><a href="#" class="text-center"><i class="fas fa-users"></i></a></li>
+						
+						</ul>
+					  
+					</div>
+					<!-- /sidebar -->
+				  
+					<!-- main right col -->
+					<div class="column col-sm-10 col-xs-11" id="main">
+						
 
-{% block title %}
-Facepage
-{% endblock title %}
+					  
+						<div class="padding">
+							<div class="full col-sm-9" >
+							  
+								<!-- content -->                      
+								<div class="row">
+								  
+								 <!-- main col left --> 
+								 <div class="col-sm-5">
+								   
+									  <div class="well"> 
+										   <form class="form-horizontal" role="form">
+											<h4>What's New</h4>
+											 <div class="form-group" style="padding:14px;">
+											  <textarea class="form-control" placeholder="What's on your mind?"></textarea>
+											</div>
+											<button class="btn btn-primary pull-right" type="button">Post</button><ul class="list-inline"><li><a href=""><i class="fas fa-photo-video"></i></a></li><li><a href=""><i class="fas fa-user-tag"></i></a></li><li><a href=""><i class="glyphicon glyphicon-map-marker"></i></a></li></ul>
+										  </form>
+									  </div>
+					  
+									  <div class="panel panel-default">
+										<div class="panel-heading" ><img src="posts/img/150.jpg" class="img-circle pull-left"> <button class="pull-right"><i class="fas fa-trash-alt"></i></button>  <h4 style="font-size: 17px; font-weight: bold;">Abanoub Rafaat<br><p style="font-size: 13.5px; font-weight: lighter;">1h . <i class="fas fa-globe-americas" style="font-size: 13px;"></i></p></h4></div>
+										 <div class="panel-body">
+								
+											<p>Watching Nature keep my mind in a state of peace and inner joy</p>
+											
+											<hr>
+										   <div class="panel-thumbnail"><img src="posts/img/bg_5.jpg" class="img-responsive"></div>
+										   <div class="clearfix"></div>
+										    <hr>
+										   <form>
+										   <div class="input-group">
+											 <div class="input-group-btn">
+											 <button class="btn btn-default"><i class="fas fa-thumbs-up"></i> +1</button><button class="btn btn-default"><i class="glyphicon glyphicon-share"></i></button>
+											 </div>
+											 <input class="form-control" placeholder="Add a comment.." type="text">
+										   </div>
+										   </form>
+										   <div class="panel-heading" style="background-color: lightgrey; margin-bottom: 20px;">
+											<img src="posts/img/170.jpg" class="img-circle pull-left">
+											<button class="pull-right"><i class="fas fa-trash"></i></button> 
+											<h4 style="font-size: 15px; font-weight: bold;">Bebo Rafaat<br>
+											<p style="font-size: 13.5px; font-weight: 300;">
+											Wow amazing photo keep it up very nice
+									        </p></h4>
+										    </div>
+											<div class="panel-heading" style="background-color: lightgrey; margin-bottom: 20px;">
+												<img src="posts/img/160.jpg" class="img-circle pull-left">
+												<button class="pull-right"><i class="fas fa-trash"></i></button> 
+												<h4 style="font-size: 15px; font-weight: bold;">Andrew Emad<br>
+												<p style="font-size: 13.5px; font-weight: 300;">
+												very bad photo delete this shit
+												</p></h4>
+												</div>
+										 </div>
+									  </div>
+                                      <div class="panel panel-default">
+										<div class="panel-heading" ><img src="posts/img/180.jpg" class="img-circle pull-left"> <button class="pull-right"><i class="fas fa-trash-alt"></i></button>  <h4 style="font-size: 17px; font-weight: bold;">Outside<br><p style="font-size: 13.5px; font-weight: lighter;">2h . <i class="fas fa-globe-americas" style="font-size: 13px;"></i></p></h4></div>
+										 <div class="panel-body">
+										
+										   <div class="clearfix"></div>
+										   <p>صباح الخير علي القرفانين المتخلين عن وسائدهم لأجل مستقبل مش باينله راس من رجلين</p>
+										   
+										   <hr>
+										   <form>
+										   <div class="input-group">
+											 <div class="input-group-btn">
+											 <button class="btn btn-default"><i class="fas fa-thumbs-up"></i> +1</button><button class="btn btn-default"><i class="glyphicon glyphicon-share"></i></button>
+											 </div>
+											 <input class="form-control" placeholder="Add a comment.." type="text">
+										   </div>
+										   </form>
+										   <div class="panel-heading" style="background-color: lightgrey; margin-bottom: 20px;">
+											<img src="posts/img/190.jpg" class="img-circle pull-left">
+											<button class="pull-right"><i class="fas fa-trash"></i></button> 
+											<h4 style="font-size: 15px; font-weight: bold;">Kirollos Hany<br>
+											<p style="font-size: 13.5px; font-weight: 300;">
+											aw3a el post el gamed gedan
+									        </p></h4>
+										    </div>
+										 </div>
+									  </div>
+									  <div class="panel panel-default">
+										<div class="panel-heading" ><img src="posts/img/150.jpg" class="img-circle pull-left"> <button class="pull-right"><i class="fas fa-trash-alt"></i></button>  <h4 style="font-size: 17px; font-weight: bold;">Abanoub Rafaat<br><p style="font-size: 13.5px; font-weight: lighter;">July 5, 2021 at 1:20 AM . <i class="fas fa-user-friends" style="font-size: 13px;"></i></p></h4></div>
+										 <div class="panel-body">
+											<p>t3ban ya captin</p>
+										   
+											<hr>
+										   <div class="panel-thumbnail"><img src="posts/img/bg_4.jpg" class="img-responsive"></div>
+										   <div class="clearfix"></div>
+										   <hr>
+										   <form>
+										   <div class="input-group">
+											 <div class="input-group-btn">
+											 <button class="btn btn-default"><i class="fas fa-thumbs-up"></i> +6</button><button class="btn btn-default"><i class="glyphicon glyphicon-share"></i></button>
+											 </div>
+											 <input class="form-control" placeholder="Add a comment.." type="text">
+										   </div>
+										   </form>
+										   <div class="panel-heading" style="background-color: lightgrey; margin-bottom: 20px;">
+											<img src="posts/img/170.jpg" class="img-circle pull-left">
+											<button class="pull-right"><i class="fas fa-trash"></i></button> 
+											<h4 style="font-size: 15px; font-weight: bold;">Bebo Rafaat<br>
+											<p style="font-size: 13.5px; font-weight: 300;">
+											Wow amazing photo keep it up very nice
+											eeeeeeeeeeeeeeeeeeeee
+											eeeeeeeeeeeeeeeeeeeeeeeeeeeee
+											eeeeeeeeeeeeeeeeeeeeeeeeeee 
+									        </p></h4>
+										    </div>
+											<div class="panel-heading" style="background-color: lightgrey; margin-bottom: 20px;">
+												<img src="posts/img/160.jpg" class="img-circle pull-left">
+												<button class="pull-right"><i class="fas fa-trash"></i></button> 
+												<h4 style="font-size: 15px; font-weight: bold;">Andrew Emad<br>
+												<p style="font-size: 13.5px; font-weight: 300;">
+												very bad photo delete this shit 
+												werjiowejriowerjoweirjweoirjweoi
+												rjweoirjweiorjweiorjweoirwjeroiwej
+												weij wierieieieieiieieie 
+												eieiieieie iieie
+												</p></h4>
+												</div>
+										 </div>
+									  </div>
+  							     </div>
+								  
+						
+							   </div><!--/row-->
+							   <hr>
+							   <h4 class="text-center">
+								<p style="font-size: 11px;">Privacy· Terms· Advertising· Ad Choices <i class="fas fa-angle-double-right"></i>· Cookies· More· Facepage © 2021</p>
+							   </h4>
+							   <hr>
+						
+								
+							  
+							</div><!-- /col-9 -->
+						</div><!-- /padding -->
+					</div>
+					<!-- /main -->
+				  
+				</div>
+			</div>
+		</div>
 
-{% block header %}
-    <h3>Hello: <a href="{% url 'profile' name %}">{{name}}</a></h3>
-    <a href="{% url 'posts:home'%}">Home</a>
-    <form action="{% url 'users:logout' %}" method="POST"> {% csrf_token %}
-        <button type="submit">Logout</button>
-    </form>
-    <form action="{% url 'posts:search' %}" method="GET">
-        <input type="text" name="search-text" id="search_content">
-        <input type="submit" value="Search">
-    </form>
-    <div><a href="{% url 'users:settings' %}">Settings</a></div>
-    <div><a href="{% url 'messenger:empty-chat' %}">Chat</a></div>
-{% endblock header %}
-{% block content %}
-    {% if my_last_post %}
-    <div>
-        <p><strong>Your latest post:</strong></p>
-        <p>{{ my_last_post.post_content }}</p>
-        <p>{{ my_last_post.create_date }}</p>
-        <p>Likes: {{ my_last_post.likes }}</p>
-        <p>Comments: {{my_last_post.comments}}</p>
-    </div>
-    {% else %}
-    <div>
-        <p>You dont have any posts</p>
-    </div>
-    {% endif %}
-    <form action="{% url 'posts:add-post' %}" method="post"> {% csrf_token %}
-        <textarea name="new-post-content" id="" cols="30" rows="10"></textarea>
-        <input type="submit" value="Add post">
-    </form>
-    <br>
-    <p><strong>Latest from friends</strong></p>
-    {% for post_query in friends_posts %}
-        {% for post in post_query %}
-            <div>
-                <p><a href="{% url 'profile' post.creator %}">{{ post.creator }}</a></p>
-                <p>{{ post.post_content }}</p>
-                <p>{{ post.create_date }}</p>
-                <p>Likes: {{ post.likes }}</p>
-                <p>Comments: {{post.comments}}</p>
-                {% if post.comments != 0%}
-                <div>
-                    <h4>Comments:</h4>
-                    {% for comment in post.comment_set.all %}
-                        <p>{{comment.creator}}: {{comment.comment_content}}</p>
-                        <p>{{comment.create_date}}</p>
-                    {% endfor %}
-                </div>
-                {% endif %}
-                <div class="actions">
-                    <div class="like">
-                        {% if post in liked_posts %}
-                            <p>You liked this post</p>
-                        {% else %}
-                        <form action="{% url 'posts:like-post' post.id %}" method="GET"> {%csrf_token%}
-                            <input type="submit" value="Like">
-                        </form>
-                        {% endif %}
-                    </div>
-                    <div class="comment">
-                        <form action="{% url 'posts:add-comment' post.id %}" method='GET'> {%csrf_token%}
-                            <input type="text" name="comment-content">
-                            <input type="submit" value="Add comment">
-                        </form>
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
-    {% endfor %}
-{% endblock content %}
+
+		<!--post modal-->
+		<div id="postModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+		  <div class="modal-dialog">
+		  <div class="modal-content">
+			  <div class="modal-header">
+				  <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fas fa-times-circle"></i></button>
+					Create Post
+			  </div>
+			  <div class="modal-body">
+				  <form class="form center-block">
+					<div class="form-group">
+					  <textarea class="form-control input-lg" autofocus="" placeholder="What's on your mind?"></textarea>
+					</div>
+				  </form>
+			  </div>
+			  <div class="modal-footer">
+				  <div>
+				  <button class="btn btn-primary btn-sm" data-dismiss="modal" aria-hidden="true">Post</button>
+					<ul class="pull-left list-inline"><li><a href=""><i class="fas fa-photo-video"></i></a></li><li><a href=""><i class="fas fa-user-tag"></i></a></li><li><a href=""><i class="glyphicon glyphicon-map-marker"></i></a></li></ul>
+				  </div>	
+			  </div>
+		  </div>
+		  </div>
+		</div>
+        
+        <script type="text/javascript" src="{% static 'posts/js/jquery.js'%}"></script>
+        <script type="text/javascript" src="{% static 'posts/js/bootstrap.js'%}"></script>
+        <script type="text/javascript">
+        $(document).ready(function() {
+			$('[data-toggle=offcanvas]').click(function() {
+				$(this).toggleClass('visible-xs text-center');
+				$(this).find('i').toggleClass('glyphicon-chevron-right glyphicon-chevron-left');
+				$('.row-offcanvas').toggleClass('active');
+				$('#lg-menu').toggleClass('hidden-xs').toggleClass('visible-xs');
+				$('#xs-menu').toggleClass('visible-xs').toggleClass('hidden-xs');
+				$('#btnShow').toggle();
+			});
+        });
+        </script>
+</body></html>
