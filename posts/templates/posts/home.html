@@ -1,4 +1,5 @@
 {% load static %}
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -18,56 +19,56 @@
         
         <div class="wrapper">
 			<div class="box">
-										<!-- top nav -->
-										<div class="navbar navbar-blue navbar-static-top" style="width: 100%;">  
-											<div class="navbar-header">
-											  <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".navbar-collapse">
-												<span class="sr-only">Toggle</span>
-												<span class="icon-bar"></span>
-												<span class="icon-bar"></span>
-												<span class="icon-bar"></span>
-											  </button>
-											  <a href="" class="navbar-brand logo">F</a>
-											</div>
-											<nav class="collapse navbar-collapse" role="navigation">
-											<form class="navbar-form navbar-left" action="POST">
-												<div class="input-group input-group-sm" style="max-width:360px;">
-												  <input class="form-control" placeholder="Search" name="srch-term" id="srch-term" type="text">
-												  <div class="input-group-btn">
-													<button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
-												  </div>
-												</div>
-											</form>
-											<ul class="nav navbar-nav">
-											  <li>
-												<a href="#"><i class="glyphicon glyphicon-home"></i> Home</a>
-											  </li>
-											  <li>
-												<a href="#postModal" role="button" data-toggle="modal"><i class="glyphicon glyphicon-plus"></i> Post</a>
-											  </li>
-											  <li>
-												<a href="{% url 'messenger:empty-chat' %}"><i class="fab fa-rocketchat"></i> Chat</a>
-											  </li>
-											  <li>
-												<a href="{% url 'profile' username=name %}"><img src="{{profile_pic}}" class="img-circle pull-left" style="width: 40px;height: 40px; margin-top: -10px;"><span class="badge">{{name}}</span></a>
-											  </li>
-											</ul>
-											<ul class="nav navbar-nav navbar-right">
-											  <li class="dropdown">
-												<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fas fa-caret-square-down fa-lg"></i></a>
-												<ul class="dropdown-menu">
-												  <li><a href="{% url 'users:settings'%}"><i class="fas fa-cog"></i> Settings</a></li>
-												  <li><a href="{% url 'messenger:empty-chat'%}"><i class="fab fa-rocketchat"></i> Chat</a></li>
-												  <li><a href="{% url 'users:logout' %}"><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
-												  <!--<li><a href="">More</a></li>
-												  <li><a href="">More</a></li>
-												  <li><a href="">More</a></li> -->
-												</ul>
-											  </li>
-											</ul>
-											</nav>
-										</div>
-										<!-- /top nav -->
+				<!-- top nav -->
+				<div class="navbar navbar-blue navbar-static-top" style="width: 100%;">  
+					<div class="navbar-header">
+						<button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".navbar-collapse">
+						<span class="sr-only">Toggle</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						</button>
+						<a href="" class="navbar-brand logo">F</a>
+					</div>
+					<nav class="collapse navbar-collapse" role="navigation">
+					<form class="navbar-form navbar-left" method="GET" action="{% url 'posts:search' %}">
+						<div class="input-group input-group-sm" style="max-width:360px;">
+							<input class="form-control" placeholder="Search" name="search-text" id="srch-term" type="text">
+							<div class="input-group-btn">
+							<button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+							</div>
+						</div>
+					</form>
+					<ul class="nav navbar-nav">
+						<li>
+						<a href="#"><i class="glyphicon glyphicon-home"></i> Home</a>
+						</li>
+						<li>
+						<a href="#postModal" role="button" data-toggle="modal"><i class="glyphicon glyphicon-plus"></i> Post</a>
+						</li>
+						<li>
+						<a href="{% url 'messenger:empty-chat' %}"><i class="fab fa-rocketchat"></i> Chat</a>
+						</li>
+						<li>
+						<a href="{% url 'profile' username=name %}"><img src="{{profile_pic}}" class="img-circle pull-left" style="width: 40px;height: 40px; margin-top: -10px;"><span class="badge">{{name}}</span></a>
+						</li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fas fa-caret-square-down fa-lg"></i></a>
+						<ul class="dropdown-menu">
+							<li><a href="{% url 'users:settings'%}"><i class="fas fa-cog"></i> Settings</a></li>
+							<li><a href="{% url 'messenger:empty-chat'%}"><i class="fab fa-rocketchat"></i> Chat</a></li>
+							<li><a href="{% url 'users:logout' %}"><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
+							<!--<li><a href="">More</a></li>
+							<li><a href="">More</a></li>
+							<li><a href="">More</a></li> -->
+						</ul>
+						</li>
+					</ul>
+					</nav>
+				</div>
+				<!-- /top nav -->
 				<div class="row row-offcanvas row-offcanvas-left">
 					
 					<!-- sidebar -->
@@ -107,9 +108,6 @@
 				  
 					<!-- main right col -->
 					<div class="column col-sm-10 col-xs-11" id="main">
-						
-
-					  
 						<div class="padding">
 							<div class="full col-sm-9" >
 							  
@@ -132,13 +130,10 @@
         								{% for post in post_query %}
 											<div class="panel panel-default">
 												<div class="panel-heading" >
-													<img src="posts/img/150.jpg" class="img-circle pull-left">
-													<button class="pull-right">
-														<i class="fas fa-trash-alt"></i>
-													</button> 
+													<img src="{{ post.creator.profile.profile_picture.url }}" class="img-circle pull-left">
 													<h4 style="font-size: 17px; font-weight: bold;"><a href="{% url 'profile' post.creator %}">{{ post.creator }}</a>
 														<br>
-														<p style="font-size: 13.5px; font-weight: lighter;">{{ post.create_date }}<i class="fas fa-globe-americas" style="font-size: 13px;"></i></p>
+														<p style="font-size: 13.5px; font-weight: lighter;">{{ post.create_date|naturaltime }} <i class="fas fa-globe-americas" style="font-size: 13px;"></i></p>
 													</h4>
 												</div>
 												<div class="panel-body">
@@ -150,11 +145,11 @@
 													<div class="input-group-btn">
 														{% if post in liked_posts %}
 															<form action="{% url 'posts:unlike-post' post.id %}" method="GET"> {%csrf_token%}
-																<button class="btn btn-default"><i class="fas fa-thumbs-down"></i> {{ post.likes }}</button><button class="btn btn-default"><i class="glyphicon glyphicon-share"></i></button>
+																<button class="btn btn-default"><i class="fas fa-thumbs-down"></i> {{ post.likes }}</button>
 															</form>
 														{% else %}
 														<form action="{% url 'posts:like-post' post.id %}" method="GET"> {%csrf_token%}
-															<button class="btn btn-default"><i class="fas fa-thumbs-up"></i> {{ post.likes }}</button><button class="btn btn-default"><i class="glyphicon glyphicon-share"></i></button>
+															<button class="btn btn-default"><i class="fas fa-thumbs-up"></i> {{ post.likes }}</button>
 														</form>
 														{% endif%}
 													</div>
@@ -165,8 +160,7 @@
 												
 												{% for comment in post.comment_set.all %}
 												<div class="panel-heading" style="background-color: lightgrey; margin-bottom: 20px;">
-													<img src="posts/img/170.jpg" class="img-circle pull-left">
-													<button class="pull-right"><i class="fas fa-trash"></i></button> 
+													<img src="{{comment.creator.profile.profile_picture.url}}" class="img-circle pull-left">
 													<h4 style="font-size: 15px; font-weight: bold;">{{comment.creator}}<br>
 													<p style="font-size: 13.5px; font-weight: 300;">
 														{{comment.comment_content}}
@@ -209,18 +203,19 @@
 					Create Post
 			  </div>
 			  <div class="modal-body">
-				  <form class="form center-block">
+				  <form class="form center-block" action="{% url 'posts:add-post' %}" method="post"> {%csrf_token%}
 					<div class="form-group">
 					  <textarea class="form-control input-lg" autofocus="" placeholder="What's on your mind?"></textarea>
 					</div>
+					<div class="modal-footer">
+						<div>
+					  <!--this button for pop-up post window -->  <input class="btn btn-primary btn-sm" data-dismiss="modal" type="submit" aria-hidden="true" value="Post">
+						  <ul class="pull-left list-inline"><li><a href=""><i class="fas fa-photo-video"></i></a></li><li><a href=""><i class="fas fa-user-tag"></i></a></li><li><a href=""><i class="glyphicon glyphicon-map-marker"></i></a></li></ul>
+						</div>	
+					</div>
 				  </form>
 			  </div>
-			  <div class="modal-footer">
-				  <div>
-				<!--this button for pop-up post window -->  <button class="btn btn-primary btn-sm" data-dismiss="modal" aria-hidden="true">Post</button>
-					<ul class="pull-left list-inline"><li><a href=""><i class="fas fa-photo-video"></i></a></li><li><a href=""><i class="fas fa-user-tag"></i></a></li><li><a href=""><i class="glyphicon glyphicon-map-marker"></i></a></li></ul>
-				  </div>	
-			  </div>
+			  
 		  </div>
 		  </div>
 		</div>

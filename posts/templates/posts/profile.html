@@ -1,5 +1,5 @@
 {% extends 'posts/base.html' %}
-
+{% load humanize %}
 {% block title %}
     {{name}}
 {% endblock %}
@@ -24,7 +24,7 @@
         <div>
             <p><a href="{% url 'profile' post.creator %}">{{ post.creator }}</a></p>
             <p>{{ post.post_content }}</p>
-            <p>{{ post.create_date }}</p>
+            <p>{{ post.create_date|naturaltime }}</p>
             <p>Likes: {{ post.likes }}</p>
             <p>Comments: {{post.comments}}</p>
             {% if request.user.username == name %}
@@ -36,7 +36,7 @@
                 <h4>Comments:</h4>
                 {% for comment in post.comment_set.all %}
                     <p>{{comment.creator}}: {{comment.comment_content}}</p>
-                    <p>{{comment.create_date}}</p>
+                    <p>{{comment.create_date|naturaltime}}</p>
                 {% endfor %}
             </div>
             {% endif %}
