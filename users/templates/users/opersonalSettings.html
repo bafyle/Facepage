@@ -13,7 +13,7 @@
         Or a new password with your new data if you want to change it
     </p>
     <div>
-        <form action="{% url 'users:settings' %}" method="post"> {%csrf_token%}
+        <form action="{% url 'users:personal-settings' %}" method="post"> {%csrf_token%}
             <fieldset>
                 <legend>Settings</legend>
                 <p>
@@ -43,7 +43,7 @@
     <div class="bio">
         <fieldset>
             <legend>Bio and profile picture</legend>
-            <form action="{% url 'users:change-bio' %}" method="POST" enctype="multipart/form-data"> {%csrf_token%}
+            <form action="{% url 'users:personal-settings' %}" method="POST" enctype="multipart/form-data"> {%csrf_token%}
                 {{bio_form.as_p}}
                 <input type="submit" value="Save">
             </form>

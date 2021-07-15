@@ -100,32 +100,18 @@ def accountSettings(request):
                     messages.success(request, "password has changed, you need to login again")
                 else:
                     messages.error(request, "password must have a at least 1 uppercase letter and it cannot be entirely numeric")
-                    return redirect('users:settings')
+                    return redirect('users:account-settings')
             return redirect('users:index')
         else:
-            default_values_for_form = {
-                'bio': request.user.profile.bio,
-                'first_name': request.user.first_name,
-                'last_name': request.user.last_name,
-                'phone_number': request.user.profile.phone_number,
-                'gender': request.user.profile.gender,
-            }
-            profile_details = ChangePictureBioForm(default_values_for_form)
-            return render(request, 'users/settings.html', {'profile_pic': request.user.profile.profile_picture.url,'username':request.user.username, 'email': request.user.email, 'bio_form': profile_details})
+            return render(request, 'users/accountSettings.html', {'profile_pic': request.user.profile.profile_picture.url,'username':request.user.username, 'email': request.user.email})
     else:
         messages.error(request, "you must login first")
         return redirect('users:index')
 
-def changeBioAndProfilePicture(request):
-    """
-    This function is for changing the unnecessary data for the account like first and last name, 
-    profile picture and bio
-    """
+def personalSettings(request):
     if request.user.is_authenticated:
         if request.method == "POST":
             bioForm = ChangePictureBioForm(request.POST, request.FILES)
-            for key in bioForm.data:
-                print(key + " " + bioForm.data[key])
             if bioForm.is_valid():
                 if bioForm.cleaned_data['profile_picture'] != 'profile_pics/default.jpg':
                     request.user.profile.profile_picture = bioForm.cleaned_data['profile_picture']
@@ -134,28 +120,26 @@ def changeBioAndProfilePicture(request):
                 request.user.last_name = bioForm.cleaned_data['last_name']
                 request.user.profile.phone_number = bioForm.cleaned_data['phone_number']
                 request.user.profile.gender = bioForm.cleaned_data['gender']
+                request.user.profile.birthday = bioForm.cleaned_data['birthday']
                 request.user.profile.save()
                 request.user.save()
                 messages.success(request, "changes saved")
             else:
                 messages.error(request, "invalid data has been entered")
-        return redirect('users:settings')
+        else:
+            default_values_for_form = {
+                'bio': request.user.profile.bio,
+                'first_name': request.user.first_name,
+                'last_name': request.user.last_name,
+                'phone_number': request.user.profile.phone_number,
+                'gender': request.user.profile.gender,
+                'birthday': request.user.profile.birthday,
+            }
+            bioForm = ChangePictureBioForm(default_values_for_form)
+        return render(request, 'users/personalSettings.html', {'profile_pic': request.user.profile.profile_picture.url,'username':request.user.username, 'email': request.user.email, 'bio_form': bioForm})
     else:
         messages.error(request, "you must login first")
         return redirect('users:index')
-
-
-def personalSettings(request):
-    default_values_for_form = {
-        'bio': request.user.profile.bio,
-        'first_name': request.user.first_name,
-        'last_name': request.user.last_name,
-        'phone_number': request.user.profile.phone_number,
-        'gender': request.user.profile.gender,
-    }
-    profile_details = ChangePictureBioForm(default_values_for_form)
-    return render(request, 'users/settingPersonal.html', {'profile_pic': request.user.profile.profile_picture.url,'username':request.user.username, 'email': request.user.email, 'bio_form': profile_details})
-
 
 def deleteMyProfilePicture(request):
     """
@@ -183,7 +167,7 @@ def deleteMyProfilePicture(request):
         new_profile.save()
         request.user.save()
         messages.success(request, "Profile picture deleted")
-        return redirect('users:settings')
+        return redirect('users:personal-settings')
     else:
         messages.error(request, "you must login first")
         return redirect('users:index')

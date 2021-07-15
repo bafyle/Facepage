@@ -80,6 +80,9 @@ def profile(request, username):
         else:
             context['last_name'] = ''
 
+        context['myName'] = request.user.username
+        context['myProfilePictureURL'] = request.user.profile.profile_picture.url
+
         return render(request, 'posts/profile.html', context)
     else:
         messages.error(request, "You need to login first to view this profile")
