@@ -28,7 +28,7 @@
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 						</button>
-						<a href="" class="navbar-brand logo">F</a>
+						<a href="{% url 'users:index' %}" class="navbar-brand logo">F</a>
 					</div>
 					<nav class="collapse navbar-collapse" role="navigation">
 					<form class="navbar-form navbar-left" method="GET" action="{% url 'posts:search' %}">
@@ -47,7 +47,7 @@
 						<a href="{% url 'messenger:empty-chat' %}"><i class="fab fa-rocketchat"></i> Chat</a>
 						</li>
 						<li>
-						<a href="{% url 'profile' username=myName %}"><img src="{{myProfilePictureURL}}" class="img-circle pull-left" style="width: 40px;height: 40px; margin-top: -10px;"><span class="badge">{{myName}}</span></a>
+						<a href="{% url 'profile' my_username %}"><img src="{{myProfilePicture.url}}" class="img-circle pull-left" style="width: 40px;height: 40px; margin-top: -10px;"><span class="badge">{{my_username}}</span></a>
 						</li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
@@ -116,13 +116,14 @@
 										</div>
 										<div class="avatar">
 											<img alt="" src="{{profile_pic.url}}">		
-											<!-- <button style="margin-right: -40px; margin-left: -4px; display: inline-block;"><i class="fas fa-camera"></i></button>									 -->
+											<!-- <button style="margin-right: -40px; margin-left: -4px; display: inline-block;"><i class="fas fa-camera"></i></button>-->
 										</div>
 										
 										<div class="info">
 											<div class="title">
-												<a target="" href="{%url 'profile' username=name %}">{{name}}</a>
+												<a href="{%url 'profile' profile_username %}">{{profile_username}}</a>
 											</div>
+											<div class="title">{{first_name}} {{last_name}}</div>
 											<div class="desc">{{bio}}</div>
 										</div>
 								

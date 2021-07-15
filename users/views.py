@@ -79,7 +79,7 @@ def accountSettings(request):
         if request.method == "POST":
             if request.POST['password1'] != request.POST['password2']:
                 messages.error(request, "Passwords doesn't match")
-                return redirect('users:settings')
+                return redirect('users:account-settings')
             else:
                 new_password = request.POST['password1']
                 password_security = 0
@@ -103,7 +103,7 @@ def accountSettings(request):
                     return redirect('users:account-settings')
             return redirect('users:index')
         else:
-            return render(request, 'users/accountSettings.html', {'profile_pic': request.user.profile.profile_picture.url,'username':request.user.username, 'email': request.user.email})
+            return render(request, 'users/newAccountSettings.html', {'profile_pic': request.user.profile.profile_picture.url,'username':request.user.username, 'email': request.user.email})
     else:
         messages.error(request, "you must login first")
         return redirect('users:index')
@@ -115,6 +115,8 @@ def personalSettings(request):
             if bioForm.is_valid():
                 if bioForm.cleaned_data['profile_picture'] != 'profile_pics/default.jpg':
                     request.user.profile.profile_picture = bioForm.cleaned_data['profile_picture']
+                if bioForm.cleaned_data['profile_cover'] != 'profile_covers/default_cover.jpg':
+                    request.user.profile.profile_cover = bioForm.cleaned_data['profile_cover']
                 request.user.profile.bio = bioForm.cleaned_data['bio']
                 request.user.first_name = bioForm.cleaned_data['first_name']
                 request.user.last_name = bioForm.cleaned_data['last_name']
@@ -136,7 +138,7 @@ def personalSettings(request):
                 'birthday': request.user.profile.birthday,
             }
             bioForm = ChangePictureBioForm(default_values_for_form)
-        return render(request, 'users/personalSettings.html', {'profile_pic': request.user.profile.profile_picture.url,'username':request.user.username, 'email': request.user.email, 'bio_form': bioForm})
+        return render(request, 'users/newPersonalSettings.html', {'profile_pic': request.user.profile.profile_picture.url,'username':request.user.username, 'email': request.user.email, 'bio_form': bioForm})
     else:
         messages.error(request, "you must login first")
         return redirect('users:index')
@@ -153,7 +155,7 @@ def deleteMyProfilePicture(request):
             deletePhoto(old_image)
         else:
             messages.error(request, "you don't have a profile picture to delete")
-            return redirect('users:settings')
+            return redirect('users:personal-settings')
         old_profile = request.user.profile
         new_profile = Profile(
             bio=old_profile.bio,
@@ -161,6 +163,7 @@ def deleteMyProfilePicture(request):
             verified=old_profile.verified,
             birthday=old_profile.birthday,
             gender=old_profile.gender,
+            profile_cover=old_profile.profile_cover,
         )
         old_profile.delete()
         new_profile.user = request.user
@@ -208,18 +211,17 @@ def deleteAccount(request):
 
 def sendEmail(request, user):
     current_site = get_current_site(request)
-    mail_subject = 'Activate your blog account.'
+    mail_subject = 'Activate your Facepage account.'
     message = render_to_string('users/acc_activate.html', {
         'user': user,
         'domain': current_site.domain,
         'uid':urlsafe_base64_encode(force_bytes(user.pk)),
         'token':account_activation_token.make_token(user),
     })
-    to_email = user.email
     email = EmailMessage(
             mail_subject,
             message,
-            to=[to_email],
+            to=[user.email],
     )
     email.send()
 

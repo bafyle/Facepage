@@ -12,10 +12,9 @@ class ChangePictureBioForm(forms.ModelForm):
     last_name = forms.CharField(max_length=150, label='Last name', required=False)
     class Meta:
         model = Profile
-        fields = ['bio', 'profile_picture', 'phone_number', 'gender', 'birthday']
+        fields = ['bio', 'profile_picture', 'profile_cover', 'phone_number', 'gender', 'birthday']
         widgets = {
             'bio': forms.Textarea(),
-            'birthday': forms.DateInput(format='%d/%m/%Y'),
         }
 
 class RegisterForm(UserCreationForm):

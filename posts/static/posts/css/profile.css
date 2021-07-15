@@ -314,7 +314,7 @@ small.text-muted {
 }
 
 .card.hovercard .cardheader {
-  background: url("../img/cover.jpg");
+  background: url("{{profile_cover.url}}");
   background-size: cover;
   height: 300px;
 }

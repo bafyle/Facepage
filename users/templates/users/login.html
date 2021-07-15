@@ -32,12 +32,12 @@
 	
 	<div class="limiter">
 		{% if messages %}
-		{% for message in messages %}
-			<div class="alert alert-{{message.tags}}" style="display:flex; text-align: center; justify-content: center; font-weight: bold; color: red;">
-				{{ message }}
-			</div>
-		{% endfor %}
-	{% endif %}
+			{% for message in messages %}
+				<div class="alert alert-{{message.tags}}" style="display:flex; text-align: center; justify-content: center; font-weight: bold; color: red;">
+					{{ message }}
+				</div>
+			{% endfor %}
+		{% endif %}
 		<div class="container-login100">
 			<div class="wrap-login100 p-l-55 p-r-55 p-t-65 p-b-50">
 				<form class="login100-form validate-form" action="{% url 'users:login' %}" method="POST"> {%csrf_token%}

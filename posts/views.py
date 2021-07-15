@@ -65,10 +65,11 @@ def profile(request, username):
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
         
-        context['name'] = username
+        context['profile_username'] = username
         context['page_obj'] = page_obj
         context['liked_posts'] = liked_posts
         context['profile_pic'] = user.profile.profile_picture
+        context['profile_cover'] = user.profile.profile_cover
         context['bio'] = user.profile.bio
         if user.first_name is not None:
             context['first_name'] = user.first_name
@@ -80,8 +81,8 @@ def profile(request, username):
         else:
             context['last_name'] = ''
 
-        context['myName'] = request.user.username
-        context['myProfilePictureURL'] = request.user.profile.profile_picture.url
+        context['my_username'] = request.user.username
+        context['myProfilePicture'] = request.user.profile.profile_picture
 
         return render(request, 'posts/profile.html', context)
     else:
