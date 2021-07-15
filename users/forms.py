@@ -13,6 +13,9 @@ class ChangePictureBioForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['bio', 'profile_picture', 'phone_number', 'gender']
+        widgets = {
+            'bio': forms.Textarea(),
+        }
 
 class RegisterForm(UserCreationForm):
     birthday = forms.DateField(widget=forms.DateInput())

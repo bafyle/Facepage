@@ -111,7 +111,7 @@ def accountSettings(request):
                 'gender': request.user.profile.gender,
             }
             profile_details = ChangePictureBioForm(default_values_for_form)
-            return render(request, 'users/settings.html', {'username':request.user.username, 'email': request.user.email, 'bio_form': profile_details})
+            return render(request, 'users/settings.html', {'profile_pic': request.user.profile.profile_picture.url,'username':request.user.username, 'email': request.user.email, 'bio_form': profile_details})
     else:
         messages.error(request, "you must login first")
         return redirect('users:index')
@@ -124,6 +124,8 @@ def changeBioAndProfilePicture(request):
     if request.user.is_authenticated:
         if request.method == "POST":
             bioForm = ChangePictureBioForm(request.POST, request.FILES)
+            for key in bioForm.data:
+                print(key + " " + bioForm.data[key])
             if bioForm.is_valid():
                 if bioForm.cleaned_data['profile_picture'] != 'profile_pics/default.jpg':
                     request.user.profile.profile_picture = bioForm.cleaned_data['profile_picture']
