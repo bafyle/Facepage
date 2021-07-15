@@ -13,5 +13,7 @@ urlpatterns = [
     path(r'delete-profile-picture/', deleteMyProfilePicture, name='delete-profile-picture'),
     path(r'verification/', verifyEmailView, name='verification-sent'),
     path(r'activate/<uidb64>/<token>/', activate, name='activate'),
+    path(r'personalsettings/', personalSettings, name='personal-settings'),
+
     
 ]

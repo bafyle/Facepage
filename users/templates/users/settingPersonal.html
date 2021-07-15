@@ -59,12 +59,7 @@
 			margin: 2px 22px 0 0;
 			}
 		
-			[type="date"]::-webkit-calendar-picker-indicator {
-			right: 0;
-			z-index: 2;
-			opacity: 0;
-			cursor: pointer;
-			}
+	
 			.btn-block {
 			margin-top: 20px;
 			text-align: center;
@@ -185,37 +180,52 @@
 							<div class="full col-sm-9" >
 
 								<div class="testbox">
-									<form action="{% url 'users:settings' %}" method="post"> {%csrf_token%}
+									<form action="{% url 'users:change-bio' %}" method="POST" enctype="multipart/form-data"> {%csrf_token%}
 									  <h1>Settings</h1>
 									  <br><hr>
 
 									  <div class="item">
-										<p>Account Information</p>
-										<div class="name-item">
-										  <input id="email" value="{{email}}" type="email" name="email" placeholder="Email" />
-										  <input id="username" value="{{username}}" type="username" name="username" placeholder="Username" disabled/>
-										  <input id="password1" type="password" name="password1" placeholder="Password" required/>
-										  <input id="password2" type="password" name="password2" placeholder="Confirm Password" required/>					
-										</div>
-										<button class="buttonS" type="submit" >Save</button>								
-									  </div>
-									  <hr><br>
+											{{bio_form.non_field_errors}}
+											<p>Personal Information</p>
+											<div class="name-item">
+												<input id="{{bio_form.first_name.id_for_label}}" value="{{bio_form.first_name.value}}" type="text" class="name-item" name="first_name" placeholder="First Name"/>
+												<input id="{{bio_form.last_name.id_for_label}}" value="{{bio_form.last_name.value}}" type="text" class="name-item" name="last_name" placeholder="Last Name"/>	
+                                                <input id="{{bio_form.phone_number.id_for_label}}" value="{{bio_form.phone_number.value}}" type="text" name="phone_number" placeholder="Mobile Number" />
+                                                <input type="date" class="name-item" name="Birthday" placeholder="Birthday" />					
+											</div>
+                                      </div>
+											<div class="item">										
+											<label for="{{bio_form.gender.id_for_label}}">Gender</label>
+											<select id="{{bio_form.gender.id_for_label}}"style="background-color: #fff;" name="gender">
+												<option value="M">Male</option>
+												<option value="F">Female</option>
+												<option value="O">Other</option>
+											</select>
+                                            </div>
+											<div class="item">
+												<p>Profile Picture</p>
+												<input id="{{bio_form.profile_picuture.id_for_label}}" type="file" accept="image/*" name="profile_picture"/>
+												{% if request.user.profile.profile_picture.url == '/media/profile_pics/default.jpg' %}
+													<p>You don't have a profile picture to delete</p>
+												{% else %}
+													<a href="{% url 'users:delete-profile-picture' %}">Delete current profile picture</a>
+													<!-- <form action="{% url 'users:delete-profile-picture' %}" method="get">
+														<button class="pull-right" type="submit" style="color: black;display: inline-block; margin-right: 10px;"><i class="fas fa-minus-circle" style="font-size: 10px;"> Remove Photo</i></button> 
+													</form> -->
+												{% endif %}
+												
+											</div> 
+											
+											<br>
+											<div class="item">
+												<p>Bio<br><span style="color: rgb(90, 90, 90); font-size: 13px;">Be as specific as possible</span></p>
+												<textarea id="{{bio_form.bio.id_for_label}}" name="bio" rows="2" style="resize:vertical;">{{bio_form.bio.value}}</textarea>
+											</div>
+											<button class="buttonS" type="submit" >Save</button>
+											
 									
-									
-									  <br><hr>
-									  <div class="item">
-										<div class="item">
-											<span style="color: rgb(90, 90, 90); font-size: 13px;">Read the terms and condition well before leaving</span>
-											<textarea id="{{bio_form.bio.id_for_label}}" name="bio"  disabled="true" rows="6" style="resize:none;" placeholder="This is permanent&#10When you delete your Facebook account, you won't be able to retrieve the content or information you've shared on Facebook. Your Messenger and all of your messages will also be deleted.">{{bio_form.bio.value}}</textarea>
-										</div>
-										<p>Delete Account<br><span style="color: rgb(90, 90, 90); font-size: 13px;">Think well before leaving!</span></p>
-										{% if request.user.is_superuser %}
-											<p>Can't delete a superuser account</p>
-										{% else %}
-											<p><a href="{% url 'users:delete' %}">Deleting account</a></p>
-										{% endif %}
-									  </div>
-									  <hr><br>
+											<hr><br>
+								
 
 
 									</form>
@@ -241,16 +251,16 @@
         
         <script type="text/javascript" src="{% static 'users/js/jquery.js'%}"></script>
         <script type="text/javascript" src="{% static 'users/js/bootstrap.js'%}"></script>
-		<script type="text/javascript">
-			$(document).ready(function() {
-				$('[data-toggle=offcanvas]').click(function() {
-					$(this).toggleClass('visible-xs text-center');
-					$(this).find('i').toggleClass('glyphicon-chevron-right glyphicon-chevron-left');
-					$('.row-offcanvas').toggleClass('active');
-					$('#lg-menu').toggleClass('hidden-xs').toggleClass('visible-xs');
-					$('#xs-menu').toggleClass('visible-xs').toggleClass('hidden-xs');
-					$('#btnShow').toggle();
-				});
-			});
-			</script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $('[data-toggle=offcanvas]').click(function() {
+                    $(this).toggleClass('visible-xs text-center');
+                    $(this).find('i').toggleClass('glyphicon-chevron-right glyphicon-chevron-left');
+                    $('.row-offcanvas').toggleClass('active');
+                    $('#lg-menu').toggleClass('hidden-xs').toggleClass('visible-xs');
+                    $('#xs-menu').toggleClass('visible-xs').toggleClass('hidden-xs');
+                    $('#btnShow').toggle();
+                });
+            });
+            </script>
 </body></html>

@@ -144,6 +144,19 @@ def changeBioAndProfilePicture(request):
         messages.error(request, "you must login first")
         return redirect('users:index')
 
+
+def personalSettings(request):
+    default_values_for_form = {
+        'bio': request.user.profile.bio,
+        'first_name': request.user.first_name,
+        'last_name': request.user.last_name,
+        'phone_number': request.user.profile.phone_number,
+        'gender': request.user.profile.gender,
+    }
+    profile_details = ChangePictureBioForm(default_values_for_form)
+    return render(request, 'users/settingPersonal.html', {'profile_pic': request.user.profile.profile_picture.url,'username':request.user.username, 'email': request.user.email, 'bio_form': profile_details})
+
+
 def deleteMyProfilePicture(request):
     """
     This function is for deleting the existing profile picture of the account
