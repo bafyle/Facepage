@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_text
@@ -10,6 +11,7 @@ from django.core.mail import EmailMessage
 
 from .forms import DeleteAccountForm, ChangePictureBioForm, RegisterForm
 from .models import Profile
+from .id_generator import id_generator
 from pathlib import Path
 from django.contrib.auth.models import User
 import os
@@ -56,9 +58,15 @@ def register(request):
         if form.is_valid():
             try:
                 user = form.save()
-                new_profile = Profile(user=user, birthday=form.cleaned_data['birthday'], gender=form.cleaned_data['gender'])
+                newLink = ''
+                while True:
+                    id_generated = id_generator(user, settings.ID_LENGTH)
+                    if User.objects.filter(profile__link=id_generated).count() == 0:
+                        newLink = id_generated
+                        break
+                new_profile = Profile(user=user, link=newLink, birthday=form.cleaned_data['birthday'], gender=form.cleaned_data['gender'])
                 new_profile.save()
-                sendEmail(request, user)
+                #sendEmail(request, user)
                 return redirect('users:verification-sent')
             except Exception as e:
                 user.delete()

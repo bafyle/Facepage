@@ -23,7 +23,7 @@ urlpatterns = [
     path(r'admin/', admin.site.urls, name='admin'),
     path(r'', include('users.urls'), name='users'),
     path(r'home/', include('posts.urls'), name='home'),
-    path(r'profile/<str:username>/', profile, name='profile'),
+    path(r'profile/<str:link>/', profile, name='profile'),
     path(r'messenger/', include('messenger.urls'), name='messenger'),
 
 ]

@@ -19,7 +19,7 @@
     <div id="friends-list">
         <ul>
             {% for friend in friends %}
-                <li><a href="{% url 'messenger:chat' friend %}">{{ friend }}</a></li>
+                <li><a href="{% url 'messenger:chat' friend.1 %}">{{ friend.0 }}</a></li>
             {% endfor %}
         </ul>
     </div> 
@@ -40,7 +40,7 @@
             <ul>
                 {% for message in chat %}
                     <li>
-                        <p>{{ message.sender }}: {{ message.message_content }}</p>
+                        <p>{{ message.sender.first_name }}: {{ message.message_content }}</p>
                         <small>{{ message.send_date }}</small>
                     </li>
                 {% endfor %}
@@ -48,7 +48,7 @@
         </fieldset>
     </div>
     {% if his_username %}
-        <form action="{% url 'messenger:chat' his_username %}" method="post"> {% csrf_token %}
+        <form action="{% url 'messenger:chat' his_link %}" method="post"> {% csrf_token %}
             <!-- <textarea name="chat-input" id="chat-input" cols="30" rows="10"></textarea> -->
             {{ form.as_p }}
             <input type="submit" value="Send">

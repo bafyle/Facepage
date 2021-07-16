@@ -153,3 +153,5 @@ SESSION_COOKIE_AGE = 60*60*24
 # this is needed because we don't want the user
 # to be logged out automatically for inactivity
 SESSION_SAVE_EVERY_REQUEST = True
+
+ID_LENGTH = 7

@@ -47,7 +47,7 @@
 						<a href="{% url 'messenger:empty-chat' %}"><i class="fab fa-rocketchat"></i> Chat</a>
 						</li>
 						<li>
-						<a href="{% url 'profile' username=name %}"><img src="{{profile_pic}}" class="img-circle pull-left" style="width: 40px;height: 40px; margin-top: -10px;"><span class="badge">{{name}}</span></a>
+						<a href="{% url 'profile' my_profile_link %}"><img src="{{profile_pic}}" class="img-circle pull-left" style="width: 40px;height: 40px; margin-top: -10px;"><span class="badge">{{my_name}}</span></a>
 						</li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
@@ -128,7 +128,7 @@
 											<div class="panel panel-default">
 												<div class="panel-heading" >
 													<img src="{{ post.creator.profile.profile_picture.url }}" class="img-circle pull-left">
-													<h4 style="font-size: 17px; font-weight: bold;"><a href="{% url 'profile' post.creator %}">{{ post.creator }}</a>
+													<h4 style="font-size: 17px; font-weight: bold;"><a href="{% url 'profile' post.creator.profile.link %}">{{ post.creator.first_name }} {{post.creator.last_name}}</a>
 														<br>
 														<p style="font-size: 13.5px; font-weight: lighter;">{{ post.create_date|naturaltime }} <i class="fas fa-globe-americas" style="font-size: 13px;"></i></p>
 													</h4>

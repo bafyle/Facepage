@@ -30,31 +30,33 @@ def home(request):
             my_last_post = []
         else:
             my_last_post = get_last_post.latest('create_date')
-            
+        
         context = {
             'friends_posts':friends_posts,
             'liked_posts': liked_posts,
             'my_last_post': my_last_post,
-            'name': request.user.username,
-            'profile_pic': request.user.profile.profile_picture.url
+            'my_profile_link': request.user.profile.link,
+            'profile_pic': request.user.profile.profile_picture.url,
+            'my_name': request.user.first_name + " " + request.user.last_name,
         }
-        return render(request, 'posts/home.html', context=context)
+        
+        return render(request, 'posts/home.html', context)
     else:
         messages.error(request, "you need to login first")
         return redirect('users:index')
 
-def profile(request, username):
+def profile(request, link):
     """
     Profile view, get all the posts of this user and be friend with them
     """
     if request.user.is_authenticated:
         context = dict()
-        user = get_object_or_404(User, username=username)
+        user = get_object_or_404(User, profile__link=link)
         if request.user != user:
             are_they_friends = bool(Friend.objects.filter((Q(side1=request.user) & Q(side2=user)) 
                                     | (Q(side1=user) & Q(side2=request.user))))
             context['are_they_friends'] = are_they_friends
-        profile_posts = Post.objects.filter(creator__username=username).order_by('-create_date')
+        profile_posts = Post.objects.filter(creator__profile__link=link).order_by('-create_date')
 
         likes = Like.objects.filter(liker=request.user)
         liked_posts = []
@@ -65,25 +67,17 @@ def profile(request, username):
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
         
-        context['profile_username'] = username
+        context['profile_link'] = link
         context['page_obj'] = page_obj
         context['liked_posts'] = liked_posts
         context['profile_pic'] = user.profile.profile_picture
         context['profile_cover'] = user.profile.profile_cover
+        context['profile_name'] = user.first_name + " " + user.last_name
         context['bio'] = user.profile.bio
-        if user.first_name is not None:
-            context['first_name'] = user.first_name
-        else:
-            context['first_name'] = context['name']
-        
-        if user.last_name is not None:
-            context['last_name'] = user.last_name
-        else:
-            context['last_name'] = ''
 
-        context['my_username'] = request.user.username
+        context['navbar_name'] = request.user.first_name
+        context['my_profile_link'] = request.user.profile.link
         context['myProfilePicture'] = request.user.profile.profile_picture
-
         return render(request, 'posts/profile.html', context)
     else:
         messages.error(request, "You need to login first to view this profile")
@@ -95,8 +89,13 @@ def search(request):
     """
     if request.user.is_authenticated:
         search = request.GET['search-text']
-        posts = Post.objects.filter(post_content__icontains=search)
-        users = [u.username for u in User.objects.filter(username__icontains=search)]
+        search_keywords = search.split(' ')
+        posts = []
+        users = list()
+        for keyword in search_keywords:
+            #posts.append(post for post in Post.objects.filter(post_content__icontains=keyword))
+            for user in User.objects.filter(Q(first_name__icontains=keyword) | Q(last_name__icontains=keyword)):
+                users.append([user.first_name + " "  + user.last_name, user.profile.link])
         context = {'search': search, 'posts': posts, 'users': users}
         return render(request, 'posts/search.html', context)
     else:

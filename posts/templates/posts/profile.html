@@ -47,7 +47,7 @@
 						<a href="{% url 'messenger:empty-chat' %}"><i class="fab fa-rocketchat"></i> Chat</a>
 						</li>
 						<li>
-						<a href="{% url 'profile' my_username %}"><img src="{{myProfilePicture.url}}" class="img-circle pull-left" style="width: 40px;height: 40px; margin-top: -10px;"><span class="badge">{{my_username}}</span></a>
+						<a href="{% url 'profile' my_profile_link %}"><img src="{{myProfilePicture.url}}" class="img-circle pull-left" style="width: 40px;height: 40px; margin-top: -10px;"><span class="badge">{{navbar_name}}</span></a>
 						</li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
@@ -121,9 +121,8 @@
 										
 										<div class="info">
 											<div class="title">
-												<a href="{%url 'profile' profile_username %}">{{profile_username}}</a>
+												<a href="{%url 'profile' profile_link %}">{{profile_name}}</a>
 											</div>
-											<div class="title">{{first_name}} {{last_name}}</div>
 											<div class="desc">{{bio}}</div>
 										</div>
 								
@@ -156,7 +155,7 @@
 										<div class="panel panel-default">
 										<div class="panel-heading" >
 											<img src="{{ post.creator.profile.profile_picture.url }}" class="img-circle pull-left">
-											{% if my_username == profile_username %}
+											{% if my_profile_link == profile_link %}
 												
 												<a href="{% url 'posts:delete' post.id %}"><button type="submit" class="pull-right"><i class="fas fa-trash-alt"></i></button></a>
 												
@@ -164,7 +163,7 @@
 												<a href="{% url 'posts:update' post.id %}"><button type="submit" class="pull-right"><i class="fas fa-edit"></i></button></a>
 												
 											{% endif %}
-											<h4 style="font-size: 17px; font-weight: bold;"><a href="{% url 'profile' post.creator %}">{{ post.creator }}</a><br>
+											<h4 style="font-size: 17px; font-weight: bold;"><a href="{% url 'profile' post.creator.profile.link %}">{{ post.creator.first_name }} {{post.creator.last_name}}</a><br>
 											<p style="font-size: 13.5px; font-weight: lighter;">{{ post.create_date|naturaltime }}. <i class="fas fa-globe-americas" style="font-size: 13px;"></i></p>
 										</h4>
 										</div>
