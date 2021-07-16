@@ -111,7 +111,7 @@
 							
 						
 									<div class="card hovercard">
-										<div class="cardheader">
+										<div class="cardheader" style="background: url('{{profile_cover.url}}');background-size: cover;height: 300px;">
 						
 										</div>
 										<div class="avatar">
@@ -156,7 +156,7 @@
 										<div class="panel panel-default">
 										<div class="panel-heading" >
 											<img src="{{ post.creator.profile.profile_picture.url }}" class="img-circle pull-left">
-											{% if request.user.username == name %}
+											{% if my_username == profile_username %}
 												
 												<a href="{% url 'posts:delete' post.id %}"><button type="submit" class="pull-right"><i class="fas fa-trash-alt"></i></button></a>
 												

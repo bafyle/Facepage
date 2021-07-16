@@ -313,12 +313,6 @@ small.text-muted {
   background-color: #e9eaed;
 }
 
-.card.hovercard .cardheader {
-  background: url("{{profile_cover.url}}");
-  background-size: cover;
-  height: 300px;
-}
-
 .card.hovercard .avatar {
   position: relative;
   top: -100px;
