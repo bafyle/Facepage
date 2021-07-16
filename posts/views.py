@@ -93,7 +93,9 @@ def search(request):
         posts = []
         users = list()
         for keyword in search_keywords:
-            #posts.append(post for post in Post.objects.filter(post_content__icontains=keyword))
+            
+            for post in Post.objects.filter(post_content__icontains=keyword):
+                posts.append(post)
             for user in User.objects.filter(Q(first_name__icontains=keyword) | Q(last_name__icontains=keyword)):
                 users.append([user.first_name + " "  + user.last_name, user.profile.link])
         context = {'search': search, 'posts': posts, 'users': users}

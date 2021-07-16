@@ -66,7 +66,7 @@ def register(request):
                         break
                 new_profile = Profile(user=user, link=newLink, birthday=form.cleaned_data['birthday'], gender=form.cleaned_data['gender'])
                 new_profile.save()
-                #sendEmail(request, user)
+                sendEmail(request, user)
                 return redirect('users:verification-sent')
             except Exception as e:
                 user.delete()
@@ -111,7 +111,14 @@ def accountSettings(request):
                     return redirect('users:account-settings')
             return redirect('users:index')
         else:
-            return render(request, 'users/newAccountSettings.html', {'profile_pic': request.user.profile.profile_picture.url,'username':request.user.username, 'email': request.user.email})
+            context = {
+                'profile_pic': request.user.profile.profile_picture.url,
+                'navbar_name': request.user.first_name,
+                'navbar_link': request.user.profile.link,
+                'email': request.user.email,
+                'username': request.user.username,
+            }
+            return render(request, 'users/newAccountSettings.html', context)
     else:
         messages.error(request, "you must login first")
         return redirect('users:index')
@@ -146,7 +153,15 @@ def personalSettings(request):
                 'birthday': request.user.profile.birthday,
             }
             bioForm = ChangePictureBioForm(default_values_for_form)
-        return render(request, 'users/newPersonalSettings.html', {'profile_pic': request.user.profile.profile_picture.url,'username':request.user.username, 'email': request.user.email, 'bio_form': bioForm})
+            context = {
+                'profile_pic': request.user.profile.profile_picture.url,
+                'navbar_name': request.user.first_name,
+                'navbar_link': request.user.profile.link,
+                'email': request.user.email,
+                'username': request.user.username,
+                'bio_form': bioForm,
+            }
+        return render(request, 'users/newPersonalSettings.html', context)
     else:
         messages.error(request, "you must login first")
         return redirect('users:index')
