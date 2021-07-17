@@ -35,12 +35,12 @@ def home(request):
             'friends_posts':friends_posts,
             'liked_posts': liked_posts,
             'my_last_post': my_last_post,
-            'my_profile_link': request.user.profile.link,
+            'navbar_link': request.user.profile.link,
             'profile_pic': request.user.profile.profile_picture.url,
-            'my_name': request.user.first_name + " " + request.user.last_name,
+            'navbar_name': request.user.first_name,
         }
         
-        return render(request, 'posts/home.html', context)
+        return render(request, 'pages/NewHome.html', context)
     else:
         messages.error(request, "you need to login first")
         return redirect('users:index')
@@ -67,18 +67,18 @@ def profile(request, link):
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
         
-        context['profile_link'] = link
+        context['user_profile_link'] = link
         context['page_obj'] = page_obj
         context['liked_posts'] = liked_posts
-        context['profile_pic'] = user.profile.profile_picture
-        context['profile_cover'] = user.profile.profile_cover
-        context['profile_name'] = user.first_name + " " + user.last_name
-        context['bio'] = user.profile.bio
+        context['user_profile_pic'] = user.profile.profile_picture
+        context['user_profile_cover'] = user.profile.profile_cover
+        context['user_profile_name'] = user.first_name + " " + user.last_name
+        context['user_bio'] = user.profile.bio
 
         context['navbar_name'] = request.user.first_name
-        context['my_profile_link'] = request.user.profile.link
-        context['myProfilePicture'] = request.user.profile.profile_picture
-        return render(request, 'posts/profile.html', context)
+        context['navbar_link'] = request.user.profile.link
+        context['profile_pic'] = request.user.profile.profile_picture.url
+        return render(request, 'pages/NewProfile.html', context)
     else:
         messages.error(request, "You need to login first to view this profile")
         return redirect('posts:home')
@@ -106,7 +106,7 @@ def search(request):
                 if count == len(users):
                     users.append([user.first_name + " "  + user.last_name, user.profile.link])
         context = {'search': search, 'posts': posts, 'users': users}
-        return render(request, 'posts/search.html', context)
+        return render(request, 'Pages/Search.html', context)
     else:
         messages.error(request, "You need to login first in order to do that")
         return redirect('posts:home')
@@ -135,7 +135,7 @@ def updatePost(request, post_id):
             if request.method == "POST":
                 post.post_content = request.POST['new-post-content']
                 post.save()
-            return render(request, 'posts/update.html', {'post':post})
+            return render(request, 'pages/Update.html', {'post':post})
         else:
             raise Http404
     else:

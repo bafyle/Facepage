@@ -1,0 +1,24 @@
+{% extends 'pages/BasePosts.html' %}
+
+{% block title %}
+    Update post: {{post_id}}
+{% endblock %}
+
+{% block header %}
+    <a href="{% url 'posts:home' %}">Home</a>
+{% endblock %}
+{% block content %}
+    <div class="update-post-content">
+        <form action="{% url 'posts:update' post.id %}" method="post"> {%csrf_token%}
+            <textarea name="new-post-content" id="new-post-content" cols="30" rows="10">{{post.post_content}}</textarea>
+            <input type="submit" value="Save">
+        </form>
+    </div>
+    <div class="like-comments-section">
+        <h4>Comments:</h4>
+        {% for comment in post.comment_set.all %}
+            <p>{{comment.creator}}: {{comment.comment_content}}</p>
+            <p>{{comment.create_date}}</p>
+        {% endfor %}
+    </div>
+{% endblock %}

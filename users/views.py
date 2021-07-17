@@ -24,7 +24,7 @@ def index(request):
     """
     if request.user.is_authenticated:
         return redirect('posts:home')
-    return render(request, 'users/login.html')
+    return render(request, 'pages/Login.html')
 
 def loginFunction(request):
     """
@@ -73,10 +73,10 @@ def register(request):
                 raise e
         else:
             messages.error(request, "Invalid input")
-            return render(request, 'users/register.html', {'form':form})
+            return render(request, 'pages/Register.html', {'form':form})
     else:
         form = RegisterForm()
-    return render(request, 'users/register.html', {'form':form})
+    return render(request, 'pages/Register.html', {'form':form})
 
 def accountSettings(request):
     """
@@ -118,7 +118,7 @@ def accountSettings(request):
                 'email': request.user.email,
                 'username': request.user.username,
             }
-            return render(request, 'users/newAccountSettings.html', context)
+            return render(request, 'pages/newAccountSettings.html', context)
     else:
         messages.error(request, "you must login first")
         return redirect('users:index')
@@ -161,7 +161,7 @@ def personalSettings(request):
                 'username': request.user.username,
                 'bio_form': bioForm,
             }
-        return render(request, 'users/newPersonalSettings.html', context)
+        return render(request, 'pages/newPersonalSettings.html', context)
     else:
         messages.error(request, "you must login first")
         return redirect('users:index')
@@ -223,7 +223,7 @@ def deleteAccount(request):
                     return redirect('users:delete')
             else:
                 form = DeleteAccountForm()
-            return render(request, 'users/delete.html', context={'form': form})
+            return render(request, 'pages/DeleteAccount.html', context={'form': form})
         else:
             messages.error(request, "Can not delete a superuser account")
             return redirect('posts:home')
@@ -235,7 +235,7 @@ def deleteAccount(request):
 def sendEmail(request, user):
     current_site = get_current_site(request)
     mail_subject = 'Activate your Facepage account.'
-    message = render_to_string('users/acc_activate.html', {
+    message = render_to_string('pages/AccountActivation.html', {
         'user': user,
         'domain': current_site.domain,
         'uid':urlsafe_base64_encode(force_bytes(user.pk)),
@@ -266,7 +266,7 @@ def activate(request, uidb64, token):
         return redirect('users:login')
 
 def verifyEmailView(request):
-    return render(request, 'users/verificationSent.html')
+    return render(request, 'pages/VerificationSent.html')
 
 def deletePhoto(mediaPath):
     this_file_dir = Path(__file__).resolve().parent.parent

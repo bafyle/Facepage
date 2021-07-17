@@ -57,11 +57,11 @@ def chat2(request, link:str = None):
             else:
                 Message.error(request, "Error in sending the message")
             chat_information['form'] = form
-            return render(request, 'messenger/chat.html', context=chat_information)
+            return render(request, 'pages/Chat.html', context=chat_information)
         else:
             form = SendMessageForm()
             chat_information['form'] = form
-            return render(request, 'messenger/chat.html', context=chat_information)
+            return render(request, 'pages/Chat.html', context=chat_information)
     else:
         messages.error(request, "You must login first")
         return redirect('users:index')

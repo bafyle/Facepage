@@ -1,0 +1,256 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8"> 
+        <meta charset="utf-8">
+        <title>Settings</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<link href="{% static 'pages/fonts/fontawesome-free-5.15.3-web/css/all.css'%}" rel="stylesheet">
+        <link href="{% static 'pages/css/bootstrap.css'%}" rel="stylesheet">
+        <!--[if lt IE 9]>
+          <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+        <link href="{% static 'pages/css/facebook.css'%}" rel="stylesheet">
+		<style>
+			
+			
+			.testbox {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: inherit;
+			padding: 3px;
+			}
+			
+			input, select, textarea {
+			margin-bottom: 10px;
+			border: 1px solid #ccc;
+			border-radius: 3px;
+			}
+			input {
+			width: calc(100% - 10px);
+			padding: 5px;
+			}
+			select {
+			padding: 7px 0;
+			background: transparent;
+			}
+			textarea {
+			width: calc(100% - 6px);
+			}
+			.item {
+			position: relative;
+			margin: 10px 0;
+			}
+			.item:hover p{
+			color: #095484;
+			}
+			.item:hover i{
+				color: red;
+			}
+			input:hover, select:hover, textarea:hover {
+			box-shadow: 0 0 5px 0 #095484;
+			}
+			input[type="date"]::-webkit-inner-spin-button {
+			display: none;
+			}
+			input[type="time"]::-webkit-inner-spin-button {
+			margin: 2px 22px 0 0;
+			}
+		
+			[type="date"]::-webkit-calendar-picker-indicator {
+			right: 0;
+			z-index: 2;
+			opacity: 0;
+			cursor: pointer;
+			}
+			.btn-block {
+			margin-top: 20px;
+			text-align: center;
+			}
+			.buttonS {
+			width: auto;
+			padding: 10px;
+			border: none;
+			-webkit-border-radius: 5px; 
+			-moz-border-radius: 5px; 
+			border-radius: 5px; 
+			background-color: #095484;
+			font-size: 10px;
+			color: #fff;
+			cursor: pointer;
+			}
+			.buttonS:hover {
+			background-color: #0666a3;
+			}
+			@media (min-width: 568px) {
+			.name-item, .city-item {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-between;
+			}
+			.name-item input{
+			width: calc(50% - 20px);
+			}
+
+			}
+		  </style>
+    </head>
+    
+    <body>
+        
+        <div class="wrapper">
+			<div class="box">
+				<!-- top nav -->
+				<div class="navbar navbar-blue navbar-static-top" style="width: 100%;">  
+					<div class="navbar-header">
+						<button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".navbar-collapse">
+						<span class="sr-only">Toggle</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						</button>
+						<a href="" class="navbar-brand logo">F</a>
+					</div>
+					<nav class="collapse navbar-collapse" role="navigation">
+					<form class="navbar-form navbar-left" method="GET" action="{% url 'posts:search' %}">
+						<div class="input-group input-group-sm" style="max-width:360px;">
+							<input class="form-control" placeholder="Search" name="search-text" id="srch-term" type="text">
+							<div class="input-group-btn">
+							<button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+							</div>
+						</div>
+					</form>
+					<ul class="nav navbar-nav">
+						<li>
+						<a href="{% url 'posts:home' %}"><i class="glyphicon glyphicon-home"></i> Home</a>
+						</li>
+						<li>
+						<a href="{% url 'messenger:empty-chat' %}"><i class="fab fa-rocketchat"></i> Chat</a>
+						</li>
+						<li>
+						<a href="{% url 'profile' username %}"><img src="{{profile_pic}}" class="img-circle pull-left" style="width: 40px;height: 40px; margin-top: -10px;"><span class="badge">{{username}}</span></a>
+						</li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fas fa-caret-square-down fa-lg"></i></a>
+						<ul class="dropdown-menu">
+							<li><a href="{% url 'users:account-settings'%}"><i class="fas fa-cog"></i> Settings</a></li>
+							<li><a href="{% url 'messenger:empty-chat'%}"><i class="fab fa-rocketchat"></i> Chat</a></li>
+							<li><a href="{% url 'users:logout' %}"><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
+							<!--<li><a href="">More</a></li>
+							<li><a href="">More</a></li>
+							<li><a href="">More</a></li> -->
+						</ul>
+						</li>
+					</ul>
+					</nav>
+				</div>
+				<!-- /top nav -->
+				<div class="row row-offcanvas row-offcanvas-left">
+					
+					<!-- sidebar -->
+					<div class="column col-sm-2 col-xs-1 sidebar-offcanvas" id="sidebar">
+					  
+						<ul class="nav">
+							<li><a href="#" data-toggle="offcanvas" class="visible-xs text-center"><i class="glyphicon glyphicon-chevron-right"></i></a></li>
+						</ul>
+					   
+						<ul class="nav hidden-xs" id="lg-menu">
+							<li class="active"><a href=""><i class="glyphicon glyphicon-refresh"></i> Refresh</a></li>
+							<li><a href="{% url 'users:account-settings' %}"><i class="fas fa-cog"></i> Account Information </a></li>
+							<li><a href="{% url 'users:personal-settings'%}"><i class="fas fa-user-cog"></i> Personal Information </a></li>											
+						</ul>
+						<ul class="list-unstyled hidden-xs" id="sidebar-footer">
+							<li>
+							 <p style="font-size: 11px;">Privacy· Terms· Advertising· <br>Ad Choices <i class="fas fa-angle-double-right"></i>· Cookies· More· Facepage © 2021</p>
+							</li>
+						</ul>
+					  
+						<!-- tiny only nav-->
+					  <ul class="nav visible-xs" id="xs-menu">
+						    <li><a href="" class="text-center"><i class="glyphicon glyphicon-refresh"></i></a></li>
+							<li><a href="{% url 'users:account-settings' %}" class="text-center"><i class="fas fa-cog"></i></a></li>
+							<li><a href="{% url 'users:personal-settings'%}" class="text-center"><i class="fas fa-user-cog"></i></a></li>
+						</ul>
+					  
+					</div>
+					<!-- /sidebar -->
+				  
+					<!-- main right col -->
+					<div class="column col-sm-10 col-xs-11" id="main">
+						<div class="padding">
+							<div class="full col-sm-9" >
+
+								<div class="testbox">
+									<form action="{% url 'users:account-settings' %}" method="post"> {%csrf_token%}
+									  <h1>Settings</h1>
+									  <br><hr>
+
+									  <div class="item">
+										<p>Account Information</p>
+										<div class="name-item">
+										  <input id="email" value="{{email}}" type="email" name="email" placeholder="Email" />
+										  <input id="username" value="{{username}}" type="username" name="username" placeholder="Username" disabled/>
+										  <input id="password1" type="password" name="password1" placeholder="Password" required/>
+										  <input id="password2" type="password" name="password2" placeholder="Confirm Password" required/>					
+										</div>
+										<button class="buttonS" type="submit" >Save</button>								
+									  </div>
+									  <hr><br>
+									
+									
+									  <br><hr>
+									  <div class="item">
+										
+										<p>Delete Account<br><span style="color: rgb(90, 90, 90); font-size: 13px;">Think well before leaving!</span></p>
+										{% if request.user.is_superuser %}
+											<p>Can't delete a superuser account</p>
+										{% else %}
+											<p><a href="{% url 'users:delete' %}">Deleting account</a></p>
+										{% endif %}
+										<div class="item">
+											<textarea disabled="true" rows="6" style="resize:none;" placeholder="This is permanent&#10When you delete your Facepage account, you won't be able to retrieve the content or information you've shared on Facepage. All of your messages will also be deleted."></textarea>
+										</div>
+									  </div>
+									  <hr><br>
+
+
+									</form>
+								  </div>
+							   <hr>
+							   <h4 class="text-center">
+								<p style="font-size: 11px;">Privacy· Terms· Advertising· Ad Choices <i class="fas fa-angle-double-right"></i>· Cookies· More· Facepage © 2021</p>
+							   </h4>
+							   <hr>
+						
+								
+							  
+							</div><!-- /col-9 -->
+						</div><!-- /padding -->
+					</div>
+					<!-- /main -->
+				  
+				</div>
+			</div>
+		</div>
+
+
+        
+        <script type="text/javascript" src="{% static 'pages/js/jquery.js'%}"></script>
+        <script type="text/javascript" src="{% static 'pages/js/bootstrap.js'%}"></script>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				$('[data-toggle=offcanvas]').click(function() {
+					$(this).toggleClass('visible-xs text-center');
+					$(this).find('i').toggleClass('glyphicon-chevron-right glyphicon-chevron-left');
+					$('.row-offcanvas').toggleClass('active');
+					$('#lg-menu').toggleClass('hidden-xs').toggleClass('visible-xs');
+					$('#xs-menu').toggleClass('visible-xs').toggleClass('hidden-xs');
+					$('#btnShow').toggle();
+				});
+			});
+			</script>
+</body></html>
