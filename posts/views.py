@@ -88,16 +88,23 @@ def search(request):
     Search view, get all posts and accounts that contains what a particular word
     """
     if request.user.is_authenticated:
-        search = request.GET['search-text']
+        search = str(request.GET['search-text'])
         search_keywords = search.split(' ')
+        while search_keywords.count('') > 0:
+            search_keywords.remove('')
         posts = []
         users = list()
         for keyword in search_keywords:
-            
             for post in Post.objects.filter(post_content__icontains=keyword):
-                posts.append(post)
+                if post not in posts:
+                    posts.append(post)
             for user in User.objects.filter(Q(first_name__icontains=keyword) | Q(last_name__icontains=keyword)):
-                users.append([user.first_name + " "  + user.last_name, user.profile.link])
+                count = 0
+                for L in users:
+                    if L[1] != user.profile.link:
+                        count += 1
+                if count == len(users):
+                    users.append([user.first_name + " "  + user.last_name, user.profile.link])
         context = {'search': search, 'posts': posts, 'users': users}
         return render(request, 'posts/search.html', context)
     else:

@@ -6,7 +6,7 @@ from django.conf import settings
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    link = models.CharField(unique=True, max_length=100, null=False, blank=True)
+    link = models.SlugField(unique=True, max_length=100, null=False, blank=True)
     profile_picture = models.ImageField(default='profile_pics/default.jpg', upload_to='profile_pics')
     profile_cover = models.ImageField(default='profile_covers/default_cover.jpg', upload_to='profile_covers')
     bio = models.CharField(max_length=100, blank=True)

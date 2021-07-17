@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'posts.apps.PostsConfig',
     'users.apps.UsersConfig',
     'messenger.apps.MessengerConfig',
+    'notifications.apps.NotificationsConfig',
 ]
 
 MIDDLEWARE = [

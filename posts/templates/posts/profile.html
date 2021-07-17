@@ -194,7 +194,7 @@
 											{% for comment in post.comment_set.all %}
 												<div class="panel-heading" style="background-color: lightgrey; margin-bottom: 20px;">
 													<img src="{{comment.creator.profile.profile_picture.url}}" class="img-circle pull-left">
-													<h4 style="font-size: 15px; font-weight: bold;">{{comment.creator}}<br>
+													<h4 style="font-size: 15px; font-weight: bold;">{{comment.creator.first_name}} {{comment.creator.last_name}}<br>
 													<p style="font-size: 13.5px; font-weight: 300;">
 														{{comment.comment_content}}
 													</p></h4>
