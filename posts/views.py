@@ -135,7 +135,14 @@ def updatePost(request, post_id):
             if request.method == "POST":
                 post.post_content = request.POST['new-post-content']
                 post.save()
-            return render(request, 'pages/Update.html', {'post':post})
+                messages.success(request, "Post updated successfully")
+            context = {
+                'post': post,
+                'navbar_name': request.user.first_name,
+                'navbar_link': request.user.profile.link,
+                'profile_pic': request.user.profile.profile_picture.url
+            }
+            return render(request, 'pages/NewUpdate.html', context)
         else:
             raise Http404
     else:
