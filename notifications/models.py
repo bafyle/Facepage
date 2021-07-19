@@ -9,6 +9,7 @@ class Notification(models.Model):
     content = models.CharField(max_length=200, blank=False, null=False, )
     choices = [('C', 'Comment'), ('L', 'Like'), ('F', 'Friend'), ]
     type = models.CharField(choices=choices, max_length=1, null=False, blank=False,)
+    picture = models.ImageField(default='profile_pics/default.jpg')
 
     def __str__(self):
         return f"{self.user_to} notification"
