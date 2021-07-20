@@ -17,5 +17,8 @@ class Profile(models.Model):
     choices = [('M', 'Male'), ('F', 'Female'), ('O', 'Other')]
     gender = models.CharField(choices=choices, max_length=1, default='M', null=True)
 
+    def name(self):
+        return self.user.first_name + " " + self.user.last_name
+    
     def __str__(self):
         return f"{self.user.username} Profile"

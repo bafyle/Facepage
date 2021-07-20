@@ -72,7 +72,7 @@ def profile(request, link):
         context['liked_posts'] = liked_posts
         context['user_profile_pic'] = user.profile.profile_picture
         context['user_profile_cover'] = user.profile.profile_cover
-        context['user_profile_name'] = user.first_name + " " + user.last_name
+        context['user_profile_name'] = user.profile.name()
         context['user_bio'] = user.profile.bio
 
         context['navbar_name'] = request.user.first_name
@@ -104,7 +104,7 @@ def search(request):
                     if L[1] != user.profile.link:
                         count += 1
                 if count == len(users):
-                    users.append([user.first_name + " "  + user.last_name, user.profile.link])
+                    users.append([user.profile.name(), user.profile.link])
         context = {'search': search, 'posts': posts, 'users': users}
         return render(request, 'Pages/Search.html', context)
     else:

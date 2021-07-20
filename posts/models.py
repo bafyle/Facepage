@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.fields import BLANK_CHOICE_DASH
 from django.utils import timezone
 # Create your models here.
 
@@ -40,6 +41,7 @@ class Friend(models.Model):
         return f"Friendship {self.side1.username} and {self.side2.username}"
 
 class Like(models.Model):
+
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     liker = models.ForeignKey(User, on_delete=models.CASCADE)
 

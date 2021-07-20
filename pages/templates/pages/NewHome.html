@@ -66,7 +66,7 @@ Facepage
                         <div class="panel panel-default">
                             <div class="panel-heading" >
                                 <img src="{{ post.creator.profile.profile_picture.url }}" class="img-circle pull-left">
-                                <h4 style="font-size: 17px; font-weight: bold;"><a href="{% url 'profile' post.creator.profile.link %}">{{ post.creator.first_name }} {{post.creator.last_name}}</a>
+                                <h4 style="font-size: 17px; font-weight: bold;"><a href="{% url 'profile' post.creator.profile.link %}">{{ post.creator.profile.name}}</a>
                                     <br>
                                     <p style="font-size: 13.5px; font-weight: lighter;">{{ post.create_date|naturaltime }} <i class="fas fa-globe-americas" style="font-size: 13px;"></i></p>
                                 </h4>
@@ -95,7 +95,7 @@ Facepage
                             {% for comment in post.comment_set.all %}
                             <div class="panel-heading" style="background-color: lightgrey; margin-bottom: 20px;">
                                 <img src="{{comment.creator.profile.profile_picture.url}}" class="img-circle pull-left">
-                                <h4 style="font-size: 15px; font-weight: bold;">{{comment.creator.first_name}} {{comment.creator.last_name}}<br>
+                                <h4 style="font-size: 15px; font-weight: bold;">{{ comment.creator.profile.name }}<br>
                                 <p style="font-size: 13.5px; font-weight: 300;">
                                     {{comment.comment_content}}
                                 </p></h4>
