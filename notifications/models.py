@@ -4,6 +4,9 @@ from django.contrib.auth.models import User
 
 
 class Notification(models.Model):
+    class Meta:
+        unique_together = (('route_id', 'type', 'user_from'), )
+
     user_from = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='notification_from')
     user_to = models.ForeignKey(to=User, on_delete=models.SET_NULL, related_name='notification_to', null=True)
     content = models.CharField(max_length=200, blank=False, null=False, )
@@ -12,7 +15,7 @@ class Notification(models.Model):
     type = models.CharField(choices=choices, max_length=1, null=False, blank=False,)
     picture = models.ImageField(default='profile_pics/default.jpg')
     date = models.DateTimeField(auto_now_add=True)
-    link = models.SlugField()
+    route_id = models.SlugField(default=None)
 
     def __str__(self):
-        return f"{self.user_to} notification about {self.type}"
+        return f"{self.user_to} notification"
