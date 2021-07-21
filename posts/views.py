@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.db.models import Q
 from django.core.paginator import Paginator
+from notifications.models import Notification
 
 
 def home(request):
@@ -149,6 +150,21 @@ def updatePost(request, post_id):
         messages.error(request, "You must login first")
         return redirect('users:index')
 
+def viewPost(request, post_id):
+    if request.user.is_authenticated:
+        post = get_object_or_404(Post, id=post_id)
+        context = {
+                'post': post,
+                'navbar_name': request.user.first_name,
+                'navbar_link': request.user.profile.link,
+                'profile_pic': request.user.profile.profile_picture.url,
+                'my_post': post.creator == request.user,
+            }
+        return render(request, 'pages/ViewPost.html', context)
+    else:
+        messages.error(request, "you need to login first")
+        return redirect('users:login')
+
 def deletePost(request, post_id):
     """
     This function delete a particular post by the id of that post
@@ -175,6 +191,23 @@ def likePost(request, post_id):
             new_like.save()
             post.likes = Like.objects.filter(post=post).count()
             post.save()
+
+            if request.user is not post.creator:
+                if Notification.objects.filter(user_from=request.user, user_to=post.creator, route_id=post_id).count() <= 0:
+                    notification_content = f"{request.user.first_name} {request.user.last_name} liked your post: "
+                    if len(post.post_content) > 10:
+                        notification_content += f"{post.post_content[0:10]}..."
+                    else:
+                        notification_content += f"{post.post_content}"
+                    newNotification = Notification(
+                        user_from=request.user,
+                        user_to=post.creator,
+                        content=notification_content,
+                        type='L',
+                        picture=request.user.profile.profile_picture.url,
+                        route_id=post_id
+                    )
+                    newNotification.save()
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         messages.error(request, "You must be logged in first")
@@ -214,18 +247,49 @@ def addComment(request, post_id):
         new_comment.save()
         commented_post.comments = Comment.objects.filter(post=commented_post).count()
         commented_post.save()
+        if request.user is not commented_post.creator:
+            if Notification.objects.filter(user_from=request.user, user_to=commented_post.creator, route_id=post_id).count() <= 0:
+                notification_content = f"{request.user.first_name} {request.user.last_name} commented on your post: "
+                if len(comment) > 10:
+                    notification_content += f"{comment[0:10]}..."
+                else:
+                    notification_content += f"{comment}"
+                newNotification = Notification(
+                    user_from=request.user,
+                    user_to=commented_post.creator,
+                    content=notification_content,
+                    type='C',
+                    picture=request.user.profile.profile_picture.url,
+                    route_id=post_id
+                )
+                newNotification.save()
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         messages.error(request, "You must be logged in first")
         return redirect('users:index')
 
+
+
 def addFriend(request, username):
     """
-    This function adds a new row to Friend table
+    Not working right now since there is no button to invoke it
+
+    This view create a new Friend in the Friends table between request.user and username
     """
     new_relation = Friend(side1=request.user, side2=User.objects.get(username=username))
     try:
         new_relation.save()
+        if Notification.objects.filter(user_from=request.user, user_to=new_relation.side2, route_id=request.user.profile.link).count() <= 0:
+            notification_content = f"{request.user.first_name} {request.user.last_name} sent you a friend request"
+            newNotification = Notification(
+                user_from=request.user,
+                user_to=new_relation.side2,
+                content=notification_content,
+                type='F',
+                picture=request.user.profile.profile_picture.url,
+                route_id=request.user.profile.link
+            )
+            newNotification.save()
     except:
         messages.error(request, f"you already a friend with {username}")
         return redirect('posts:home')
