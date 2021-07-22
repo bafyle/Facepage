@@ -1,0 +1,196 @@
+{% extends 'pages/Base.html' %}
+
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+Search: {{search}}
+{% endblock title%}
+
+{% block style_link %}
+<link href="{% static 'pages/css/search.css'%}" rel="stylesheet">
+{% endblock style_link %}
+
+{% block style%}{% endblock style%}
+
+{% block sidebar %}
+<div class="column col-sm-2 col-xs-1 sidebar-offcanvas" id="sidebar">
+					  
+    <ul class="nav">
+        <li><a href="#" data-toggle="offcanvas" class="visible-xs text-center"><i class="glyphicon glyphicon-chevron-right"></i></a></li>
+    </ul>
+   
+    <ul class="nav hidden-xs" id="lg-menu">
+        <li class="active"><a href=""><i class="glyphicon glyphicon-refresh"></i> Refresh</a></li>
+        <li><button id="allbtn" style="color: white; background-color: #444444; border: none;"><i class="fas fa-object-group"></i> All</button></li>
+        <li><button id="postsbtn" style="color: white; background-color: #444444; border: none;" ><i class="fas fa-sticky-note"></i> Posts</button></li>
+        <li><button id="peoplebtn" style="color: white; background-color: #444444; border: none;"><i class="fas fa-user-friends"></i> People</button></li>	
+        <li><a href="#"><i class="fas fa-images"></i> Photos</a></li>
+        <li><a href="#"><i class="fas fa-users"></i> Groups</a></li>
+        <li><a href="#"><i class="fas fa-video"></i> Videos</a></li>									
+    </ul>
+    <ul class="list-unstyled hidden-xs" id="sidebar-footer">
+        <li>
+         <p style="font-size: 11px;">Privacy· Terms· Advertising· <br>Ad Choices <i class="fas fa-angle-double-right"></i>· Cookies· More· Facepage © 2021</p>
+        </li>
+    </ul>
+  
+    <!-- tiny only nav-->
+  <ul class="nav visible-xs" id="xs-menu">
+        <li><a href="" class="text-center"><i class="glyphicon glyphicon-refresh"></i></a></li>
+        <li><a href="#" class="text-center"><i class="fas fa-object-group"></i></a></li>
+        <li><a href="#" class="text-center"><i class="fas fa-sticky-note"></i></a></li>
+        <li><a href="#" class="text-center"><i class="fas fa-user-friends"></i></a></li>
+        <li><a href="#" class="text-center"><i class="fas fa-images"></i></a></li>
+        <li><a href="#" class="text-center"><i class="fas fa-users"></i></a></li>
+        <li><a href="#" class="text-center"><i class="fas fa-video"></i></a></li>
+    
+    </ul>
+  
+</div>
+{% endblock sidebar %}
+
+{% block main %}
+<div class="column col-sm-10 col-xs-11" id="main">
+						
+
+					  
+    <div class="padding">
+        <div class="full col-sm-9" >
+          
+            <!-- content -->                      
+            <div class="row">
+              
+             <!-- main col left --> 
+             <div class="col-sm-5">
+               
+                    <!-- Search Results --> 
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="people-nearby">
+                            {% if users|length > 0%}
+                            <h3 id="people-label">People with '{{search}}': </h3>
+                            {% for user in users %}
+                            <div id="people" class="nearby-user">
+                            <div class="row">
+                                <div class="col-md-2 col-sm-2">
+                                <img src="{{user.2}}" alt="{{user.0}}" class="profile-photo-lg">
+                                </div>
+                                <div class="col-md-7 col-sm-7">
+                                <h5><a href="{% url 'profile' user.1 %}" class="profile-link">{{user.0}}</a></h5>
+                                <!-- <p><i class="fas fa-user-friends"> </i> 80 mutual friends</p>
+                                <p class="text-muted"><i class="fas fa-map-marker-alt"></i> Lives in Cairo, Egypt</p> -->
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-3">
+                                {% if user.3 and user.1 != navbar_link %}
+                                    <a href="{% url 'messenger:chat' user.1%}" class="btn btn-primary pull-right" type="submit"><i class="fab fa-rocketchat"></i></a>
+                                {% elif user.3 != True and user.1 != navbar_link %}
+                                    <a href="{% url 'posts:add-friend' user.1%}" class="btn btn-primary pull-right" type="submit"><i class="fas fa-user-plus"></i></a>
+                                {% endif %}
+                                </div>																							
+                            </div>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                            {% if posts|length > 0 %}
+                            <hr>
+                            <h3 id='posts-label'>Posts with '{{search}}':</h3>
+                            {% for post in posts%}
+                            <div id="post" class="panel panel-default">
+                                <div class="panel-heading" >
+                                    <img src="{{ post.creator.profile.profile_picture.url }}" class="img-circle pull-left">
+                                    <h4 style="font-size: 17px; font-weight: bold;"><a href="{% url 'profile' post.creator.profile.link %}">{{ post.creator.profile.name}}</a><br>
+                                    <p style="font-size: 13.5px; font-weight: lighter;">{{ post.create_date|naturaltime }}. <i class="fas fa-globe-americas" style="font-size: 13px;"></i></p>
+                                </h4>
+                                </div>
+                                    <div class="panel-body">
+                        
+                                    <p><a href="{% url 'posts:view-post' post.id %}">{{ post.post_content }}</a></p>
+                                    
+                                    <!-- <hr>
+                                    <div class="panel-thumbnail"><img src="{% static 'pages/img/bg_5.jpg'%}" class="img-responsive"></div> -->
+                                    <div class="clearfix"></div>
+                                    {% if post.comment_set.all.count > 0 %}
+                                    <hr>
+                                    
+                                    <!-- <div class="input-group">
+                                        <div class="input-group-btn">
+                                            {% if post in liked_posts %}
+                                                <form action="{% url 'posts:unlike-post' post.id %}" method="GET"> {%csrf_token%}
+                                                    <button class="btn btn-default"><i class="fas fa-thumbs-down"></i> {{ post.likes }}</button>
+                                                </form>
+                                            {% else %}
+                                            <form action="{% url 'posts:like-post' post.id %}" method="GET"> {%csrf_token%}
+                                                <button class="btn btn-default"><i class="fas fa-thumbs-up"></i> {{ post.likes }}</button>
+                                            </form>
+                                            {% endif%}
+                                        </div>
+                                        <form action="{% url 'posts:add-comment' post.id %}" method="get"> {%csrf_token%}
+                                            <input name="comment-content" class="form-control" placeholder="Add a comment.." type="text">
+                                        </form>
+                                    </div> -->
+                                    {% for comment in post.comment_set.all %}
+                                        <div class="panel-heading" style="background-color: lightgrey; margin-bottom: 20px;">
+                                            <img src="{{comment.creator.profile.profile_picture.url}}" class="img-circle pull-left">
+                                            <h4 style="font-size: 15px; font-weight: bold;">{{comment.creator.profile.name}}<br>
+                                            <p style="font-size: 13.5px; font-weight: 300;">
+                                                {{comment.comment_content}}
+                                            </p></h4>
+                                        </div>
+                                    {% endfor %}
+                                    {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor%}
+                            {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+             <!-- End Search Results --> 
+
+             </div><!--/main col left-->
+
+
+            {% if users|length == 0 and posts|length == 0%}
+            <div class="no-result">
+                <center><img src="{% static 'pages/img/no result.png'%}" style="margin: auto"></center>
+                <center><h3>We didn't find any results</h3></center>
+                <center><P>Make sure everything is spelled correctly or try different keywords.</P></center>
+            </div>
+           {% endif %}
+
+           </div><!--/row-->
+           <hr>
+           <h4 class="text-center">
+            <p style="font-size: 11px;">Privacy· Terms· Advertising· Ad Choices <i class="fas fa-angle-double-right"></i>· Cookies· More· Facepage © 2021</p>
+           </h4>
+           <hr>
+    
+            
+          
+        </div><!-- /col-9 -->
+    </div><!-- /padding -->
+</div>
+{% endblock main%}
+
+{% block scripts %}
+<script type="text/javascript" src="{% static 'pages/js/jquery.js'%}"></script>
+<script type="text/javascript" src="{% static 'pages/js/bootstrap.js'%}"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('[data-toggle=offcanvas]').click(function() {
+            $(this).toggleClass('visible-xs text-center');
+            $(this).find('i').toggleClass('glyphicon-chevron-right glyphicon-chevron-left');
+            $('.row-offcanvas').toggleClass('active');
+            $('#lg-menu').toggleClass('hidden-xs').toggleClass('visible-xs');
+            $('#xs-menu').toggleClass('visible-xs').toggleClass('hidden-xs');
+            $('#btnShow').toggle();
+        });
+    });
+</script>
+<script type="text/javascript" src="{% static 'pages/js/search.js'%}"></script>
+
+{% endblock %}

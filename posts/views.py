@@ -105,9 +105,19 @@ def search(request):
                     if L[1] != user.profile.link:
                         count += 1
                 if count == len(users):
-                    users.append([user.profile.name(), user.profile.link])
+                    are_they_friends = bool(Friend.objects.filter((Q(side1=request.user) & Q(side2=user)) 
+                                    | (Q(side1=user) & Q(side2=request.user))))
+                    users.append([
+                        user.profile.name(),
+                        user.profile.link,
+                        user.profile.profile_picture.url,
+                        are_they_friends
+                        ])
         context = {'search': search, 'posts': posts, 'users': users}
-        return render(request, 'Pages/Search.html', context)
+        context['navbar_name'] = request.user.first_name
+        context['navbar_link'] = request.user.profile.link
+        context['profile_pic'] = request.user.profile.profile_picture.url
+        return render(request, 'Pages/NewSearch.html', context)
     else:
         messages.error(request, "You need to login first in order to do that")
         return redirect('posts:home')
@@ -270,13 +280,13 @@ def addComment(request, post_id):
 
 
 
-def addFriend(request, username):
+def addFriend(request, link):
     """
     Not working right now since there is no button to invoke it
 
     This view create a new Friend in the Friends table between request.user and username
     """
-    new_relation = Friend(side1=request.user, side2=User.objects.get(username=username))
+    new_relation = Friend(side1=request.user, side2=User.objects.get(profile__link=link))
     try:
         new_relation.save()
         if Notification.objects.filter(user_from=request.user, user_to=new_relation.side2, route_id=request.user.profile.link).count() <= 0:
@@ -291,7 +301,7 @@ def addFriend(request, username):
             )
             newNotification.save()
     except:
-        messages.error(request, f"you already a friend with {username}")
+        messages.error(request, f"you already a friend with {new_relation.side2.profile.name()}")
         return redirect('posts:home')
     finally:
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

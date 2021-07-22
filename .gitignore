@@ -1,6 +1,11 @@
 facepage/__pycache__
 messenger/__pycache__
+messenger/migrations/__pycache__
 notifications/__pycache__
+notifications/migrations/__pycache__
 pages/__pycache__
+pages/migrations/__pycache__
 posts/__pycache__
+posts/migrations/__pycache__
 users/__pycache__
+users/migrations/__pycache__
