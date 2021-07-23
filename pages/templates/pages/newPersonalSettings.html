@@ -17,9 +17,9 @@
               <input id="{{bio_form.first_name.id_for_label}}" value="{{bio_form.first_name.value}}" type="text" class="name-item" name="first_name" placeholder="First Name"/>
               <input id="{{bio_form.last_name.id_for_label}}" value="{{bio_form.last_name.value}}" type="text" class="name-item" name="last_name" placeholder="Last Name"/>	
               <input id="{{bio_form.phone_number.id_for_label}}" value="{{bio_form.phone_number.value}}" type="text" name="phone_number" placeholder="Mobile Number" />
-              <input id="{{bio_form.birthday.id_for_label}}" type="date" value="{{bio_form.birthday.value|date:'Y-m-d'}}" class="name-item" name="birthday" placeholder="Birthday" />					
+              <input id="{{bio_form.birthday.id_for_label}}" type="date" value="{{bio_form.birthday.value}}" class="name-item" name="birthday" placeholder="Birthday" />					
             </div>
-                            </div>
+          </div>
             <div class="item">										
             <label for="{{bio_form.gender.id_for_label}}">Gender:</label>
             <select id="{{bio_form.gender.id_for_label}}" name="gender" style="background-color: #fff;">
@@ -31,13 +31,18 @@
             <div class="item">
               <p>Profile Picture</p>
               <input id="{{bio_form.profile_picuture.id_for_label}}" type="file" accept="image/*" name="profile_picture"/>
-              {% if request.user.profile.profile_picture.url == '/media/profile_pics/default.jpg' %}
+              {% if profile_pic == '/media/profile_pics/default.jpg' %}
                 <p>You don't have a profile picture to delete</p>
               {% else %}
                 <a href="{% url 'users:delete-profile-picture' %}">Delete current profile picture</a>
-                <!-- <form action="{% url 'users:delete-profile-picture' %}" method="get">
-                  <button class="pull-right" type="submit" style="color: black;display: inline-block; margin-right: 10px;"><i class="fas fa-minus-circle" style="font-size: 10px;"> Remove Photo</i></button> 
-                </form> -->
+              {% endif %}
+              <hr>
+              <p>Cover Picture</p>
+              <input id="{{bio_form.profile_cover.id_for_label}}" type="file" accept="image/*" name="profile_cover"/>
+              {% if profile_cover == '/media/profile_covers/default.jpg' %}
+                <p>You don't have a profile cover to delete</p>
+              {% else %}
+                <a href="{% url 'users:delete-profile-cover' %}">Delete current profile cover</a>
               {% endif %}
               
             </div> 

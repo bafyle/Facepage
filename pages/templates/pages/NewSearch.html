@@ -22,9 +22,9 @@ Search: {{search}}
    
     <ul class="nav hidden-xs" id="lg-menu">
         <li class="active"><a href=""><i class="glyphicon glyphicon-refresh"></i> Refresh</a></li>
-        <li><button id="allbtn" style="color: white; background-color: #444444; border: none;"><i class="fas fa-object-group"></i> All</button></li>
-        <li><button id="postsbtn" style="color: white; background-color: #444444; border: none;" ><i class="fas fa-sticky-note"></i> Posts</button></li>
-        <li><button id="peoplebtn" style="color: white; background-color: #444444; border: none;"><i class="fas fa-user-friends"></i> People</button></li>	
+        <li><button onclick="allBtnClick();" id="allbtn" style="color: white; background-color: #444444; border: none;"><i class="fas fa-object-group"></i> All</button></li>
+        <li><button onclick="postBtnClick();" id="postsbtn" style="color: white; background-color: #444444; border: none;" ><i class="fas fa-sticky-note"></i> Posts</button></li>
+        <li><button onclick="peopleBtnClick();" id="peoplebtn" style="color: white; background-color: #444444; border: none;"><i class="fas fa-user-friends"></i> People</button></li>	
         <li><a href="#"><i class="fas fa-images"></i> Photos</a></li>
         <li><a href="#"><i class="fas fa-users"></i> Groups</a></li>
         <li><a href="#"><i class="fas fa-video"></i> Videos</a></li>									
@@ -72,7 +72,7 @@ Search: {{search}}
                             {% if users|length > 0%}
                             <h3 id="people-label">People with '{{search}}': </h3>
                             {% for user in users %}
-                            <div id="people" class="nearby-user">
+                            <div class="nearby-user">
                             <div class="row">
                                 <div class="col-md-2 col-sm-2">
                                 <img src="{{user.2}}" alt="{{user.0}}" class="profile-photo-lg">
@@ -98,7 +98,7 @@ Search: {{search}}
                             <hr>
                             <h3 id='posts-label'>Posts with '{{search}}':</h3>
                             {% for post in posts%}
-                            <div id="post" class="panel panel-default">
+                            <div class="panel panel-default">
                                 <div class="panel-heading" >
                                     <img src="{{ post.creator.profile.profile_picture.url }}" class="img-circle pull-left">
                                     <h4 style="font-size: 17px; font-weight: bold;"><a href="{% url 'profile' post.creator.profile.link %}">{{ post.creator.profile.name}}</a><br>
@@ -154,13 +154,14 @@ Search: {{search}}
              </div><!--/main col left-->
 
 
-            {% if users|length == 0 and posts|length == 0%}
-            <div class="no-result">
+            
+            <div id="no-results"
+            style="{% if users|length == 0 and posts|length == 0%}display: block;{% else %}display: none;{%endif%}"
+            class="no-result">
                 <center><img src="{% static 'pages/img/no result.png'%}" style="margin: auto"></center>
                 <center><h3>We didn't find any results</h3></center>
                 <center><P>Make sure everything is spelled correctly or try different keywords.</P></center>
             </div>
-           {% endif %}
 
            </div><!--/row-->
            <hr>
@@ -177,20 +178,7 @@ Search: {{search}}
 {% endblock main%}
 
 {% block scripts %}
-<script type="text/javascript" src="{% static 'pages/js/jquery.js'%}"></script>
-<script type="text/javascript" src="{% static 'pages/js/bootstrap.js'%}"></script>
-<script type="text/javascript">
-    $(document).ready(function() {
-        $('[data-toggle=offcanvas]').click(function() {
-            $(this).toggleClass('visible-xs text-center');
-            $(this).find('i').toggleClass('glyphicon-chevron-right glyphicon-chevron-left');
-            $('.row-offcanvas').toggleClass('active');
-            $('#lg-menu').toggleClass('hidden-xs').toggleClass('visible-xs');
-            $('#xs-menu').toggleClass('visible-xs').toggleClass('hidden-xs');
-            $('#btnShow').toggle();
-        });
-    });
-</script>
+{{block.super}}
 <script type="text/javascript" src="{% static 'pages/js/search.js'%}"></script>
 
 {% endblock %}

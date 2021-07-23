@@ -14,6 +14,7 @@ from .models import Profile
 from .id_generator import id_generator
 from pathlib import Path
 from django.contrib.auth.models import User
+import datetime
 import os
 
 # Create your views here.
@@ -129,8 +130,14 @@ def personalSettings(request):
             bioForm = ChangePictureBioForm(request.POST, request.FILES)
             if bioForm.is_valid():
                 if bioForm.cleaned_data['profile_picture'] != 'profile_pics/default.jpg':
+                    old_image = request.user.profile.profile_picture.url
+                    if old_image.split('/')[-1] != 'default.jpg':
+                        deletePhoto(old_image)
                     request.user.profile.profile_picture = bioForm.cleaned_data['profile_picture']
-                if bioForm.cleaned_data['profile_cover'] != 'profile_covers/default_cover.jpg':
+                if bioForm.cleaned_data['profile_cover'] != 'profile_covers/default.jpg':
+                    old_image = request.user.profile.profile_cover.url
+                    if old_image.split('/')[-1] != 'default.jpg':
+                        deletePhoto(old_image)
                     request.user.profile.profile_cover = bioForm.cleaned_data['profile_cover']
                 request.user.profile.bio = bioForm.cleaned_data['bio']
                 request.user.first_name = bioForm.cleaned_data['first_name']
@@ -150,18 +157,37 @@ def personalSettings(request):
                 'last_name': request.user.last_name,
                 'phone_number': request.user.profile.phone_number,
                 'gender': request.user.profile.gender,
-                'birthday': request.user.profile.birthday,
+                'birthday': request.user.profile.birthday.strftime("%Y-%m-%d"),
             }
             bioForm = ChangePictureBioForm(default_values_for_form)
-            context = {
-                'profile_pic': request.user.profile.profile_picture.url,
-                'navbar_name': request.user.first_name,
-                'navbar_link': request.user.profile.link,
-                'email': request.user.email,
-                'username': request.user.username,
-                'bio_form': bioForm,
-            }
+        context = {
+            'profile_pic': request.user.profile.profile_picture.url,
+            'profile_cover': request.user.profile.profile_cover.url,
+            'navbar_name': request.user.first_name,
+            'navbar_link': request.user.profile.link,
+            'email': request.user.email,
+            'username': request.user.username,
+            'bio_form': bioForm,
+        }
         return render(request, 'pages/newPersonalSettings.html', context)
+    else:
+        messages.error(request, "you must login first")
+        return redirect('users:index')
+
+def deleteMyProfileCover(request):
+    if request.user.is_authenticated:
+        old_image = request.user.profile.profile_cover.url
+        if old_image.split('/')[-1] != 'default.jpg':
+            deletePhoto(old_image)
+        else:
+            messages.error(request, "you don't have a profile picture to delete")
+            return redirect('users:personal-settings')
+        
+        request.user.profile.profile_cover = 'profile_covers/default.jpg'
+        request.user.profile.save()
+        request.user.save()
+        messages.success(request, "Profile picture deleted")
+        return redirect('users:personal-settings')
     else:
         messages.error(request, "you must login first")
         return redirect('users:index')
@@ -179,18 +205,8 @@ def deleteMyProfilePicture(request):
         else:
             messages.error(request, "you don't have a profile picture to delete")
             return redirect('users:personal-settings')
-        old_profile = request.user.profile
-        new_profile = Profile(
-            bio=old_profile.bio,
-            phone_number=old_profile.phone_number,
-            verified=old_profile.verified,
-            birthday=old_profile.birthday,
-            gender=old_profile.gender,
-            profile_cover=old_profile.profile_cover,
-        )
-        old_profile.delete()
-        new_profile.user = request.user
-        new_profile.save()
+        request.user.profile.profile_picture = 'profile_pics/default.jpg'
+        request.user.profile.save()
         request.user.save()
         messages.success(request, "Profile picture deleted")
         return redirect('users:personal-settings')
@@ -269,6 +285,7 @@ def verifyEmailView(request):
     return render(request, 'pages/VerificationSent.html')
 
 def deletePhoto(mediaPath):
+    print(mediaPath)
     this_file_dir = Path(__file__).resolve().parent.parent
     file_path_without_edit = str(this_file_dir) + mediaPath
     file_path = file_path_without_edit.replace('\\', '/', -1)

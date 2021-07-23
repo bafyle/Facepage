@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.fields import BLANK_CHOICE_DASH
+from django.core.validators import ValidationError
+from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 # Create your models here.
 
@@ -10,6 +11,22 @@ class Post(models.Model):
     create_date = models.DateTimeField(default=timezone.now)
     likes = models.IntegerField(default=0)
     comments = models.IntegerField(default=0)
+    image = models.ImageField(default=None, blank=True)
+    shared_post = models.BooleanField(default=False)
+    original_post = models.ForeignKey(to='self', on_delete=models.SET_NULL, null=True, blank=True)
+
+
+    def clean(self, *args, **kwargs) -> None:
+        if self.shared_post == True and self.image != None:
+            raise ValidationError(_("Shared post cannot have an image"))
+        if not self.shared_post and self.original_post != None:
+            raise ValidationError(_("Original posts cannot reference other posts"))
+        return super().clean(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
+    
 
     def __str__(self):
         string = self.post_content[0:30]
