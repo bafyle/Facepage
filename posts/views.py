@@ -122,7 +122,7 @@ def search(request):
         messages.error(request, "You need to login first in order to do that")
         return redirect('posts:home')
 
-def addPost(request):
+def createPost(request):
     """
     This function create a new post with with data from 'new-post-content' that comes
     from a post request and redirects to the same page
@@ -169,7 +169,7 @@ def viewPost(request, post_id):
                 'navbar_link': request.user.profile.link,
                 'profile_pic': request.user.profile.profile_picture.url,
                 'my_post': post.creator == request.user,
-            }
+        }
         return render(request, 'pages/ViewPost.html', context)
     else:
         messages.error(request, "you need to login first")

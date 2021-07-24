@@ -19,7 +19,7 @@
     <div id="friends-list">
         <ul>
             {% for friend in friends %}
-                <li><a href="{% url 'messenger:chat' friend.1 %}">{{ friend.0 }}</a></li>
+                <li><a href="{% url 'messenger:chat' friend.profile.link %}">{{ friend.profile.name }}</a></li>
             {% endfor %}
         </ul>
     </div> 

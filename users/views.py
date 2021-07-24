@@ -8,13 +8,15 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from facepage.tokens import account_activation_token
 from django.core.mail import EmailMessage
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext as _
 
 from .forms import DeleteAccountForm, ChangePictureBioForm, RegisterForm
 from .models import Profile
 from .id_generator import id_generator
 from pathlib import Path
 from django.contrib.auth.models import User
-import datetime
 import os
 
 # Create your views here.
@@ -30,11 +32,11 @@ def index(request):
 def loginFunction(request):
     """
     this function takes the username and the password the user entered and
-    check if they are valid or not. If they are vaild then it log you in and redirects 
-    you to the index where itself redirects you to the home page
+    check if they are valid. If they are valid then it logs the user in and redirects 
+    to the index where itself redirects you to the home page
     """
     if request.user.is_authenticated:
-        return redirect('posts:home')
+        return redirect('users:index')
     elif request.method == 'POST':
         username = request.POST['username']
         pw = request.POST['pass']
@@ -47,7 +49,7 @@ def loginFunction(request):
 
 def logoutFunction(request):
     """
-    this function log you out and redirects you to the login page
+    this function logs you out and redirects you to the login page
     """
     logout(request)
     messages.success(request, "You have been logged out")
@@ -79,6 +81,44 @@ def register(request):
         form = RegisterForm()
     return render(request, 'pages/Register.html', {'form':form})
 
+
+def accountSettings2(request):
+    """
+    Takes the new user email and password and check if they are valid and save them
+    after saving it redirects to the login page to login again with the new data
+    """
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            try:
+                if request.POST['password1'] != request.POST['password2']:
+                    raise ValidationError(_("Passwords doesn't match"))
+                validate_password(request.POST['password1'])
+                request.user.set_password(request.POST['password1'])
+                # if request.POST['email'] is not None:
+                #     request.user.email = request.POST['email']
+                # else:
+                #     request.user.email = ''
+                request.user.save()
+                messages.success(request, "password has changed, you need to login again")
+                return redirect('users:index')
+            except ValidationError as error:
+                for errorMessage in error:
+                    messages.error(request, errorMessage)
+                return redirect('users:account-settings')
+        else:
+            context = {
+                'profile_pic': request.user.profile.profile_picture.url,
+                'navbar_name': request.user.first_name,
+                'navbar_link': request.user.profile.link,
+                'email': request.user.email,
+                'username': request.user.username,
+            }
+            return render(request, 'pages/newAccountSettings.html', context)
+    else:
+        messages.error(request, "you must login first")
+        return redirect('users:index')
+
+@DeprecationWarning
 def accountSettings(request):
     """
     Takes the new user email and password and check if they are valid and save them

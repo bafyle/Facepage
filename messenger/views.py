@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponseRedirect
 from posts.models import Friend
@@ -10,19 +10,19 @@ from .forms import SendMessageForm
 def chat2(request, link:str = None):
     if request.user.is_authenticated:
         username = User.objects.filter(profile__link=link).first()
-        my_name = request.user.first_name + " " + request.user.last_name
         my_username = request.user.username
-        get_friends_query = Friend.objects.filter(Q(side1__username=my_username) | 
-                                                    Q(side2__username=my_username))    
-        friends = []
+        get_friends_query = Friend.objects.filter(
+            Q(side1__username=my_username) | Q(side2__username=my_username)
+        )    
+        friends = list()
         found = False
         for friend in get_friends_query:
             if not found and (friend.side1 == username or friend.side2 == username):
                 found = True 
             if friend.side1.username == my_username:
-                friends.append([friend.side2.first_name + " " + friend.side2.last_name, friend.side2.profile.link, friend.side2])
+                friends.append(friend.side2)
             else:
-                friends.append([friend.side1.first_name + " " + friend.side1.last_name, friend.side1.profile.link, friend.side1])
+                friends.append(friend.side1)
 
         if username is not None and not found:
             messages.error(request, "You can chat only with your friends")
@@ -35,14 +35,16 @@ def chat2(request, link:str = None):
             m.seen = True
             m.save()
         if username != None:
-            chat = Message.objects.filter((Q(sender__username=my_username) & Q(receiver__username=username)) | 
-                                        (Q(sender__username=username) & Q(receiver__username=my_username))).order_by('send_date')
+            chat = Message.objects.filter(
+                (Q(sender__username=my_username) & Q(receiver__username=username)) | 
+                (Q(sender__username=username) & Q(receiver__username=my_username))
+            ).order_by('send_date')
         else:
             chat = []
         chat_information['chat'] = chat
-        chat_information['my_name'] = my_name
+        chat_information['my_name'] = request.user.profile.name()
         if username:
-            chat_information['his_username'] = username.first_name + " " + username.last_name
+            chat_information['his_username'] = username.profile.name()
             chat_information['his_link'] = username.profile.link
         chat_information['friends'] = friends
         chat_information['unseen_messages'] = unseen_messages
