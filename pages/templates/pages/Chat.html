@@ -37,7 +37,7 @@
                     chat
                 {% endif %}
             </legend>
-            <ul>
+            <ul id="chat">
                 {% for message in chat %}
                     <li>
                         <p>{{ message.sender.first_name }}: {{ message.message_content }}</p>
@@ -47,11 +47,84 @@
             </ul>
         </fieldset>
     </div>
-    {% if his_username %}
-        <form action="{% url 'messenger:chat' his_link %}" method="post"> {% csrf_token %}
+    {% if his_link %}
+        <form id="post-form">
+            {%csrf_token%}
             <!-- <textarea name="chat-input" id="chat-input" cols="30" rows="10"></textarea> -->
             {{ form.as_p }}
-            <input type="submit" value="Send">
+            <input id='send' type="submit" value="Send">
         </form>
+    {% endif %}
+
+    {% if his_link %}
+    <script type="text/javascript">
+        var postForm = document.getElementById("post-form");
+        var messageInput = document.getElementById("id_message_input");
+        var chat = document.getElementById("chat");
+
+        postForm.addEventListener("submit", sendFunction);
+
+        function sendFunction(event)
+        {
+            // stopping the default submit
+            event.preventDefault();
+
+            // creating new XHR
+            var xhr = new XMLHttpRequest();
+            
+            // get the message 
+            var message = messageInput.value;
+            var csrf = document.getElementsByName("csrfmiddlewaretoken")[0].value;
+            var params = "message_input="+message +"&csrfmiddlewaretoken="+csrf;
+            xhr.open("POST", "{% url 'messenger:send' his_link %}", true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            
+            xhr.onload = function()
+            {
+                if(this.status == 200)
+                {
+                    var response = JSON.parse(this.responseText);
+                    const list = document.createElement("li");
+                    const paragraph = document.createElement("p");
+                    const small = document.createElement("small");
+                    list.appendChild(paragraph);
+                    list.appendChild(small);
+                    paragraph.innerHTML = response.sender + ": " + response.content;
+                    small.innerHTML = response.time;
+
+                    chat.appendChild(list);
+                    messageInput.value = "";
+                }
+            }
+            xhr.send(params);
+        }
+
+        var worker = new Worker("{% static 'pages/js/chatjs/check_new_messages.js'%}");
+        (function(){
+            var f = function() {
+                worker.postMessage("{% url 'messenger:get-messages' his_link %}")
+            };
+            window.setInterval(f, 10000);
+            f();
+        })();
+        worker.onmessage = function(e)
+        {
+            var response = JSON.parse(e.data);
+            var i = 0;
+            while(response[i] != undefined)
+            {
+                const list = document.createElement("li");
+                const paragraph = document.createElement("p");
+                const small = document.createElement("small");
+                list.appendChild(paragraph);
+                list.appendChild(small);
+                paragraph.innerHTML = response[i].sender + ": " + response[i].message_content;
+                small.innerHTML = response[i].send_date;
+
+                chat.appendChild(list);
+                i += 1;
+            }
+        }
+    </script>
     {% endif %}
 {% endblock %}

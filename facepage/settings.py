@@ -118,7 +118,7 @@ LANGUAGE_CODE = 'en-us'
 
 USE_TZ = True
 
-TIME_ZONE = 'EET'
+TIME_ZONE = 'Egypt'
 
 USE_I18N = True
 

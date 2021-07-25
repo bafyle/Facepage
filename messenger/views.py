@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponse
 from posts.models import Friend
 from .models import Message
 from django.db.models import Q
 from django.contrib.auth.models import User
 from .forms import SendMessageForm
+from django.core.serializers import serialize
+from django.utils import timezone
 
 def chat2(request, link:str = None):
     if request.user.is_authenticated:
@@ -31,9 +33,6 @@ def chat2(request, link:str = None):
         chat_information = dict()
         new_received_messages = Message.objects.filter(Q(receiver__username=my_username) & Q(seen=False))
         unseen_messages = int(new_received_messages.count())
-        for m in new_received_messages:
-            m.seen = True
-            m.save()
         if username != None:
             chat = Message.objects.filter(
                 (Q(sender__username=my_username) & Q(receiver__username=username)) | 
@@ -57,7 +56,7 @@ def chat2(request, link:str = None):
                 new_message.save()
                 form = SendMessageForm()
             else:
-                Message.error(request, "Error in sending the message")
+                messages.error(request, "Error in sending the message")
             chat_information['form'] = form
             return render(request, 'pages/Chat.html', context=chat_information)
         else:
@@ -67,3 +66,40 @@ def chat2(request, link:str = None):
     else:
         messages.error(request, "You must login first")
         return redirect('users:index')
+    
+
+def sendMessage(request, link: str):
+    username = User.objects.filter(profile__link=link).first()
+    if request.method == 'POST':
+        form = SendMessageForm(request.POST)
+        if form.is_valid():
+            message = form.cleaned_data['message_input']
+            receiver_user = User.objects.get(username=username)
+            new_message = Message(sender=request.user, receiver=receiver_user, message_content = message)
+            new_message.save()
+            responsef = dict()
+            responsef["sender"] = request.user.first_name
+            responsef["content"] = message
+            responsef["time"] = timezone.localtime(new_message.send_date).strftime("%B %d, %Y %I:%M %p")
+    return JsonResponse(responsef)
+
+
+def getMessages(request, link: str):
+    my_username = request.user
+    username = username = User.objects.filter(profile__link=link).first()
+    chat = Message.objects.filter(
+        Q(sender__username=username) & Q(receiver__username=my_username) & Q(seen=False)
+    ).order_by('send_date')
+    chat2 = chat.values('sender', 'message_content', 'send_date')
+    responsef = dict()
+    for index, message in enumerate(chat2):
+        for key in message:
+            if key == "sender":
+                message[key] = User.objects.get(id=message[key]).first_name
+            elif key == "send_date":
+                message[key] = timezone.localtime(message[key]).strftime("%B %d, %Y %I:%M %p")
+        responsef[index] = message
+    for message in chat:
+        message.seen = True
+        message.save()
+    return JsonResponse(responsef)
