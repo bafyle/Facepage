@@ -66,6 +66,13 @@ def chat2(request, link:str = None):
     else:
         messages.error(request, "You must login first")
         return redirect('users:index')
+
+def tmpchat(request):
+    context = dict()
+    context['navbar_name'] = request.user.first_name
+    context['navbar_link'] = request.user.profile.link
+    context['profile_pic'] = request.user.profile.profile_picture.url
+    return render(request, 'pages/newchat.html', context)
     
 
 def sendMessage(request, link: str):

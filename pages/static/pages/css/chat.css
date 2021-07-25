@@ -1,0 +1,233 @@
+* {
+  box-sizing: border-box;
+  padding: 0px;
+  margin: 0px;
+  font-family: Segoe UI Historic, Segoe UI, Helvetica, Arial, sans-serif;
+}
+
+p {
+  margin: 0px;
+  padding: 0px;
+}
+
+.container {
+  margin: 0px;
+  padding: 0px;
+}
+
+body {
+  background-color: #ffffff;
+  overflow-y: hidden;
+}
+
+.whiteish-border-top-right {
+  border-right: 2px solid #f0f2f5;
+  border-top: 2px solid #f0f2f5;
+}
+
+.whiteish-border-top {
+  border-top: 2px solid #f0f2f5;
+}
+
+.whiteish-border-bottom {
+  border-bottom: 2px solid #f0f2f5;
+}
+
+.title-text {
+  font-size: larger;
+}
+
+.bold-text {
+  font-weight: bold;
+}
+
+.relative-float-right {
+  position: relative;
+  float: right;
+}
+
+.relative-float-left {
+  position: relative;
+  float: left;
+}
+
+.flex-container {
+  display: flex;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.rounded-circle-whiteish {
+  width: 30px;
+  height: 30px;
+  background-color: #f0f2f5;
+  border-radius: 15px;
+}
+
+.search-bar-row-container {
+  flex-direction: row;
+  align-content: center;
+}
+
+.rounded-input-field {
+  border: 1px solid #f0f2f5;
+  border-radius: 15px;
+  background-color: #f0f2f5;
+}
+
+.no-outline {
+  outline: none;
+}
+
+.no-padding {
+  padding: 0px;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+#newMsgIcon {
+  bottom: 5px;
+}
+
+#searchInput {
+  width: 85%;
+  background-color: transparent;
+  border: none;
+  border-color: transparent;
+  flex-grow: 2;
+}
+
+#searchIcon {
+  flex-grow: 1;
+}
+
+.white-text {
+  color: #fff;
+}
+
+input:focus {
+  outline: none;
+}
+
+.no-resize {
+  resize: none;
+}
+
+.image-32px {
+  width: 32px;
+  height: 32px;
+}
+
+.image-56px {
+  width: 56px;
+  height: 56px;
+}
+
+.rounded-image {
+  border-radius: 9999px;
+  border: 1px solid #606770;
+}
+
+.chats-container {
+  justify-content: flex-start;
+  height: 80vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  text-align: justify;
+}
+
+.chat-active {
+  border: 1px solid #ecf3ff;
+  border-radius: 5px;
+  background-color: #ecf3ff;
+}
+
+.chat-text-info-container {
+  flex-direction: column;
+  justify-content: space-evenly;
+  overflow: hidden;
+}
+
+.chat-info-text {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.chat-text-container {
+  height: 80vh;
+  overflow-y: auto;
+}
+
+.sent-chat-text-container {
+  float: right;
+  width: 50%;
+  flex-direction:row;
+  justify-content:flex-end;
+}
+
+.sent-text-container {
+  background-color: #3578e5;
+  border: 1px solid #3578e5;
+  border-radius: 8px;
+}
+
+.received-chat-text-container {
+  width: 50%;
+  position: relative;
+  clear: right;
+  flex-direction:row;
+  justify-content:flex-start;
+}
+
+.received-text-container {
+  border: 1px solid #f0f2f5;
+  border-radius: 8px;
+  background-color: #f0f2f5;
+}
+
+.chat-textarea-input {
+  border: 1px solid #f0f2f5;
+  background-color: #f0f2f5;
+  border-radius: 20px;
+  height: 45px;
+  flex-grow: 1.5;
+}
+
+.chat-footer {
+  flex-direction: row;
+  justify-content: start;
+}
+
+.send-msg-btn {
+  background-color: transparent;
+  border: 1px solid transparent;
+}
+
+
+.Rmessage-date {
+  font-weight:lighter; 
+  color:rgb(214, 214, 214); 
+  font-size:small; 
+  float:right;
+}
+
+.Lmessage-date {
+  font-weight:lighter; 
+  color:rgb(141, 141, 141); 
+  font-size:small; 
+  float:right;
+}
+
+.Rfriend-name {
+ color: black;
+ text-decoration: none;
+}
+
+
+.Rfriend-name:hover {
+  text-decoration: none;
+}
