@@ -121,6 +121,13 @@ hr {
     background-color:#393939;
 }
 
+#sidebar button {
+  color:white; 
+  background-color:  #444444; 
+  border:  none; 
+}
+
+
 .logo {
   display:block;
   padding:3px;
@@ -325,6 +332,6 @@ img.profile-photo-lg{
   border-radius: 50%;
 }
 
-/*==================================================
-  No results div
-  ==================================================*/
+#allbtn {
+
+}

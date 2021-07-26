@@ -304,3 +304,16 @@ small.text-muted {
     padding-left:3px;
   }
 }
+
+
+#CommentInput {
+  width: 94.5%;
+}
+
+
+@media (max-width: 768px) {
+
+  #CommentInput {
+    width:85%;
+  }
+}
