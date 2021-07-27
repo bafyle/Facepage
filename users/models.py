@@ -22,3 +22,14 @@ class Profile(models.Model):
     
     def __str__(self):
         return f"{self.user.username} Profile"
+
+
+class Friend(models.Model):
+    class Meta:
+        unique_together = (('side1', 'side2'), )
+        
+    side1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name="Side1")
+    side2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name="Side2")
+
+    def __str__(self):
+        return f"Friendship {self.side1.username} and {self.side2.username}"

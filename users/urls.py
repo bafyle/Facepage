@@ -15,6 +15,5 @@ urlpatterns = [
     path(r'verification/', verifyEmailView, name='verification-sent'),
     path(r'activate/<uidb64>/<token>/', activate, name='activate'),
     path(r'personal-settings/', personalSettings, name='personal-settings'),
-
-    
+    path(r'add-friend/<slug:link>/', addFriend, name='add-friend'),   
 ]

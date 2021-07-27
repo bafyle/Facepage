@@ -1,130 +1,311 @@
-{% extends 'pages/BaseChat.html' %}
 {% load static %}
-{% block head %}
-    <title>
-        {% if his_username %}
-            {{his_username}}
-        {% else %}
-            chat
-        {% endif %}
-    </title>
-    <!-- <link rel="stylesheet" href="{% static 'pages/css/chat.css'%}"> -->
-{% endblock head %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+        <meta charset="utf-8">
+        <title>Facepage Messenger</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<link href="{% static 'pages/fonts/fontawesome-free-5.15.3-web/css/all.css'%}" rel="stylesheet">
+        <link href="{% static 'pages/css/bootstrap2.css'%}" rel="stylesheet">
+		<link rel="stylesheet" href="{% static 'pages/css/bootstrap.min.css'%}" type="text/css" />
+		<link rel="stylesheet" href="{% static 'pages/css/margin-padding.css'%}" type="text/css" />
+		<link rel="stylesheet" href="{% static 'pages/css/chat.css'%}" type="text/css" />
+		<script src="https://kit.fontawesome.com/7526d6fd87.js" crossorigin="anonymous"></script>
+        <!--[if lt IE 9]>
+          <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+        <link href="{% static 'pages/css/facebook.css'%}" rel="stylesheet">
+    </head>
+    
+    <body>
+        
+        <div class="wrapper">
+			<div class="box">
+				<!-- top nav -->
+				<div class="navbar navbar-blue navbar-static-top" style="width: 100%;">  
+					<div class="navbar-header">
+						<button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".navbar-collapse">
+						<span class="sr-only">Toggle</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						</button>
+						<a href="{% url 'users:index' %}" class="navbar-brand logo">F</a>
+					</div>
+					<nav class="collapse navbar-collapse" role="navigation">
+					<form class="navbar-form navbar-left" method="GET" action="{% url 'posts:search' %}">
+						<div class="input-group input-group-sm" style="max-width:360px;">
+							<input class="form-control" placeholder="Search" name="search-text" id="srch-term" type="text">
+							<div class="input-group-btn">
+							<button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+							</div>
+						</div>
+					</form>
+					<ul class="nav navbar-nav">
+						<li>
+						<a href="{% url 'posts:home' %}"><i class="glyphicon glyphicon-home"></i> Home</a>
+						</li>
+						<li>
+						<a href="{% url 'messenger:empty-chat' %}"><i class="fab fa-rocketchat"></i> Chat</a>
+						</li>
+						<li>
+						<a href=""><i class="fas fa-bell"></i> Notifications</a>
+						</li>
+						<li>
+						<a href="{% url 'profile' navbar_link %}"><img src="{{profile_pic}}" class="img-circle pull-left" style="width: 40px;height: 40px; margin-top: -10px;"><span class="badge">{{navbar_name}}</span></a>
+						</li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fas fa-caret-square-down fa-lg"></i></a>
+						<ul class="dropdown-menu">
+							<li><a href="{% url 'users:account-settings'%}"><i class="fas fa-cog"></i> Settings</a></li>
+							<li><a href="{% url 'messenger:empty-chat'%}"><i class="fab fa-rocketchat"></i> Chat</a></li>
+							<li><a href="{% url 'users:logout' %}"><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
+							<!--<li><a href="">More</a></li>
+							<li><a href="">More</a></li>
+							<li><a href="">More</a></li> -->
+						</ul>
+						</li>
+					</ul>
+					</nav>
+				</div>
+				<!-- /top nav -->
+			</div>
+	       </div>
+		<br>
+		<br>
+		<div class="container-fluid">
+			<div class="row"></div>
+			<div class="row">
+				<div class="col-5 col-lg-4 col-md-4 col-sm-5  whiteish-border-top-right">
+					<!--top row start-->
+					<div class="left-top-row-container margin-top-sm padding-sm">
+						<h2 class="title-text bold-text d-inline margin-left-md">Chats</h2>
+					</div>
+					<!--top row end-->
+					<!--search bar row start-->
+					<div
+						class="search-bar-row-container rounded-input-field margin-left-md margin-right-md margin-top-md flex-container">
+						<span id="searchIcon" class="margin-sm clickable">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="16"
+							height="16"
+							fill="#000"
+							class="bi bi-search"
+							viewBox="0 0 16 16">
+							<path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"></path>
+						</svg>
+						</span>
+						<input type="search" placeholder="Search chats" id="searchInput" />
+					</div>
+					<!--search bar row end-->
+					<!--friends chat list start-->
+					<div id="chat-list-container"
+						class="chats-container margin-top-md margin-left-md margin-right-md">
+						{% for friend in friends %}
+							<a href="{% url 'messenger:chat' friend.profile.link %}">
+								{% if friend.profile.link == his_link%}
+								<div class="flex-container chat-active clickable padding-sm">
+								{% else %}
+								<div class="flex-container clickable padding-sm">
+								{% endif %}
+									<img class="rounded-image image-56px" src="{{friend.profile.profile_picture.url}}" />
+									<div
+									class="flex-container chat-text-info-container margin-left-md">
+									<p class="chat-info-text">{{ friend.profile.name }}</p>
+									<!-- <p class="chat-info-text">Last Message - Date</p> -->
+									</div>
+								</div>
+							</a>
+						{% endfor %}
+					</div>
+					<!--friends chat list end-->
+				</div>
+				<!-- Left side end -->
+				<!--Chat screen start-->
+			 
+				{% if his_link %}
+				<div class="col-7 col-lg-8 col-md-8 col-sm-7 whiteish-border-top no-padding" style="margin-top: 15px;">
+					<div class="chat-screen-info-container flex-container whiteish-border-bottom">		
+						<img class="rounded-image image-56px margin-left-md margin-top-sm margin-bottom-sm"src="{{his_profile_picture_url}}"/>
+						<div class="flex-container chat-text-info-container margin-left-md">
+						<p class="chat-info-text"><a href="" class="Rfriend-name" >{{his_username}}</a> </p>
+						</div>
+					</div>
+					<div class="container-fluid">
+						<div id="chat-text-container" class="chat-text-container">
+							{% for message in chat %}
+							{% if message.sender.profile.link == his_link%}
+							<div
+								class="received-chat-text-container margin-left-sm margin-top-sm margin-bottom-sm flex-container">
+								<img
+								class="rounded-image image-32px margin-right-sm"
+								src="{{message.sender.profile.profile_picture.url}}">
+								<div class="received-text-container padding-sm">
+									{{message.message_content}}
+									<br>
+									<div class="Lmessage-date">{{message.send_date|naturaltime}}</div>
+								</div>
+							</div>
+							{% else %}
+							<div
+								class="sent-chat-text-container margin-right-sm margin-top-sm margin-bottom-sm flex-container">
+								<div class="sent-text-container padding-sm white-text">
+									{{message.message_content}}
+									<br>
+									<div class="Rmessage-date">{{message.send_date|naturaltime}}</div>
+								</div>
+							</div>
+							{% endif %}
+							{% endfor%}
+						</div>
+						<div class="col-12 chat-footer-container margin-bottom-md">
+							<form id="post-form" class="flex-container chat-footer"> {% csrf_token%}
+								<textarea id="{{form.message_input.id_for_label}}" class="no-resize no-outline chat-textarea-input padding-sm margin-right-sm"></textarea>
+								<button type="submit" class="send-msg-btn">
+									<i class="fas fa-angle-right fa-lg" style="color:#3578e5; outline:none; border:none;"></i> 
+								</button>
+							</form>
+						</div>
+					</div>
+				</div>
+				{% endif %}
+			</div>
+			<!--Chat screen end-->
+		</div>
+		<script src="{% static 'pages/js/jquery.js'%}"></script>
+		<script src="{% static 'pages/js/bootstrap2.js'%}"></script>
+		{% if his_link %}
+		<script type="text/javascript">
+			var postForm = document.getElementById("post-form");
+			var messageInput = document.getElementById("{{form.message_input.id_for_label}}");
+			var chat = document.getElementById("chat-text-container");
 
-{% block header %}
-<a href="{% url 'posts:home' %}">Home</a>
-{% endblock %}
+			chat.scrollTop += chat.scrollHeight;
 
-{% block content %}
-    <div id="friends-list">
-        <ul>
-            {% for friend in friends %}
-                <li><a href="{% url 'messenger:chat' friend.profile.link %}">{{ friend.profile.name }}</a></li>
-            {% endfor %}
-        </ul>
-    </div> 
-    <div>
-        {% if unseen_messages > 0 %}
-        <p>You have {{unseen_messages}} new message !</p>
-        {% endif %}
-    </div>
-    <div>
-        <fieldset class="fieldset-auto-width">
-            <legend>
-                {% if his_username %}
-                    {{his_username}}
-                {% else %}
-                    chat
-                {% endif %}
-            </legend>
-            <ul id="chat">
-                {% for message in chat %}
-                    <li>
-                        <p>{{ message.sender.first_name }}: {{ message.message_content }}</p>
-                        <small>{{ message.send_date }}</small>
-                    </li>
-                {% endfor %}
-            </ul>
-        </fieldset>
-    </div>
-    {% if his_link %}
-        <form id="post-form">
-            {%csrf_token%}
-            <!-- <textarea name="chat-input" id="chat-input" cols="30" rows="10"></textarea> -->
-            {{ form.as_p }}
-            <input id='send' type="submit" value="Send">
-        </form>
-    {% endif %}
+			postForm.addEventListener("submit", sendFunction);
 
-    {% if his_link %}
-    <script type="text/javascript">
-        var postForm = document.getElementById("post-form");
-        var messageInput = document.getElementById("id_message_input");
-        var chat = document.getElementById("chat");
+			function sendFunction(event)
+			{
+				// stopping the default submit
+				event.preventDefault();
 
-        postForm.addEventListener("submit", sendFunction);
+				// creating new XHR
+				var xhr = new XMLHttpRequest();
+				
+				// get the message 
+				var message = messageInput.value;
+				var csrf = document.getElementsByName("csrfmiddlewaretoken")[0].value;
+				var params = "message_input="+message +"&csrfmiddlewaretoken="+csrf;
+				xhr.open("POST", "{% url 'messenger:send' his_link %}", true);
+				xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				
+				xhr.onload = function()
+				{
+					if(this.status == 200)
+					{
+						var response = JSON.parse(this.responseText);
+						var message = createSendMessage(response);
+						chat.appendChild(message);
+						messageInput.value = "";
+						chat.scrollTop += chat.scrollHeight;
+					}
+				}
+				xhr.send(params);
+			}
 
-        function sendFunction(event)
-        {
-            // stopping the default submit
-            event.preventDefault();
+			var worker = new Worker("{% static 'pages/js/chatjs/check_new_messages.js'%}");
+			(function(){
+				var f = function() {
+					worker.postMessage("{% url 'messenger:get-messages' his_link %}")
+				};
+				window.setInterval(f, 10000);
+				f();
+			})();
+			worker.onmessage = function(e)
+			{
+				var response = JSON.parse(e.data);
+				var i = 0;
 
-            // creating new XHR
-            var xhr = new XMLHttpRequest();
-            
-            // get the message 
-            var message = messageInput.value;
-            var csrf = document.getElementsByName("csrfmiddlewaretoken")[0].value;
-            var params = "message_input="+message +"&csrfmiddlewaretoken="+csrf;
-            xhr.open("POST", "{% url 'messenger:send' his_link %}", true);
-            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            
-            xhr.onload = function()
-            {
-                if(this.status == 200)
-                {
-                    var response = JSON.parse(this.responseText);
-                    const list = document.createElement("li");
-                    const paragraph = document.createElement("p");
-                    const small = document.createElement("small");
-                    list.appendChild(paragraph);
-                    list.appendChild(small);
-                    paragraph.innerHTML = response.sender + ": " + response.content;
-                    small.innerHTML = response.time;
+				while(response[i] != undefined)
+				{
+					var message = createReceiveMessage(response[i]);
+					chat.appendChild(message);
+					i += 1;
+				}
+				if(response[0] != undefined)
+					chat.scrollTop += chat.scrollHeight;
+			}
+			function createSendMessage(message)
+			{
+				var messageDiv = document.createElement("div");
+				messageDiv.classList.add(
+					"sent-chat-text-container",
+					"margin-right-sm",
+					"margin-top-sm",
+					"margin-bottom-sm",
+					"flex-container"
+				);
+				var messageTextDiv = document.createElement("div");
+				messageTextDiv.classList.add(
+					"sent-text-container",
+					"padding-sm",
+					"white-text"
+				);
+				const br = document.createElement("br");
+				var messageDateDiv = document.createElement("div");
+				messageDateDiv.classList.add("Rmessage-date");
+				messageDateDiv.innerHTML = message.time;
+				messageTextDiv.innerHTML = message.content;
+				messageTextDiv.appendChild(br);
+				messageTextDiv.appendChild(messageDateDiv);
+				messageDiv.appendChild(messageTextDiv);
 
-                    chat.appendChild(list);
-                    messageInput.value = "";
-                }
-            }
-            xhr.send(params);
-        }
+				return messageDiv;
+			}
 
-        var worker = new Worker("{% static 'pages/js/chatjs/check_new_messages.js'%}");
-        (function(){
-            var f = function() {
-                worker.postMessage("{% url 'messenger:get-messages' his_link %}")
-            };
-            window.setInterval(f, 10000);
-            f();
-        })();
-        worker.onmessage = function(e)
-        {
-            var response = JSON.parse(e.data);
-            var i = 0;
-            while(response[i] != undefined)
-            {
-                const list = document.createElement("li");
-                const paragraph = document.createElement("p");
-                const small = document.createElement("small");
-                list.appendChild(paragraph);
-                list.appendChild(small);
-                paragraph.innerHTML = response[i].sender + ": " + response[i].message_content;
-                small.innerHTML = response[i].send_date;
+			function createReceiveMessage(message)
+			{
+				var messageDiv = document.createElement("div");
+				messageDiv.classList.add(
+					"received-chat-text-container",
+					"margin-left-sm",
+					"margin-top-sm",
+					"margin-bottom-sm",
+					"flex-container"
+				);
+				var img = document.createElement("img");
+				img.classList.add(
+					"rounded-image",
+					"image-32px",
+					"margin-right-sm"
+				);
+				var src = document.createAttribute("src");
+				src.value ="{{his_profile_picture_url}}";
+				img.setAttributeNode(src);
 
-                chat.appendChild(list);
-                i += 1;
-            }
-        }
-    </script>
-    {% endif %}
-{% endblock %}
+				var messageTextDiv = document.createElement("div");
+				messageTextDiv.classList.add(
+					"received-text-container",
+					"padding-sm"
+				);
+				messageTextDiv.innerHTML = message.message_content;
+				var br = document.createElement("br");
+				var messageDateDiv = document.createElement("div");
+				messageDateDiv.classList.add("Lmessage-date");
+				messageDateDiv.innerHTML = message.send_date;
+				messageTextDiv.appendChild(br);
+				messageTextDiv.appendChild(messageDateDiv);
+
+				messageDiv.appendChild(img);
+				messageDiv.appendChild(messageTextDiv);
+
+				return messageDiv;
+			}
+		</script>
+		{% endif %}
+	</body>
+</html>

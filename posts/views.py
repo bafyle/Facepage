@@ -7,6 +7,8 @@ from django.db.models import Q
 from django.core.paginator import Paginator
 from notifications.models import Notification
 
+from users.models import Friend
+
 
 def home(request):
     """
@@ -175,6 +177,22 @@ def viewPost(request, post_id):
         messages.error(request, "you need to login first")
         return redirect('users:login')
 
+
+def sharePost(request, post_id):
+    if request.user.is_authenticated:
+        referenced_post = get_object_or_404(Post, id=post_id)
+        new_post = Post(
+            creator=request.user,
+            shared_post=True,
+            original_post=referenced_post
+        )
+        new_post.save()
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        messages.error(request, "You must be logged in first")
+        return redirect('users:index')
+    pass
+
 def deletePost(request, post_id):
     """
     This function delete a particular post by the id of that post
@@ -278,30 +296,3 @@ def addComment(request, post_id):
         messages.error(request, "You must be logged in first")
         return redirect('users:index')
 
-
-
-def addFriend(request, link):
-    """
-    Not working right now since there is no button to invoke it
-
-    This view create a new Friend in the Friends table between request.user and username
-    """
-    new_relation = Friend(side1=request.user, side2=User.objects.get(profile__link=link))
-    try:
-        new_relation.save()
-        if Notification.objects.filter(user_from=request.user, user_to=new_relation.side2, route_id=request.user.profile.link).count() <= 0:
-            notification_content = f"{request.user.first_name} {request.user.last_name} sent you a friend request"
-            newNotification = Notification(
-                user_from=request.user,
-                user_to=new_relation.side2,
-                content=notification_content,
-                type='F',
-                picture=request.user.profile.profile_picture.url,
-                route_id=request.user.profile.link
-            )
-            newNotification.save()
-    except:
-        messages.error(request, f"you already a friend with {new_relation.side2.profile.name()}")
-        return redirect('posts:home')
-    finally:
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

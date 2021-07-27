@@ -18,6 +18,85 @@
         <link href="{% static 'pages/css/facepage.css'%}" rel="stylesheet">
         {% endblock style_link %}
         {% block style %}
+            <style>
+                
+                
+                .testbox {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: inherit;
+                padding: 3px;
+                }
+                
+                input, select, textarea {
+                margin-bottom: 10px;
+                border: 1px solid #ccc;
+                border-radius: 3px;
+                }
+                input {
+                width: calc(100% - 10px);
+                padding: 5px;
+                }
+                select {
+                padding: 7px 0;
+                background: transparent;
+                }
+                textarea {
+                width: calc(100% - 6px);
+                }
+                .item {
+                position: relative;
+                margin: 10px 0;
+                }
+                .item:hover p{
+                color: #095484;
+                }
+                .item:hover i{
+                    color: red;
+                }
+                input:hover, select:hover, textarea:hover {
+                box-shadow: 0 0 5px 0 #095484;
+                }
+                input[type="date"]::-webkit-inner-spin-button {
+                display: none;
+                }
+                input[type="time"]::-webkit-inner-spin-button {
+                margin: 2px 22px 0 0;
+                }
+            
+        
+                .btn-block {
+                margin-top: 20px;
+                text-align: center;
+                }
+                .buttonS {
+                width: auto;
+                padding: 10px;
+                border: none;
+                -webkit-border-radius: 5px; 
+                -moz-border-radius: 5px; 
+                border-radius: 5px; 
+                background-color: #095484;
+                font-size: 10px;
+                color: #fff;
+                cursor: pointer;
+                }
+                .buttonS:hover {
+                background-color: #0666a3;
+                }
+                @media (min-width: 568px) {
+                .name-item, .city-item {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                }
+                .name-item input{
+                width: calc(50% - 20px);
+                }
+
+                }
+            </style>
         {% endblock style %}
         {% endblock head %}
     </head>
@@ -77,6 +156,31 @@
                     {% endblock navbar %}
                     <div class="row row-offcanvas row-offcanvas-left">
                         {% block sidebar %}
+                            <div class="column col-sm-2 col-xs-1 sidebar-offcanvas" id="sidebar">
+                        
+                                <ul class="nav">
+                                    <li><a href="#" data-toggle="offcanvas" class="visible-xs text-center"><i class="glyphicon glyphicon-chevron-right"></i></a></li>
+                                </ul>
+                            
+                                <ul class="nav hidden-xs" id="lg-menu">
+                                    <li class="active"><a href=""><i class="glyphicon glyphicon-refresh"></i> Refresh</a></li>
+                                    <li><a href="{% url 'users:account-settings' %}"><i class="fas fa-cog"></i> Account Information </a></li>
+                                    <li><a href="{% url 'users:personal-settings'%}"><i class="fas fa-user-cog"></i> Personal Information </a></li>											
+                                </ul>
+                                <ul class="list-unstyled hidden-xs" id="sidebar-footer">
+                                    <li>
+                                    <p style="font-size: 11px;">Privacy· Terms· Advertising· <br>Ad Choices <i class="fas fa-angle-double-right"></i>· Cookies· More· Facepage © 2021</p>
+                                    </li>
+                                </ul>
+                            
+                                <!-- tiny only nav-->
+                            <ul class="nav visible-xs" id="xs-menu">
+                                    <li><a href="" class="text-center"><i class="glyphicon glyphicon-refresh"></i></a></li>
+                                    <li><a href="{% url 'users:account-settings' %}" class="text-center"><i class="fas fa-cog"></i></a></li>
+                                    <li><a href="{% url 'users:personal-settings'%}" class="text-center"><i class="fas fa-user-cog"></i></a></li>
+                                </ul>
+                            
+                            </div>
                         {% endblock sidebar %}
                         <!-- {% if messages %}
                             {% for message in messages %}

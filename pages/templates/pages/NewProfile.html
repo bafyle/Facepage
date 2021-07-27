@@ -95,42 +95,41 @@
     </div> -->
     {% for post in page_obj %}
         <div class="panel panel-default">
-        <div class="panel-heading" >
-            <img src="{{ post.creator.profile.profile_picture.url }}" class="img-circle pull-left">
-            {% if my_profile_link == profile_link %}
-                
-                <a href="{% url 'posts:delete' post.id %}"><button type="submit" class="pull-right"><i class="fas fa-trash-alt"></i></button></a>
-                
-                    
-                <a href="{% url 'posts:update' post.id %}"><button type="submit" class="pull-right"><i class="fas fa-edit"></i></button></a>
-                
-            {% endif %}
-            <h4 style="font-size: 17px; font-weight: bold;"><a href="{% url 'profile' post.creator.profile.link %}">{{post.creator.profile.name}}</a><br>
-            <p style="font-size: 13.5px; font-weight: lighter;">{{ post.create_date|naturaltime }}. <i class="fas fa-globe-americas" style="font-size: 13px;"></i></p>
-        </h4>
-        </div>
+            <div class="panel-heading" >
+                <img src="{{ post.creator.profile.profile_picture.url }}" class="img-circle pull-left">
+                {% if navbar_link == user_profile_link %}						
+                    <a href="{% url 'posts:delete' post.id %}"><button type="submit" class="pull-right"><i class="fas fa-trash-alt"></i></button></a>
+                    <a href="{% url 'posts:update' post.id %}"><button type="submit" class="pull-right"><i class="fas fa-edit"></i></button></a> 
+                {% endif %}
+                <h4 style="font-size: 17px; font-weight: bold;"><a href="{% url 'profile' post.creator.profile.link %}">{{ post.creator.profile.name}} {% if post.shared_post%}<small>shared a post:</small>{% endif %}
+                </a>
+                    <br>
+                    <p style="font-size: 13.5px; font-weight: lighter;">{{ post.create_date|naturaltime }} <i class="fas fa-globe-americas" style="font-size: 13px;"></i></p>
+                </h4>
+            </div>
             <div class="panel-body">
-
-            <p>{{ post.post_content }}</p>
-            
-            <!-- <hr>
-            <div class="panel-thumbnail"><img src="{% static 'pages/img/bg_5.jpg'%}" class="img-responsive"></div> -->
-            <div class="clearfix"></div>
+    
+                <p>{{ post.post_content }}</p>
+                {% if post.image != '' %}
+                <div class="panel-thumbnail"><img src="{{post.image}}" class="img-responsive"></div>
+                <div class="clearfix"></div>								
+                {% endif %}
             <hr>
             <div class="input-group">
                 <div class="input-group-btn">
                     {% if post in liked_posts %}
                         <form action="{% url 'posts:unlike-post' post.id %}" method="GET"> {%csrf_token%}
-                            <button class="btn btn-default"><i class="fas fa-thumbs-down"></i> {{ post.likes }}</button>
-                        </form>
+                            <button class="btn btn-default" style="float: left; "><i class="fas fa-thumbs-down"></i> {{ post.likes }}</button>
+                        </form>  
                     {% else %}
                     <form action="{% url 'posts:like-post' post.id %}" method="GET"> {%csrf_token%}
-                        <button class="btn btn-default"><i class="fas fa-thumbs-up"></i> {{ post.likes }}</button>
+                        <button class="btn btn-default" style="float: left;"><i class="fas fa-thumbs-up" ></i> {{ post.likes }}</button>
                     </form>
                     {% endif%}
+                    
                 </div>
                 <form action="{% url 'posts:add-comment' post.id %}" method="get"> {%csrf_token%}
-                    <input name="comment-content" class="form-control" placeholder="Add a comment.." type="text">
+                    <input name="comment-content" class="form-control" id="CommentInput" placeholder="Add a comment.." type="text">
                 </form>
             </div>
             {% for comment in post.comment_set.all %}
@@ -141,8 +140,7 @@
                         {{comment.comment_content}}
                     </p></h4>
                 </div>
-                {% endfor %}
-            
+            {% endfor %}
             </div>
         </div>
     {% endfor %}

@@ -12,4 +12,4 @@ class Message(models.Model):
 
 
     def __str__(self):
-        return f"Message sent on: {self.send_date}"
+        return f"Message sent on: {self.send_date} from: {self.sender} to: {self.receiver}"

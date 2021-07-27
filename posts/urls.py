@@ -12,5 +12,6 @@ urlpatterns = [
     path(r'unlike/<int:post_id>/', unlikePost, name='unlike-post'),
     path(r'comment/<int:post_id>/', addComment, name='add-comment'),
     path(r'search/', search, name='search'),
-    path(r'add/<slug:link>/', addFriend, name='add-friend'),
+    path(r'share/<int:post_id>/', sharePost, name='share-post'),
+
 ]

@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
@@ -17,6 +18,9 @@ from .models import Profile
 from .id_generator import id_generator
 from pathlib import Path
 from django.contrib.auth.models import User
+from .models import Friend
+from notifications.models import Notification
+
 import os
 
 # Create your views here.
@@ -81,6 +85,31 @@ def register(request):
         form = RegisterForm()
     return render(request, 'pages/Register.html', {'form':form})
 
+def addFriend(request, link):
+    """
+    Not working right now since there is no button to invoke it
+
+    This view create a new Friend in the Friends table between request.user and username
+    """
+    new_relation = Friend(side1=request.user, side2=User.objects.get(profile__link=link))
+    try:
+        new_relation.save()
+        if Notification.objects.filter(user_from=request.user, user_to=new_relation.side2, route_id=request.user.profile.link).count() <= 0:
+            notification_content = f"{request.user.first_name} {request.user.last_name} sent you a friend request"
+            newNotification = Notification(
+                user_from=request.user,
+                user_to=new_relation.side2,
+                content=notification_content,
+                type='F',
+                picture=request.user.profile.profile_picture.url,
+                route_id=request.user.profile.link
+            )
+            newNotification.save()
+    except:
+        messages.error(request, f"you already a friend with {new_relation.side2.profile.name()}")
+        return redirect('posts:home')
+    finally:
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def accountSettings2(request):
     """

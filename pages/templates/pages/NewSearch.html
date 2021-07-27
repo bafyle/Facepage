@@ -87,7 +87,7 @@ Search: {{search}}
                                 {% if user.3 and user.1 != navbar_link %}
                                     <a href="{% url 'messenger:chat' user.1%}" class="btn btn-primary pull-right" type="submit"><i class="fab fa-rocketchat"></i></a>
                                 {% elif user.3 != True and user.1 != navbar_link %}
-                                    <a href="{% url 'posts:add-friend' user.1%}" class="btn btn-primary pull-right" type="submit"><i class="fas fa-user-plus"></i></a>
+                                    <a href="{% url 'users:add-friend' user.1%}" class="btn btn-primary pull-right" type="submit"><i class="fas fa-user-plus"></i></a>
                                 {% endif %}
                                 </div>																							
                             </div>

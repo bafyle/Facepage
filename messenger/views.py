@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
-from posts.models import Friend
+from users.models import Friend
 from .models import Message
 from django.db.models import Q
 from django.contrib.auth.models import User
@@ -45,6 +45,7 @@ def chat2(request, link:str = None):
         if username:
             chat_information['his_username'] = username.profile.name()
             chat_information['his_link'] = username.profile.link
+            chat_information['his_profile_picture_url'] = username.profile.profile_picture.url
         chat_information['friends'] = friends
         chat_information['unseen_messages'] = unseen_messages
         if request.method == 'POST':
@@ -58,21 +59,23 @@ def chat2(request, link:str = None):
             else:
                 messages.error(request, "Error in sending the message")
             chat_information['form'] = form
+            chat_information['profile_pic'] = request.user.profile.profile_picture.url
+            chat_information['navbar_name'] = request.user.first_name
+            chat_information['navbar_link'] = request.user.profile.link
+            chat_information['username'] = request.user.username
             return render(request, 'pages/Chat.html', context=chat_information)
         else:
             form = SendMessageForm()
             chat_information['form'] = form
+            chat_information['profile_pic'] = request.user.profile.profile_picture.url
+            chat_information['navbar_name'] = request.user.first_name
+            chat_information['navbar_link'] = request.user.profile.link
+            chat_information['username'] = request.user.username
             return render(request, 'pages/Chat.html', context=chat_information)
     else:
         messages.error(request, "You must login first")
         return redirect('users:index')
 
-def tmpchat(request):
-    context = dict()
-    context['navbar_name'] = request.user.first_name
-    context['navbar_link'] = request.user.profile.link
-    context['profile_pic'] = request.user.profile.profile_picture.url
-    return render(request, 'pages/newchat.html', context)
     
 
 def sendMessage(request, link: str):
