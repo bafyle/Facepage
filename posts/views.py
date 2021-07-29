@@ -1,4 +1,4 @@
-from django.http.response import Http404
+from django.http.response import Http404, JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from .models import *
 from django.contrib import messages
@@ -56,8 +56,11 @@ def profile(request, link):
         context = dict()
         user = get_object_or_404(User, profile__link=link)
         if request.user != user:
-            are_they_friends = bool(Friend.objects.filter((Q(side1=request.user) & Q(side2=user)) 
-                                    | (Q(side1=user) & Q(side2=request.user))))
+            are_they_friends = bool(
+                Friend.objects.filter(
+                    (Q(side1=request.user) & Q(side2=user)) | (Q(side1=user) & Q(side2=request.user))
+                    )
+                )
             context['are_they_friends'] = are_they_friends
         profile_posts = Post.objects.filter(creator__profile__link=link).order_by('-create_date')
 
@@ -85,6 +88,40 @@ def profile(request, link):
     else:
         messages.error(request, "You need to login first to view this profile")
         return redirect('posts:home')
+
+def getProfilePosts(request, link:str):
+    page = int(request.GET.get('page'))
+    lowIndex = page*5
+    highIndex = lowIndex + 5
+    profile_posts = Post.objects.filter(
+                                        creator__profile__link=link
+                    ).order_by('-create_date')[lowIndex:highIndex].values(
+                                                                        'comments',
+                                                                        'create_date',
+                                                                        'creator',
+                                                                        'image',
+                                                                        'likes',
+                                                                        'original_post',
+                                                                        'post_content',
+                                                                        'shared_post',
+                                                                        'id')
+    posts = dict()
+    for index, query in enumerate(profile_posts):
+        post = dict()
+        for key in query:
+            if key != 'id':
+                post[key] = query[key]
+        comments = dict()
+        comments_query = Comment.objects.filter(post__id = query.get('id'))
+        for index2, commentItem in enumerate(comments_query):
+            comment = dict()
+            comment['comment_content'] = commentItem.comment_content
+            comment['comment_creator'] = commentItem.creator.profile.name()
+            comment['comment_creator_profile_picture_url'] = commentItem.creator.profile.profile_picture.url
+            comments[index2] = comment
+        post['comments'] = comments
+        posts[index] = post
+    return JsonResponse(posts)
 
 def search(request):
     """
@@ -136,7 +173,6 @@ def createPost(request):
     else:
         messages.error(request, "You must be logged in first")
         return redirect('users:index')
-
 
 def updatePost(request, post_id):
     """
@@ -191,7 +227,6 @@ def sharePost(request, post_id):
     else:
         messages.error(request, "You must be logged in first")
         return redirect('users:index')
-    pass
 
 def deletePost(request, post_id):
     """

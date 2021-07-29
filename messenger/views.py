@@ -40,6 +40,10 @@ def chat2(request, link:str = None):
             ).order_by('send_date')
         else:
             chat = []
+        for message in new_received_messages:
+            message.seen = True
+            message.save()
+        
         chat_information['chat'] = chat
         chat_information['my_name'] = request.user.profile.name()
         if username:

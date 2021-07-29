@@ -48,10 +48,6 @@
 
 {% block main %}
 <div class="column col-sm-10 col-xs-11" id="main">
-              
-							
-							
-						
     <div class="card hovercard">
         <div class="cardheader" style="background: url('{{user_profile_cover.url}}');background-size: cover;height: 300px;">
 
@@ -69,106 +65,192 @@
         </div>
 
     </div>
-<hr>
+    <hr>
+    <div class="padding">
 
-
-
-<div class="padding">
-
-<div class="full col-sm-9" >
-
-    
-<!-- content -->                      
-<div class="row">
-
- <!-- main col left --> 
- <div class="col-sm-5">
-   
-    <!-- <div class="well"> 
-        <form class="form-horizontal" role="form">
-        <h4>What's New</h4>
-            <div class="form-group" style="padding:14px;">
-            <textarea class="form-control" placeholder="What's on your mind?"></textarea>
-        </div>
-        <button class="btn btn-primary pull-right" type="button">Post</button><ul class="list-inline"><li><a href=""><i class="fas fa-photo-video"></i></a></li><li><a href=""><i class="fas fa-user-tag"></i></a></li><li><a href=""><i class="glyphicon glyphicon-map-marker"></i></a></li></ul>
-        </form>
-    </div> -->
-    {% for post in page_obj %}
-        <div class="panel panel-default">
-            <div class="panel-heading" >
-                <img src="{{ post.creator.profile.profile_picture.url }}" class="img-circle pull-left">
-                {% if navbar_link == user_profile_link %}						
-                    <a href="{% url 'posts:delete' post.id %}"><button type="submit" class="pull-right"><i class="fas fa-trash-alt"></i></button></a>
-                    <a href="{% url 'posts:update' post.id %}"><button type="submit" class="pull-right"><i class="fas fa-edit"></i></button></a> 
-                {% endif %}
-                <h4 style="font-size: 17px; font-weight: bold;"><a href="{% url 'profile' post.creator.profile.link %}">{{ post.creator.profile.name}} {% if post.shared_post%}<small>shared a post:</small>{% endif %}
-                </a>
-                    <br>
-                    <p style="font-size: 13.5px; font-weight: lighter;">{{ post.create_date|naturaltime }} <i class="fas fa-globe-americas" style="font-size: 13px;"></i></p>
-                </h4>
-            </div>
-            <div class="panel-body">
-    
-                <p>{{ post.post_content }}</p>
-                {% if post.image != '' %}
-                <div class="panel-thumbnail"><img src="{{post.image}}" class="img-responsive"></div>
-                <div class="clearfix"></div>								
-                {% endif %}
-            <hr>
-            <div class="input-group">
-                <div class="input-group-btn">
-                    {% if post in liked_posts %}
-                        <form action="{% url 'posts:unlike-post' post.id %}" method="GET"> {%csrf_token%}
-                            <button class="btn btn-default" style="float: left; "><i class="fas fa-thumbs-down"></i> {{ post.likes }}</button>
-                        </form>  
-                    {% else %}
-                    <form action="{% url 'posts:like-post' post.id %}" method="GET"> {%csrf_token%}
-                        <button class="btn btn-default" style="float: left;"><i class="fas fa-thumbs-up" ></i> {{ post.likes }}</button>
+        <div class="full col-sm-9" >
+        <!-- content -->                      
+        <div class="row">
+            <!-- main col left --> 
+            <div class="col-sm-5">
+                {% if navbar_link == user_profile_link %}
+                <div class="well"> 
+                    <form class="form-horizontal" action="{% url 'posts:add-post' %}" method="POST"> {%csrf_token%}
+                    <h4>What's New</h4>
+                        <div class="form-group" style="padding:14px;">
+                        <textarea name="new-post-content" class="form-control" placeholder="What's on your mind?"></textarea>
+                    </div>
+                    <button class="btn btn-primary pull-right" type="submit" value="submit">Post</button><ul class="list-inline"><li><a href=""><i class="fas fa-photo-video"></i></a></li><li><a href=""><i class="fas fa-user-tag"></i></a></li><li><a href=""><i class="glyphicon glyphicon-map-marker"></i></a></li></ul>
                     </form>
-                    {% endif%}
-                    
                 </div>
-                <form action="{% url 'posts:add-comment' post.id %}" method="get"> {%csrf_token%}
-                    <input name="comment-content" class="form-control" id="CommentInput" placeholder="Add a comment.." type="text">
-                </form>
+                {% endif %}
+                {% for post in page_obj %}
+                    <div id="{{post.id}}" class="panel panel-default">
+                        <div class="panel-heading" >
+                            <img src="{{ post.creator.profile.profile_picture.url }}" class="img-circle pull-left">
+                            {% if navbar_link == user_profile_link %}
+                                <a onclick="deletePost('{{post.id}}');" class="delete-post-button"><button type="submit" class="pull-right"><i class="fas fa-trash-alt"></i></button></a>
+                                <a href="{% url 'posts:update' post.id %}"><button type="submit" class="pull-right"><i class="fas fa-edit"></i></button></a> 
+                            {% endif %}
+                            <h4 style="font-size: 17px; font-weight: bold;"><a href="{% url 'profile' post.creator.profile.link %}">{{ post.creator.profile.name}} {% if post.shared_post%}<small>shared a post:</small>{% endif %}
+                            </a>
+                                <br>
+                                <p style="font-size: 13.5px; font-weight: lighter;">{{ post.create_date|naturaltime }} <i class="fas fa-globe-americas" style="font-size: 13px;"></i></p>
+                            </h4>
+                        </div>
+                        <div class="panel-body">
+                
+                            <p>{{ post.post_content }}</p>
+                            {% if post.image != '' %}
+                            <div class="panel-thumbnail"><img src="{{post.image}}" class="img-responsive"></div>
+                            <div class="clearfix"></div>								
+                            {% endif %}
+                        <hr>
+                        <div class="input-group">
+                            <div class="input-group-btn">
+                                {% if post in liked_posts %}
+                                    <form action="{% url 'posts:unlike-post' post.id %}" method="GET"> {%csrf_token%}
+                                        <button class="btn btn-default" style="float: left; "><i class="fas fa-thumbs-down"></i> {{ post.likes }}</button>
+                                    </form>  
+                                {% else %}
+                                <form action="{% url 'posts:like-post' post.id %}" method="GET"> {%csrf_token%}
+                                    <button class="btn btn-default" style="float: left;"><i class="fas fa-thumbs-up" ></i> {{ post.likes }}</button>
+                                </form>
+                                {% endif%}
+                                <form action="{% url 'posts:share-post' post.id %}" method="POST"> {%csrf_token%}
+                                    <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-share"></i></button>
+                                </form>
+                            </div>
+                            <form action="{% url 'posts:add-comment' post.id %}" method="get"> {%csrf_token%}
+                                <input name="comment-content" class="form-control" id="CommentInput" style="margin-left: 40px;" placeholder="Add a comment.." type="text">
+                            </form>
+                        </div>
+                        {% for comment in post.comment_set.all %}
+                            <div class="panel-heading" style="background-color: lightgrey; margin-bottom: 20px;">
+                                <img src="{{comment.creator.profile.profile_picture.url}}" class="img-circle pull-left">
+                                <h4 style="font-size: 15px; font-weight: bold;">{{ comment.creator.profile.name }}
+                                    <br>
+                                <p style="font-size: 13.5px; font-weight: 300;">
+                                    {{comment.comment_content}}
+                                </p></h4>
+                            </div>
+                        {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-            {% for comment in post.comment_set.all %}
-                <div class="panel-heading" style="background-color: lightgrey; margin-bottom: 20px;">
-                    <img src="{{comment.creator.profile.profile_picture.url}}" class="img-circle pull-left">
-                    <h4 style="font-size: 15px; font-weight: bold;">{{ comment.creator.profile.name }}<br>
-                    <p style="font-size: 13.5px; font-weight: 300;">
-                        {{comment.comment_content}}
-                    </p></h4>
-                </div>
-            {% endfor %}
-            </div>
+        </div><!--/row-->
+
+        <div class="container" style="width:100%; text-align:center;">
+        {% if page_obj.number != 1 %}
+            <a href="?page={{ page_obj.previous_page_number }}" id="nexPrev" class="previous round">&#8249;</a>
+        {% endif %}
+        {% if page_obj.number != page_obj.paginator.num_pages %}	
+            <a href="?page={{ page_obj.next_page_number }}" id="nexPrev" class="next round">&#8250;</a>
+        {% endif %}
         </div>
-    {% endfor %}
-   </div>
-  
-
-</div><!--/row-->
-
-<div class="container" style="width:100%; text-align:center;">
-{% if page_obj.number != 1 %}
-    <a href="?page={{ page_obj.previous_page_number }}" id="nexPrev" class="previous round">&#8249;</a>
-{% endif %}
-{% if page_obj.number != page_obj.paginator.num_pages %}	
-    <a href="?page={{ page_obj.next_page_number }}" id="nexPrev" class="next round">&#8250;</a>
-{% endif %}
-</div>
 
 
-<hr>
-<h4 class="text-center">
-<p style="font-size: 11px;">Privacy· Terms· Advertising· Ad Choices <i class="fas fa-angle-double-right"></i>· Cookies· More· Facepage © 2021</p>
-</h4>
-<hr>
+        <hr>
+        <h4 class="text-center">
+        <p style="font-size: 11px;">Privacy· Terms· Advertising· Ad Choices <i class="fas fa-angle-double-right"></i>· Cookies· More· Facepage © 2021</p>
+        </h4>
+        <hr>
 
 
 
-</div><!-- /col-9 -->
-</div><!-- /padding -->
+        </div><!-- /col-9 -->
+    </div><!-- /padding -->
 </div>
 <!-- /main -->
 {% endblock main %}
+
+{% block scripts %}
+{{ block.super }}
+<!-- loading older post using ajax -->
+<!-- <script>
+    var mainContainer = document.getElementById("main");
+    var pageNumber = 0;
+    mainContainer.addEventListener('scroll', () =>
+    {
+        if(mainContainer.scrollHeight - mainContainer.scrollTop === mainContainer.clientHeight)
+        {
+            pageNumber++;
+            getOlderPosts();
+        }
+    });
+    function getOlderPosts()
+    {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", " url 'profile-posts' user_profile_link page=" + pageNumber , true);
+
+        xhr.onload = function()
+        {
+            if(this.status === 200)
+            {
+                var respond = JSON.parse(this.responseText);
+                console.log(respond);
+            }
+        }
+
+        xhr.send();
+    }
+
+    function createComment(data)
+    {
+        var commentDiv = document.createElement("div");
+        commentDiv.classList.add("panel-heading");
+        commentDiv.style.backgroundColor = "lightgrey";
+        commentDiv.style.marginBottom = '20px';
+
+        var img = document.createElement("img");
+        img.classList.add(
+            "img-circle",
+            "pull-left"
+        );
+
+        var srcAtt = document.createAttribute("src");
+        srcAtt.value = data.comment_creator_profile_picture_url
+
+        img.setAttribute(srcAtt);
+
+        var h4 = document.createElement("h4");
+        h4.style.fontSize = "15px";
+        h4.style.fontWeight = "bold";
+        h4.innerText = data.comment_creator
+
+        var p = document.createElement("p");
+        p.style.fontSize = "13.5px";
+        p.style.fontWeight = "300";
+        p.innerText = data.commentContent;
+
+        h4.appendChild(document.createElement("br"));
+        h4.appendChild(p);
+        commentDiv.appendChild(img);
+        commentDiv.appendChild(h4);
+        return commentDiv;
+    }
+
+</script> -->
+<!-- deleting posts ajax -->
+{% if navbar_link == user_profile_link %}
+<script>
+    function deletePost(postID)
+    {
+        var xhr = new XMLHttpRequest();
+        var url = '/home/delete-post/'+postID+'/';
+        xhr.open("GET", url, true);
+
+        xhr.onload = function()
+        {
+            if(this.status === 200)
+            {
+                var post = document.getElementById(postID);
+                post.remove();
+            }
+        }
+        xhr.send();
+    }
+</script>
+{% endif %}
+{% endblock scripts%}

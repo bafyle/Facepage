@@ -13,8 +13,9 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from posts.views import getProfilePosts
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from posts.views import profile
@@ -24,6 +25,7 @@ urlpatterns = [
     path(r'', include('users.urls'), name='users'),
     path(r'home/', include('posts.urls'), name='home'),
     path(r'profile/<slug:link>/', profile, name='profile'),
+    #path(r'profile/<slug:link>/get/', getProfilePosts, name='profile-posts'),
     path(r'messenger/', include('messenger.urls'), name='messenger'),
 
 ]

@@ -1,8 +1,3 @@
-
-var allBtn = document.getElementById("allbtn");
-var peopleBtn = document.getElementById("peoplebtn");
-var postBtn = document.getElementById("postsbtn");
-
 var posts = document.getElementsByClassName("panel panel-default");
 var people = document.getElementsByClassName("nearby-user");
 var postsLabel = document.getElementById("posts-label");

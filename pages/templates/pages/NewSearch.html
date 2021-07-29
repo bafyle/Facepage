@@ -22,9 +22,9 @@ Search: {{search}}
    
     <ul class="nav hidden-xs" id="lg-menu">
         <li class="active"><a href=""><i class="glyphicon glyphicon-refresh"></i> Refresh</a></li>
-        <li><a onclick="allBtnClick();"><button id="allbtn" ><i class="fas fa-object-group"></i> All</button></a></li>
-        <li><a onclick="postBtnClick();"><button id="postsbtn"  ><i class="fas fa-sticky-note"></i> Posts</button></a></li>
-        <li><a onclick="peopleBtnClick();"><button  id="peoplebtn" ><i class="fas fa-user-friends"></i> People</button></a></li>	
+        <li><a style="cursor: pointer;" onclick="allBtnClick();"><i class="fas fa-object-group"></i> All</a></li>
+        <li><a style="cursor: pointer;" onclick="postBtnClick();"><i class="fas fa-sticky-note"></i> Posts</a></li>
+        <li><a style="cursor: pointer;" onclick="peopleBtnClick();"><i class="fas fa-user-friends"></i> People</a></li>	
         <li><a ><i class="fas fa-images"></i> Photos</a></li>
         <li><a ><i class="fas fa-users"></i> Groups</a></li>
         <li><a ><i class="fas fa-video"></i> Videos</a></li>									
@@ -36,7 +36,7 @@ Search: {{search}}
     </ul>
   
     <!-- tiny only nav-->
-  <ul class="nav visible-xs" id="xs-menu">
+    <ul class="nav visible-xs" id="xs-menu">
         <li><a href="" class="text-center"><i class="glyphicon glyphicon-refresh"></i></a></li>
         <li><a href="#" class="text-center"><i class="fas fa-object-group"></i></a></li>
         <li><a href="#" class="text-center"><i class="fas fa-sticky-note"></i></a></li>
@@ -44,7 +44,6 @@ Search: {{search}}
         <li><a href="#" class="text-center"><i class="fas fa-images"></i></a></li>
         <li><a href="#" class="text-center"><i class="fas fa-users"></i></a></li>
         <li><a href="#" class="text-center"><i class="fas fa-video"></i></a></li>
-    
     </ul>
   
 </div>
@@ -114,23 +113,6 @@ Search: {{search}}
                                     <div class="clearfix"></div>
                                     {% if post.comment_set.all.count > 0 %}
                                     <hr>
-                                    
-                                    <!-- <div class="input-group">
-                                        <div class="input-group-btn">
-                                            {% if post in liked_posts %}
-                                                <form action="{% url 'posts:unlike-post' post.id %}" method="GET"> {%csrf_token%}
-                                                    <button class="btn btn-default"><i class="fas fa-thumbs-down"></i> {{ post.likes }}</button>
-                                                </form>
-                                            {% else %}
-                                            <form action="{% url 'posts:like-post' post.id %}" method="GET"> {%csrf_token%}
-                                                <button class="btn btn-default"><i class="fas fa-thumbs-up"></i> {{ post.likes }}</button>
-                                            </form>
-                                            {% endif%}
-                                        </div>
-                                        <form action="{% url 'posts:add-comment' post.id %}" method="get"> {%csrf_token%}
-                                            <input name="comment-content" class="form-control" placeholder="Add a comment.." type="text">
-                                        </form>
-                                    </div> -->
                                     {% for comment in post.comment_set.all %}
                                         <div class="panel-heading" style="background-color: lightgrey; margin-bottom: 20px;">
                                             <img src="{{comment.creator.profile.profile_picture.url}}" class="img-circle pull-left">
@@ -152,11 +134,13 @@ Search: {{search}}
              <!-- End Search Results --> 
 
              </div><!--/main col left-->
-
-
             
             <div id="no-results"
-            style="{% if users|length == 0 and posts|length == 0%}display: block;{% else %}display: none;{%endif%}"
+                {% if users|length == 0 and posts|length == 0 %}
+                    style="display: block";
+                {% else %}
+                    style="display: none;"
+                {%endif%}
             class="no-result">
                 <center><img src="{% static 'pages/img/no result.png'%}" style="margin: auto"></center>
                 <center><h3>We didn't find any results</h3></center>

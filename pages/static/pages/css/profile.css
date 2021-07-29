@@ -170,9 +170,6 @@ h1,h2,h3 {
     color:#666666;
     text-shadow:0 0 1px rgba(0,0,0,.3);
 }
-.form-control {
-	
-}
 
 .panel textarea, .well textarea, textarea.form-control
 {
@@ -379,4 +376,15 @@ small.text-muted {
   border-radius: 50%;
 }
 
+#CommentInput {
+  width: 94.5%;
+}
+
+
+@media (max-width: 768px) {
+
+  #CommentInput {
+    width:85%;
+  }
+}
 
