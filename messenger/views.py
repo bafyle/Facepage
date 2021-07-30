@@ -9,7 +9,7 @@ from .forms import SendMessageForm
 from django.core.serializers import serialize
 from django.utils import timezone
 
-def chat2(request, link:str = None):
+def chat(request, link:str = None):
     if request.user.is_authenticated:
         username = User.objects.filter(profile__link=link).first()
         my_username = request.user.username
@@ -94,7 +94,7 @@ def sendMessage(request, link: str):
             responsef = dict()
             responsef["sender"] = request.user.first_name
             responsef["content"] = message
-            responsef["time"] = timezone.localtime(new_message.send_date).strftime("%B %d, %Y %I:%M %p")
+            responsef["time"] = timezone.localtime(new_message.send_date).strftime("%Y/%m/%d %H:%M:%S")
     return JsonResponse(responsef)
 
 
@@ -111,7 +111,7 @@ def getMessages(request, link: str):
             if key == "sender":
                 message[key] = User.objects.get(id=message[key]).first_name
             elif key == "send_date":
-                message[key] = timezone.localtime(message[key]).strftime("%B %d, %Y %I:%M %p")
+                message[key] = timezone.localtime(message[key]).strftime("%Y/%m/%d %H:%M:%S")
         responsef[index] = message
     for message in chat:
         message.seen = True

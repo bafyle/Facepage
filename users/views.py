@@ -1,3 +1,4 @@
+from django.http.response import JsonResponse
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.contrib import messages
@@ -20,6 +21,7 @@ from pathlib import Path
 from django.contrib.auth.models import User
 from .models import Friend
 from notifications.models import Notification
+import json
 
 import os
 
@@ -74,21 +76,18 @@ def register(request):
                 new_profile = Profile(user=user, link=newLink, birthday=form.cleaned_data['birthday'], gender=form.cleaned_data['gender'])
                 new_profile.save()
                 sendEmail(request, user)
-                return redirect('users:verification-sent')
+                return JsonResponse({'message':'good'})
             except Exception as e:
                 user.delete()
                 raise e
         else:
-            messages.error(request, "Invalid input")
-            return render(request, 'pages/Register.html', {'form':form})
+            return JsonResponse(json.loads(form.errors.as_json()))
     else:
         form = RegisterForm()
     return render(request, 'pages/Register.html', {'form':form})
 
 def addFriend(request, link):
     """
-    Not working right now since there is no button to invoke it
-
     This view create a new Friend in the Friends table between request.user and username
     """
     new_relation = Friend(side1=request.user, side2=User.objects.get(profile__link=link))
@@ -354,7 +353,6 @@ def verifyEmailView(request):
     return render(request, 'pages/VerificationSent.html')
 
 def deletePhoto(mediaPath):
-    print(mediaPath)
     this_file_dir = Path(__file__).resolve().parent.parent
     file_path_without_edit = str(this_file_dir) + mediaPath
     file_path = file_path_without_edit.replace('\\', '/', -1)

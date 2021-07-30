@@ -3,131 +3,214 @@
 
 <html lang="en">
 
-<head>
-    <!-- Required meta tags-->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Colorlib Templates">
-    <meta name="author" content="Colorlib">
-    <meta name="keywords" content="Colorlib Templates">
+    <head>
+        <!-- Required meta tags-->
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="Colorlib Templates">
+        <meta name="author" content="Colorlib">
+        <meta name="keywords" content="Colorlib Templates">
 
-    <!-- Title Page-->
-    <title>Facepage Register</title>
+        <!-- Title Page-->
+        <title>Facepage Register</title>
 
-    <!-- Icons font CSS-->
-    <link href="{% static 'pages/vendor/mdi-font/css/material-design-iconic-font.min.css'%}" rel="stylesheet" media="all">
-    <link href="{% static 'pages/vendor/font-awesome-4.7/css/font-awesome.min.css' %}" rel="stylesheet" media="all">
-    <!-- Font special for pages-->
-    <link href="https://fonts.googleapis.com/css?family=Poppins:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+        <!-- Icons font CSS-->
+        <link href="{% static 'pages/vendor/mdi-font/css/material-design-iconic-font.min.css'%}" rel="stylesheet" media="all">
+        <link href="{% static 'pages/vendor/font-awesome-4.7/css/font-awesome.min.css' %}" rel="stylesheet" media="all">
+        <!-- Font special for pages-->
+        <link href="https://fonts.googleapis.com/css?family=Poppins:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 
-    <!-- Vendor CSS-->
-    <link href="{% static 'pages/vendor/select2/select2reg.min.css'%}" rel="stylesheet" media="all">
-    <link href="{% static 'pages/vendor/datepicker/daterangepicker.css'%}" rel="stylesheet" media="all">
+        <!-- Vendor CSS-->
+        <link href="{% static 'pages/vendor/select2/select2reg.min.css'%}" rel="stylesheet" media="all">
+        <link href="{% static 'pages/vendor/datepicker/daterangepicker.css'%}" rel="stylesheet" media="all">
 
-    <!-- Main CSS-->
-    <link href="{% static 'pages/css/main2.css'%}" rel="stylesheet" media="all">
-</head>
+        <!-- Main CSS-->
+        <link href="{% static 'pages/css/main2.css'%}" rel="stylesheet" media="all">
+    </head>
 
-<body>
-    <div class="page-wrapper bg-gra-02 p-t-130 p-b-100 font-poppins">
-        <div class="wrapper wrapper--w680">
-            <div class="card card-4">
-                <div class="card-body">
-                    <h2 class="title" style="font-weight: bold;">Sign Up <br><span style="position: relative; font-weight: 400; font-size: 15px;">It's quick and easy.</span></h2>
-                       
-                    <form method="POST" action="{% url 'users:register'%}"> {%csrf_token%}
-                        {{ form.non_field_errors }}
-                        <div class="row row-space">
-                            {{form.first_name.errors}}
-                            <div class="col-2">
-                                <div class="input-group">
-                                    <input id="{{form.first_name.id_for_label}}" class="input--style-4" type="text" name="first_name" placeholder="First name">
+    <body>
+        <div class="page-wrapper bg-gra-02 p-t-130 p-b-100 font-poppins">
+            <div class="wrapper wrapper--w680">
+                <div class="card card-4">
+                    <div id="card-body" class="card-body">
+                        <h2 class="title" style="font-weight: bold;">Sign Up <br><span style="position: relative; font-weight: 400; font-size: 15px;">It's quick and easy.</span></h2>
+                        <form id="register-form"> {%csrf_token%}
+                            {{ form.non_field_errors }}
+                            <div class="row row-space">
+                                {{form.first_name.errors}}
+                                <div class="col-2">
+                                    <div class="input-group">
+                                        <input id="{{form.first_name.id_for_label}}" class="input--style-4" type="text" name="first_name" placeholder="First name">
+                                    </div>
                                 </div>
-                            </div>
-                            {{form.last_name.errors}}
-                            <div class="col-2">
-                                <div class="input-group">
-                                    <input id="{{form.last_name.id_for_label}}"class="input--style-4" type="text" name="last_name" placeholder="Surname">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row row-space">
-                            {{form.birthday.errors}}
-                            <div class="col-2">
-                                <div class="input-group">
-                                    <div class="input-group-icon">
-                                        <input id="{{form.birthday.id_for_label}}"class="input--style-4" type="date" name="birthday" placeholder="Birthday">
+                                {{form.last_name.errors}}
+                                <div class="col-2">
+                                    <div class="input-group">
+                                        <input id="{{form.last_name.id_for_label}}"class="input--style-4" type="text" name="last_name" placeholder="Surname">
                                     </div>
                                 </div>
                             </div>
-                            {{form.gender.errors}}
-                            <div class="col-2">
-                                <div class="input-group">
-                                    <label class="label">Gender</label>
-                                    <div class="p-t-10">
-                                        <label class="radio-container m-r-45">Female
-                                            <input id="{{form.gender.id_for_label}}" type="radio" checked="checked" name="gender" value="F">
-                                            <span class="checkmark"></span>
-                                        </label>
-                                        <label class="radio-container">Male
-                                            <input id="{{form.gender.id_for_label}}" type="radio" name="gender" value="M">
-                                            <span class="checkmark"></span>
-                                        </label>
+                            <div class="row row-space">
+                                {{form.birthday.errors}}
+                                <div class="col-2">
+                                    <div class="input-group">
+                                        <div class="input-group-icon">
+                                            <input id="{{form.birthday.id_for_label}}"class="input--style-4" type="date" name="birthday" placeholder="Birthday">
+                                        </div>
+                                    </div>
+                                </div>
+                                {{form.gender.errors}}
+                                <div class="col-2">
+                                    <div class="input-group">
+                                        <label id="{{form.gender.id_for_label}}" class="label">Gender</label>
+                                        <div class="p-t-10">
+                                            <label class="radio-container m-r-45">Female
+                                                <input id="id_gender_0" type="radio" name="gender" value="F">
+                                                <span class="checkmark"></span>
+                                            </label>
+                                            <label class="radio-container">Male
+                                                <input id="id_gender_1" type="radio" name="gender" value="M">
+                                                <span class="checkmark"></span>
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row row-space">
-                            {{form.email.errors}}
-                            <div class="col-2">
-                                <div class="input-group">
-                                    <input id="{{form.email.id_for_label}}" class="input--style-4" type="email" name="email" placeholder="Email">
+                            <div class="row row-space">
+                                {{form.email.errors}}
+                                <div class="col-2">
+                                    <div class="input-group">
+                                        <input id="{{form.email.id_for_label}}" class="input--style-4" type="email" name="email" placeholder="Email">
+                                    </div>
+                                </div>
+                                {{form.username.errors}}
+                                <div class="col-2">
+                                    <div class="input-group">
+                                        <input id="{{form.username.id_for_label}}" class="input--style-4" type="username" name="username" placeholder="Username">
+                                    </div>
                                 </div>
                             </div>
-                            {{form.username.errors}}
-                            <div class="col-2">
-                                <div class="input-group">
-                                    <input id="{{form.username.id_for_label}}" class="input--style-4" type="username" name="username" placeholder="Username">
+                            <div class="row row-space">
+                                {{form.password1.errors}}
+                                <div class="col-2">
+                                    <div class="input-group">
+                                        <input id="{{form.password1.id_for_label}}" class="input--style-4" type="password" name="password1" placeholder="Password">
+                                    </div>
+                                </div>
+                                {{form.password2.errors}}
+                                <div class="col-2">
+                                    <div class="input-group">
+                                        <input id="{{form.password2.id_for_label}}" class="input--style-4" type="password" name="password2" placeholder="Password Confirmation">
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row row-space">
-                            {{form.password1.errors}}
-                            <div class="col-2">
-                                <div class="input-group">
-                                    <input id="{{form.password1.id_for_label}}" class="input--style-4" type="password" name="password1" placeholder="Password">
-                                </div>
+                            <div class="input-group">
+                                <p style="font-size: 11px;">By clicking Sign Up, you agree to our <a href="">Terms</a>, <a href="">Data Policy </a>and <a href="">Cookie Policy </a>. You may receive SMS notifications from us and can opt out at any time.</p>
                             </div>
-                            {{form.password2.errors}}
-                            <div class="col-2">
-                                <div class="input-group">
-                                    <input id="{{form.password2.id_for_label}}" class="input--style-4" type="password" name="password2" placeholder="Password Confirmation">
-                                </div>
+                            <div class="p-t-15">
+                                <button class="btn btn--radius-2 btn--blue" type="submit">Sign up</button>
+                                
                             </div>
-                        </div>
-                        <div class="input-group">
-                            <p style="font-size: 11px;">By clicking Sign Up, you agree to our <a href="">Terms</a>, <a href="">Data Policy </a>and <a href="">Cookie Policy </a>. You may receive SMS notifications from us and can opt out at any time.</p>
-                        </div>
-                        <div class="p-t-15">
-                            <button class="btn btn--radius-2 btn--blue" type="submit">Sign up</button>
-                        </div>
-                    </form>
+                            <div class="p-t-15">
+                                <p>Or <a href="{% url 'users:index'%}">login</a> if you have an account</p>
+                            </div>
+                            <div id="errors"></div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Jquery JS-->
-    <script src="{% static 'pages/vendor/jquery/jquery1.min.js'%}"></script>
-    <!-- Vendor JS-->
-    <script src="{% static 'pages/vendor/select2/select2reg.min.js'%}"></script>
-    <script src="{% static 'pages/vendor/datepicker/moment.min.js'%}"></script>
-    <script src="{% static 'pages/vendor/datepicker/daterangepicker.js'%}"></script>
+        <!-- Jquery JS-->
+        <script src="{% static 'pages/vendor/jquery/jquery1.min.js'%}"></script>
+        <!-- Vendor JS-->
+        <script src="{% static 'pages/vendor/select2/select2reg.min.js'%}"></script>
+        <script src="{% static 'pages/vendor/datepicker/moment.min.js'%}"></script>
+        <script src="{% static 'pages/vendor/datepicker/daterangepicker.js'%}"></script>
 
-    <!-- Main JS-->
-    <script src="{% static 'pages/js/global.js'%}"></script>
+        <!-- Main JS-->
+        <script src="{% static 'pages/js/global.js'%}"></script>
+        <!-- Ajax script -->
+        <script>
+            var errorsDiv = document.getElementById("errors")
+            var form = document.getElementById("register-form");
+            form.addEventListener("submit", (submitEvent)=>{
+                submitEvent.preventDefault();
+                var xhr = new XMLHttpRequest();
+                var csrf = document.getElementsByName("csrfmiddlewaretoken")[0].value
+                var params =
+                    "&first_name="+document.getElementById("id_first_name").value + 
+                    "&last_name="+document.getElementById("id_last_name").value+
+                    "&email="+document.getElementById("id_email").value+
+                    "&password1="+document.getElementById("id_password1").value+
+                    "&password2="+document.getElementById("id_password2").value+
+                    "&username="+document.getElementById("id_username").value+
+                    "&birthday="+document.getElementById("id_birthday").value+
+                    "&csrfmiddlewaretoken="+csrf;
+                var genders = document.getElementsByName("gender");
+                for(var i = 0; i < genders.length; i++)
+                {
+                    if(genders[i].checked)
+                    {
+                        params += "&gender=" + genders[i].value;
+                        break;
+                    }
+                }
+                xhr.open("POST", "{% url 'users:register'%}", true);
+                xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhr.onload = function(e)
+                {
+                    var card = document.getElementById("card-body");
+                    if(this.status === 200)
+                    {
+                        var response = JSON.parse(this.responseText);
+                        if(response.message == "good")
+                        {
+                            removeAllChildren(card);
+                            var p = document.createElement("p");
+                            p.innerText = "Thank you for registering, a confirmation link has been sent to your account. Please click it to continue";
+                            card.appendChild(p);
+                            var a = document.createElement("a");
+                            var href = document.createAttribute("href");
+                            href.value="{% url 'users:index'%}";
+                            a.innerText = "Login";
+                            a.setAttributeNode(href);
+                            card.appendChild(a);
+                        }
+                        else
+                        {
+                            removeAllChildren(errorsDiv);
+                            for(var key in response)
+                            {
+                                var value = response[key];
+                                for (var i = 0; i < value.length; i++)
+                                {
+                                    var p = document.createElement("p");
+                                    p.innerText += key +": "+ value[i].message;
+                                    errorsDiv.appendChild(p);
+                                }
+                            }
+                        }
+                    }
+                };
+                xhr.onerror = function(e)
+                {
+                    var response = JSON.parse(this.responseText);
+                    console.log(response);
+                    
+                };
+                xhr.send(params);
+            });
+            function removeAllChildren(parent)
+            {
+                while(parent.firstChild)
+                {
+                    parent.removeChild(parent.firstChild);
+                }
+            }
+        </script>
 
-</body><!-- This templates was made by Colorlib (https://colorlib.com) -->
+    </body><!-- This templates was made by Colorlib (https://colorlib.com) -->
 
 </html>
 <!-- end document-->

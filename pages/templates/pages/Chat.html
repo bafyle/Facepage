@@ -179,6 +179,7 @@
 		<script src="{% static 'pages/js/jquery.js'%}"></script>
 		<script src="{% static 'pages/js/bootstrap2.js'%}"></script>
 		{% if his_link %}
+		<script src="{% static 'pages/js/chatjs/humanized_time_span.js'%}"></script>
 		<script type="text/javascript">
 			var postForm = document.getElementById("post-form");
 			var messageInput = document.getElementById("{{form.message_input.id_for_label}}");
@@ -205,7 +206,7 @@
 				
 				xhr.onload = function()
 				{
-					if(this.status == 200)
+					if(this.status === 200)
 					{
 						var response = JSON.parse(this.responseText);
 						var message = createSendMessage(response);
@@ -258,7 +259,7 @@
 				const br = document.createElement("br");
 				var messageDateDiv = document.createElement("div");
 				messageDateDiv.classList.add("Rmessage-date");
-				messageDateDiv.innerHTML = message.time;
+				messageDateDiv.innerHTML = humanized_time_span(message.time);
 				messageTextDiv.innerHTML = message.content;
 				messageTextDiv.appendChild(br);
 				messageTextDiv.appendChild(messageDateDiv);
@@ -296,7 +297,7 @@
 				var br = document.createElement("br");
 				var messageDateDiv = document.createElement("div");
 				messageDateDiv.classList.add("Lmessage-date");
-				messageDateDiv.innerHTML = message.send_date;
+				messageDateDiv.innerHTML = humanized_time_span(message.send_date);
 				messageTextDiv.appendChild(br);
 				messageTextDiv.appendChild(messageDateDiv);
 
