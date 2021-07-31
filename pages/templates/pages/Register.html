@@ -197,7 +197,10 @@
                 {
                     var response = JSON.parse(this.responseText);
                     console.log(response);
-                    
+                    removeAllChildren(card);
+                    var p = document.createElement("p");
+                    p.innerText = "There was an error please refresh the page";
+                    card.appendChild(p);
                 };
                 xhr.send(params);
             });

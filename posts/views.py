@@ -109,8 +109,8 @@ def getProfilePosts(request, link:str):
     for index, query in enumerate(profile_posts):
         post = dict()
         for key in query:
-            if key != 'id':
-                post[key] = query[key]
+            if key == 'create_date':
+                post[key] = timezone.localdate(query[key]).strftime("%Y/%m/%d %H:%M:%S")
         comments = dict()
         comments_query = Comment.objects.filter(post__id = query.get('id'))
         for index2, commentItem in enumerate(comments_query):
@@ -119,6 +119,7 @@ def getProfilePosts(request, link:str):
             comment['comment_creator'] = commentItem.creator.profile.name()
             comment['comment_creator_profile_picture_url'] = commentItem.creator.profile.profile_picture.url
             comments[index2] = comment
+        post['liked'] = bool(Like.objects.filter(post__id=post['id'], liker=request.user))
         post['comments'] = comments
         posts[index] = post
     return JsonResponse(posts)
@@ -202,11 +203,11 @@ def viewPost(request, post_id):
     if request.user.is_authenticated:
         post = get_object_or_404(Post, id=post_id)
         context = {
-                'post': post,
-                'navbar_name': request.user.first_name,
-                'navbar_link': request.user.profile.link,
-                'profile_pic': request.user.profile.profile_picture.url,
-                'my_post': post.creator == request.user,
+            'post': post,
+            'navbar_name': request.user.first_name,
+            'navbar_link': request.user.profile.link,
+            'profile_pic': request.user.profile.profile_picture.url,
+            'my_post': post.creator == request.user,
         }
         return render(request, 'pages/ViewPost.html', context)
     else:

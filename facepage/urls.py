@@ -25,7 +25,7 @@ urlpatterns = [
     path(r'', include('users.urls'), name='users'),
     path(r'home/', include('posts.urls'), name='home'),
     path(r'profile/<slug:link>/', profile, name='profile'),
-    #path(r'profile/<slug:link>/get/', getProfilePosts, name='profile-posts'),
+    path(r'profile/<slug:link>/get/', getProfilePosts, name='profile-posts'),
     path(r'messenger/', include('messenger.urls'), name='messenger'),
 
 ]

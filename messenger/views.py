@@ -62,20 +62,14 @@ def chat(request, link:str = None):
                 form = SendMessageForm()
             else:
                 messages.error(request, "Error in sending the message")
-            chat_information['form'] = form
-            chat_information['profile_pic'] = request.user.profile.profile_picture.url
-            chat_information['navbar_name'] = request.user.first_name
-            chat_information['navbar_link'] = request.user.profile.link
-            chat_information['username'] = request.user.username
-            return render(request, 'pages/Chat.html', context=chat_information)
         else:
             form = SendMessageForm()
-            chat_information['form'] = form
-            chat_information['profile_pic'] = request.user.profile.profile_picture.url
-            chat_information['navbar_name'] = request.user.first_name
-            chat_information['navbar_link'] = request.user.profile.link
-            chat_information['username'] = request.user.username
-            return render(request, 'pages/Chat.html', context=chat_information)
+        chat_information['form'] = form
+        chat_information['profile_pic'] = request.user.profile.profile_picture.url
+        chat_information['navbar_name'] = request.user.first_name
+        chat_information['navbar_link'] = request.user.profile.link
+        chat_information['username'] = request.user.username
+        return render(request, 'pages/Chat.html', context=chat_information)
     else:
         messages.error(request, "You must login first")
         return redirect('users:index')
@@ -91,11 +85,11 @@ def sendMessage(request, link: str):
             receiver_user = User.objects.get(username=username)
             new_message = Message(sender=request.user, receiver=receiver_user, message_content = message)
             new_message.save()
-            responsef = dict()
-            responsef["sender"] = request.user.first_name
-            responsef["content"] = message
-            responsef["time"] = timezone.localtime(new_message.send_date).strftime("%Y/%m/%d %H:%M:%S")
-    return JsonResponse(responsef)
+            response = dict()
+            response["sender"] = request.user.first_name
+            response["content"] = message
+            response["time"] = timezone.localtime(new_message.send_date).strftime("%Y/%m/%d %H:%M:%S")
+    return JsonResponse(response)
 
 
 def getMessages(request, link: str):
@@ -105,15 +99,15 @@ def getMessages(request, link: str):
         Q(sender__username=username) & Q(receiver__username=my_username) & Q(seen=False)
     ).order_by('send_date')
     chat2 = chat.values('sender', 'message_content', 'send_date')
-    responsef = dict()
+    response = dict()
     for index, message in enumerate(chat2):
         for key in message:
             if key == "sender":
                 message[key] = User.objects.get(id=message[key]).first_name
             elif key == "send_date":
                 message[key] = timezone.localtime(message[key]).strftime("%Y/%m/%d %H:%M:%S")
-        responsef[index] = message
+        response[index] = message
     for message in chat:
         message.seen = True
         message.save()
-    return JsonResponse(responsef)
+    return JsonResponse(response)

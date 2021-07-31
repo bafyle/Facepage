@@ -212,7 +212,7 @@
         var srcAtt = document.createAttribute("src");
         srcAtt.value = data.comment_creator_profile_picture_url
 
-        img.setAttribute(srcAtt);
+        img.setAttributeNode(srcAtt);
 
         var h4 = document.createElement("h4");
         h4.style.fontSize = "15px";
