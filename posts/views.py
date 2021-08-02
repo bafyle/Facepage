@@ -111,6 +111,8 @@ def getProfilePosts(request, link:str):
         for key in query:
             if key == 'create_date':
                 post[key] = timezone.localdate(query[key]).strftime("%Y/%m/%d %H:%M:%S")
+                continue;
+            post[key] = query[key]
         comments = dict()
         comments_query = Comment.objects.filter(post__id = query.get('id'))
         for index2, commentItem in enumerate(comments_query):
