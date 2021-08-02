@@ -84,6 +84,7 @@ def profile(request, link):
         context['navbar_name'] = request.user.first_name
         context['navbar_link'] = request.user.profile.link
         context['profile_pic'] = request.user.profile.profile_picture.url
+        context['pages_count'] = len(profile_posts) // 5
         return render(request, 'pages/NewProfile.html', context)
     else:
         messages.error(request, "You need to login first to view this profile")

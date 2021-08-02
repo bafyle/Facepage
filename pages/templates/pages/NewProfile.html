@@ -168,16 +168,20 @@
 {% block scripts %}
 {{ block.super }}
 <!-- loading older post using ajax -->
-<!-- <script src="{% static 'pages/js/chatjs/humanized_time_span.js'%}"></script>
+<script src="{% static 'pages/js/chatjs/humanized_time_span.js'%}"></script>
 <script>
     var mainContainer = document.getElementById("main");
     var pageNumber = 0;
+    var pages = {{pages_count}};
     mainContainer.addEventListener('scroll', () =>
     {
         if(mainContainer.scrollHeight - mainContainer.scrollTop === mainContainer.clientHeight)
         {
-            pageNumber++;
-            getOlderPosts();
+            if(pageNumber < pages)
+            {
+                pageNumber++;
+                getOlderPosts();
+            }
         }
     });
     function getOlderPosts()
@@ -290,7 +294,7 @@
         return postDiv;
     }
 
-</script> -->
+</script>
 <!-- deleting posts ajax -->
 {% if navbar_link == user_profile_link %}
 <script>
