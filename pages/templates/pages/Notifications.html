@@ -1,0 +1,233 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8"> 
+        <meta charset="utf-8">
+        <title>Facepage home</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<link href="{% static 'pages/fonts/fontawesome-free-5.15.3-web/css/all.css'%}" rel="stylesheet">
+        <link href="{% static 'pages/css/bootstrap.css'%}" rel="stylesheet">
+        <!--[if lt IE 9]>
+          <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+        <link href="{% static 'pages/css/search.css'%}" rel="stylesheet">
+    </head>
+    
+    <body>
+        
+        <div class="wrapper">
+			<div class="box">
+										<!-- top nav -->
+										<div class="navbar navbar-blue navbar-static-top" style="width: 100%;">  
+											<div class="navbar-header">
+											  <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".navbar-collapse">
+												<span class="sr-only">Toggle</span>
+												<span class="icon-bar"></span>
+												<span class="icon-bar"></span>
+												<span class="icon-bar"></span>
+											  </button>
+											  <a href="" class="navbar-brand logo">F</a>
+											</div>
+											<nav class="collapse navbar-collapse" role="navigation">
+											<form class="navbar-form navbar-left">
+												<div class="input-group input-group-sm" style="max-width:360px;">
+												  <input class="form-control" placeholder="Search" name="srch-term" id="srch-term" type="text">
+												  <div class="input-group-btn">
+													<button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+												  </div>
+												</div>
+											</form>
+											<ul class="nav navbar-nav">
+											  <li>
+												<a href="#"><i class="glyphicon glyphicon-home"></i> Home</a>
+											  </li>
+											  <li>
+												<a href="#postModal" role="button" data-toggle="modal"><i class="glyphicon glyphicon-plus"></i> Post</a>
+											  </li>
+											  <li>
+												<a href="#"><i class="fab fa-rocketchat"></i> Chat</a>
+											  </li>
+											  <li>
+												<a href="#"><img src="{% static 'pages/img/150.jpg'%}" class="img-circle pull-left" style="width: 40px;height: 40px; margin-top: -10px;"><span class="badge">Abanoub</span></a>
+											  </li>
+											</ul>
+											<ul class="nav navbar-nav navbar-right">
+											  <li class="dropdown">
+												<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fas fa-caret-square-down fa-lg"></i></a>
+												<ul class="dropdown-menu">
+												  <li><a href=""><i class="fas fa-cog"></i> Settings</a></li>
+												  <li><a href=""><i class="fab fa-rocketchat"></i> Chat</a></li>
+												  <li><a href=""><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
+												  <!--<li><a href="">More</a></li>
+												  <li><a href="">More</a></li>
+												  <li><a href="">More</a></li> -->
+												</ul>
+											  </li>
+											</ul>
+											</nav>
+										</div>
+										<!-- /top nav -->
+				<div class="row row-offcanvas row-offcanvas-left">
+					
+					<!-- sidebar -->
+					<div class="column col-sm-2 col-xs-1 sidebar-offcanvas" id="sidebar">
+					  
+						<ul class="nav">
+							<li><a href="#" data-toggle="offcanvas" class="visible-xs text-center"><i class="glyphicon glyphicon-chevron-right"></i></a></li>
+						</ul>
+					   
+						<ul class="nav hidden-xs" id="lg-menu">
+							<li class="active"><a href=""><i class="glyphicon glyphicon-refresh"></i> Refresh</a></li>
+							<li><a href="#"><i class="fas fa-object-group"></i> All</a></li>
+							<li><a href="#"><i class="fas fa-sticky-note"></i> Posts</a></li>
+							<li><a href="#"><i class="fas fa-user-friends"></i> People</a></li>	
+							<li><a href="#"><i class="fas fa-images"></i> Photos</a></li>
+							<li><a href="#"><i class="fas fa-users"></i> Groups</a></li>
+							<li><a href="#"><i class="fas fa-video"></i> Videos</a></li>									
+						</ul>
+						<ul class="list-unstyled hidden-xs" id="sidebar-footer">
+							<li>
+							 <p style="font-size: 11px;">Privacy· Terms· Advertising· <br>Ad Choices <i class="fas fa-angle-double-right"></i>· Cookies· More· Facepage © 2021</p>
+							</li>
+						</ul>
+					  
+						<!-- tiny only nav-->
+					  <ul class="nav visible-xs" id="xs-menu">
+						    <li><a href="" class="text-center"><i class="glyphicon glyphicon-refresh"></i></a></li>
+							<li><a href="#" class="text-center"><i class="fas fa-object-group"></i></a></li>
+							<li><a href="#" class="text-center"><i class="fas fa-sticky-note"></i></a></li>
+							<li><a href="#" class="text-center"><i class="fas fa-user-friends"></i></a></li>
+							<li><a href="#" class="text-center"><i class="fas fa-images"></i></a></li>
+							<li><a href="#" class="text-center"><i class="fas fa-users"></i></a></li>
+							<li><a href="#" class="text-center"><i class="fas fa-video"></i></a></li>
+						
+						</ul>
+					  
+					</div>
+					<!-- /sidebar -->
+				  
+					<!-- main right col -->
+					<div class="column col-sm-10 col-xs-11" id="main">
+						
+
+					  
+						<div class="padding">
+							<div class="full col-sm-9" >
+							  
+								<!-- content -->                      
+								<div class="row">
+								  
+								 <!-- main col left --> 
+								 <div class="col-sm-5">
+								   
+	                                    <!-- Search Results --> 
+									<div class="container">
+										<div class="row">
+											<div class="col-md-8">
+												<div class="people-nearby">
+												  
+												  <div class="nearby-user">
+													<div class="row">
+													  <div class="col-md-2 col-sm-2">
+														<img src="{% static 'pages/img/11.jpg'%}" alt="user" class="profile-photo-lg">
+													  </div>
+													  <div class="col-md-7 col-sm-7" >
+														<p style="margin-top: 10px;">wewerwerwerwerwerwerwerwerwerwwwwwwwwwwwwwwqqwwwwww wewerwerwerwerwerwerwerwerwerwwwwwwwwwwwwwwqqwwwwww</p>
+														<form action="">
+                                                          <button type="submit" class="btn btn-primary" style="float: left; margin-right: 10px;">Accept</i></button>
+														</form>
+														<form action="">
+															<button type="submit" class="btn btn-primary" style="background-color: #efefef; color: black; border: none;">Decline</i></button>
+														  </form>
+													  </div>
+													  <form action="">
+
+													  <div class="col-md-3 col-sm-3">
+														<span class="pull-right" style="margin-right: 10px;" >6h</span>
+														<br>
+														<button class="btn btn-primary pull-right" type="submit" style="font-size: 10px; background-color: black;"><i class="fas fa-trash"></i></button>
+													  </div>
+													</form>																								
+													</div>
+												 </div>
+
+
+												
+												
+												</div>
+											</div>
+										</div>
+									</div>
+							     <!-- End Search Results --> 
+
+								 </div><!--/main col left-->
+
+
+								 <!--
+								 <div class="no-result">
+								 <center><img src="{% static 'pages/img/no result.png" style="margin: auto"/></center>
+								 <center><h3>We didn't find any results</h3></center>
+								 <center><P>Make sure everything is spelled correctly or try different keywords.</P></center>
+								</div>
+                                -->
+
+							   </div><!--/row-->
+							   <hr>
+							   <h4 class="text-center">
+								<p style="font-size: 11px;">Privacy· Terms· Advertising· Ad Choices <i class="fas fa-angle-double-right"></i>· Cookies· More· Facepage © 2021</p>
+							   </h4>
+							   <hr>
+						
+								
+							  
+							</div><!-- /col-9 -->
+						</div><!-- /padding -->
+					</div>
+					<!-- /main -->
+				  
+				</div>
+			</div>
+		</div>
+
+
+		<!--post modal-->
+		<div id="postModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+		  <div class="modal-dialog">
+		  <div class="modal-content">
+			  <div class="modal-header">
+				  <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fas fa-times-circle"></i></button>
+					Create Post
+			  </div>
+			  <div class="modal-body">
+				  <form class="form center-block">
+					<div class="form-group">
+					  <textarea class="form-control input-lg" autofocus="" placeholder="What's on your mind?"></textarea>
+					</div>
+				  </form>
+			  </div>
+			  <div class="modal-footer">
+				  <div>
+				  <button class="btn btn-primary btn-sm" data-dismiss="modal" aria-hidden="true">Post</button>
+					<ul class="pull-left list-inline"><li><a href=""><i class="fas fa-photo-video"></i></a></li><li><a href=""><i class="fas fa-user-tag"></i></a></li><li><a href=""><i class="glyphicon glyphicon-map-marker"></i></a></li></ul>
+				  </div>	
+			  </div>
+		  </div>
+		  </div>
+		</div>
+        
+        <script type="text/javascript" src="{% static 'pages/js/jquery.js'%}"></script>
+        <script type="text/javascript" src="{% static 'pages/js/bootstrap.js'%}"></script>
+        <script type="text/javascript">
+        $(document).ready(function() {
+			$('[data-toggle=offcanvas]').click(function() {
+				$(this).toggleClass('visible-xs text-center');
+				$(this).find('i').toggleClass('glyphicon-chevron-right glyphicon-chevron-left');
+				$('.row-offcanvas').toggleClass('active');
+				$('#lg-menu').toggleClass('hidden-xs').toggleClass('visible-xs');
+				$('#xs-menu').toggleClass('visible-xs').toggleClass('hidden-xs');
+				$('#btnShow').toggle();
+			});
+        });
+        </script>
+</body></html>

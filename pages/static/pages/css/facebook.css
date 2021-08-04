@@ -74,3 +74,28 @@ h1,h2,h3 {
    background-color:#3B5999;
    color:#fff;
 }
+
+.right {
+        
+background: #f0f2f5;
+text-align:left;
+min-width: 45%;
+padding: 0 10px;
+border-radius: 6px;
+border: 1px solid #f0f2f5;
+max-width: 600px;
+margin-left: 55px;
+}
+
+
+
+@media screen and (max-width: 768px) {
+.right
+{
+   text-align:left;
+   min-width: 45%;
+   padding: 0 10px;
+   max-width: 400px;
+}
+}
+#more {display: none;}

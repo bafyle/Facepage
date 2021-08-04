@@ -27,7 +27,7 @@ urlpatterns = [
     path(r'profile/<slug:link>/', profile, name='profile'),
     path(r'profile/<slug:link>/get/', getProfilePosts, name='profile-posts'),
     path(r'messenger/', include('messenger.urls'), name='messenger'),
-
+    path(r'notifications/', include('notifications.urls'), name='notifications'),
 ]
 
 if settings.DEBUG:
