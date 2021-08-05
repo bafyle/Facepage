@@ -1,0 +1,118 @@
+{% extends 'pages/Base.html'%}
+{% load static %}
+{% load humanize %}
+
+{%block title%}
+Notifications
+{% endblock %}
+
+{% block style_link%}
+<link href="{% static 'pages/css/search.css'%}" rel="stylesheet">
+{% endblock style_link%}
+
+{% block sidebar %}
+<!-- sidebar -->
+<div class="column col-sm-2 col-xs-1 sidebar-offcanvas" id="sidebar">
+					  
+    <ul class="nav">
+        <li><a href="#" data-toggle="offcanvas" class="visible-xs text-center"><i class="glyphicon glyphicon-chevron-right"></i></a></li>
+    </ul>
+   
+    <ul class="nav hidden-xs" id="lg-menu">
+        <li class="active"><a href=""><i class="glyphicon glyphicon-refresh"></i> Refresh</a></li>
+        <li><a href="#"><i class="glyphicon glyphicon-list"></i> Stories</a></li>
+        <li><a href="#"><i class="fas fa-user-friends"></i> Friends</a></li>
+        <li><a href="#"><i class="fas fa-history"></i> Memories</a></li>
+        <li><a href="#"><i class="fas fa-bookmark"></i> Saved</a></li>
+        <li><a href="#"><i class="fas fa-users"></i> Groups</a></li>										
+    </ul>
+    <ul class="list-unstyled hidden-xs" id="sidebar-footer">
+        <li>
+         <p style="font-size: 11px;">Privacy· Terms· Advertising· <br>Ad Choices <i class="fas fa-angle-double-right"></i>· Cookies· More· Facepage © 2021</p>
+        </li>
+    </ul>
+  
+    <!-- tiny only nav-->
+  <ul class="nav visible-xs" id="xs-menu">
+        <li><a href="" class="text-center"><i class="glyphicon glyphicon-refresh"></i></a></li>
+        <li><a href="#" class="text-center"><i class="glyphicon glyphicon-list"></i></a></li>
+        <li><a href="#" class="text-center"><i class="fas fa-user-friends"></i></a></li>
+        <li><a href="#" class="text-center"><i class="fas fa-history"></i></a></li>
+        <li><a href="#" class="text-center"><i class="fas fa-bookmark"></i></a></li>
+        <li><a href="#" class="text-center"><i class="fas fa-users"></i></a></li>
+    
+    </ul>
+  
+</div>
+{% endblock sidebar %}
+
+{% block main %}
+<div class="column col-sm-10 col-xs-11" id="main">		  
+    <div class="padding">
+        <div class="full col-sm-9" >
+            <!-- content -->                      
+            <div class="row">
+                <!-- main col left --> 
+                <div class="col-sm-5">
+                    <!-- Search Results --> 
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-8">
+                                {% for n in notifications %}
+                                <div class="people-nearby">
+                                    <div class="nearby-user">
+                                        <a {% if n.type == 'L' or n.type == 'C'%}
+                                            href="{% url 'posts:view-post' n.route_id%}"
+                                            {% endif %}
+                                        >
+                                            <div class="row">
+                                                <div class="col-md-2 col-sm-2">
+                                                    <img src="{{n.picture}}" alt="user" class="profile-photo-lg">
+                                                </div>
+                                                <div class="col-md-7 col-sm-7" >
+                                                    
+                                                    <p style="margin-top: 10px;">{{n.content}}</p>
+                                                    {% if n.type == 'F'%}
+                                                    <form action="">
+                                                        <button type="submit" class="btn btn-primary" style="float: left; margin-right: 10px;">Accept</i></button>
+                                                    </form>
+                                                    <form action="">
+                                                        <button type="submit" class="btn btn-primary" style="background-color: #efefef; color: black; border: none;">Decline</i></button>
+                                                    </form>
+                                                    {% endif %}
+                                                </div>
+                                                <form action="">
+                                                <div class="col-md-3 col-sm-3">
+                                                    <span class="pull-right" style="margin-right: 10px;" >6h</span>
+                                                    <br>
+                                                    <button class="btn btn-primary pull-right" type="submit" style="font-size: 10px; background-color: black;"><i class="fas fa-trash"></i></button>
+                                                </div>
+                                                </form>																								
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                <!-- End Search Results --> 
+                </div><!--/main col left-->
+                <!--
+                <div class="no-result">
+                    <center><img src="{% static 'pages/img/no result.png" style="margin: auto"/></center>
+                    <center><h3>We didn't find any results</h3></center>
+                    <center><P>Make sure everything is spelled correctly or try different keywords.</P></center>
+                </div>
+                -->
+            </div><!--/row-->
+            <hr>
+            <h4 class="text-center">
+                <p style="font-size: 11px;">Privacy· Terms· Advertising· Ad Choices <i class="fas fa-angle-double-right"></i>· Cookies· More· Facepage © 2021</p>
+            </h4>
+            <hr>
+        </div><!-- /col-9 -->
+    </div><!-- /padding -->
+</div>
+
+{% endblock %}

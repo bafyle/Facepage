@@ -63,7 +63,6 @@ def profile(request, link):
                 )
             context['are_they_friends'] = are_they_friends
         profile_posts = Post.objects.filter(creator__profile__link=link).order_by('-create_date')
-
         likes = Like.objects.filter(liker=request.user)
         liked_posts = []
         for like in likes:
@@ -207,6 +206,7 @@ def viewPost(request, post_id):
         post = get_object_or_404(Post, id=post_id)
         context = {
             'post': post,
+            'liked': bool(Like.objects.filter(liker=request.user, post=post)),
             'navbar_name': request.user.first_name,
             'navbar_link': request.user.profile.link,
             'profile_pic': request.user.profile.profile_picture.url,
@@ -240,7 +240,7 @@ def deletePost(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     if request.user == post.creator:
         post.delete()
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        return JsonResponse({"message": "good"})
     else:
         raise Http404
 

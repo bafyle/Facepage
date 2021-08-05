@@ -1,5 +1,6 @@
 {% extends 'pages/Base.html' %}
 {% load humanize %}
+{% load static %}
 {% block style %} {% endblock %}
 
 {% block title%}
@@ -50,7 +51,7 @@ Facepage
             <div class="row">
               
              <!-- main col left --> 
-             <div class="col-sm-5">
+            <div class="col-sm-5">
                
                 <div class="well"> 
                     <form class="form-horizontal" role="form" action="{% url 'posts:add-post' %}" method="POST"> {%csrf_token%}
@@ -61,6 +62,7 @@ Facepage
                     <!--this button for home post window --><button class="btn btn-primary pull-right" type="submit" value="submit">Post</button><ul class="list-inline"><li><a href=""><i class="fas fa-photo-video"></i></a></li><li><a href=""><i class="fas fa-user-tag"></i></a></li><li><a href=""><i class="glyphicon glyphicon-map-marker"></i></a></li></ul>
                     </form>
                 </div>
+                {% comment %}
                 {% for post_query in friends_posts %}
                 {% for post in post_query %}
                     <div class="panel panel-default">
@@ -110,80 +112,122 @@ Facepage
                         {% endfor %}
                         </div>
                     </div>
-                {% endfor %}
-                {% endfor %}
+                    {% endfor %}
+                    {% endfor %}
 
-
-                <!--  -->
-                <div class="panel panel-default">
-                    <div class="panel-heading" style="border-bottom: none;"	><img src="assets/img/150.jpg" class="img-circle pull-left" > <button class="pull-right"><i class="fas fa-trash-alt"></i></button>  <h4 style="font-size: 17px; font-weight: bold;">Abanoub Rafaat<br><p style="font-size: 13.5px; font-weight: lighter;">July 5, 2021 at 1:20 AM . <i class="fas fa-user-friends" style="font-size: 13px;"></i></p></h4></div>
-                    <p style="margin-left: 18px;">
-                        Opportunity never comes repeatedly. 
-                        When we get time or opportunity, we should proper use it.
-                        But everything has a suitable way for using  that.
-                        If we don’t know how to use that opportunity then it doesn't come our benefits.<span id="dots">...<a style="font-weight: 600px;text-decoration: none;" onclick="myFunction()" id="myBtn">See More</a></span>
-                        <span id="more">Now come to the point, now the time is pendamic situation. 
-                            Most of the people are unemployed for lockdown and shutdown. 
-                            We should try to develop our skills by doing any course in this time.
-                            Many of us try to learn and be fluent in speaking English. 								
-                            How can we be more benefited in short time?
-                        </span>
-                    </p>
-                    <div class="panel-body">
-                     
-                   <!--start shared post -->
-                  <div class="shared-post" style="border: 1px solid #dddddd; ">
-                    <div class="panel-heading" ><img src="assets/img/160.jpg" class="img-circle pull-left" > <button class="pull-right"><i class="fas fa-user-plus"></i></button>  <h4 style="font-size: 17px; font-weight: bold;">Abanoub Rafaat<br><p style="font-size: 13.5px; font-weight: lighter;">July 5, 2021 at 4:20 AM . <i class="fas fa-user-friends" style="font-size: 13px;"></i></p></h4></div>
-                     <div class="panel-body">
-                        <p>caption A</p>
-                       <div class="panel-thumbnail"><img src="assets/img/bg_4.jpg" class="img-responsive"></div>
-                       <div class="clearfix"></div>
-                     </div>
-                    </div>
-                     <br>
-                   <!--shared post end -->
-
-                       <form>
-                       <div class="input-group">
-                         <div class="input-group-btn">
-                         <button class="btn btn-default"><i class="fas fa-thumbs-up"></i> +6</button><button class="btn btn-default"><i class="glyphicon glyphicon-share"></i></button>
-                         </div>
-                         <input class="form-control" placeholder="Add a comment.." type="text">
-                       </div>
-            
-                       </form>
-                       <div class="comment" style="margin-top: 20px;"><!--start comment-->
-                        <img src="assets/img/150.jpg" class="img-circle pull-left" >
-                        <button class="pull-right"><i class="fas fa-trash"></i></button> 
-                    
-                        <div class="right">
-                            <h4 style="font-size: 15px; font-weight: bold; ">Abanoub Rafaat<br>
-                                <p style="font-size: 13.5px; font-weight: 300; margin-top: 3px;">
-                                 this is my first comment i just typed it to test 
-                                 the site well and to check the comment style on
-                                 both web and mobiles view's
-                                </p>
+                    {% endcomment%}
+                    <!--  -->
+                    {% for post_query in friends_posts %}
+                    {% for post in post_query %}
+                    <div class="panel panel-default">
+                        <div class="panel-heading" style="border-bottom: none;"	>
+                            <img src="{{ post.creator.profile.profile_picture.url }}" class="img-circle pull-left" >
+                            <h4 style="font-size: 17px; font-weight: bold;"><a href="{% url 'profile' post.creator.profile.link %}">{{post.creator.profile.name}}</a>
+                                <br>
+                                <p style="font-size: 13.5px; font-weight: lighter;">{{post.create_date|naturaltime}} <i class="fas fa-globe-americas" style="font-size: 13px;"></i></p>
                             </h4>
                         </div>
-                        </div> <!--end comment-->
-                              
-                     </div>
-                  </div>
+                        <p id="{{post.id}}-content" style="margin-left: 18px;">
+                            {% if post.post_content|length > 222%}
+                            {{post.post_content|slice:"0:222"}}<span class="dots">... <a id="{{post.id}}-show-more-button" style="font-weight: 600px;text-decoration: none;" onclick="showMoreFunction('{{post.id}}-content', '{{post.id}}-show-more-button')">See More</a></span>
+                            <span style="display: none;" class="more">{{post.post_content|slice:"222:"}}
+                            </span>
+                            {% else %}
+                            {{post.post_content}}
+                            {% endif %}
+                        </p>
+                        <div class="panel-body">
+                            {% if post.shared_post %}
+                            {% if post.original_post != none %}
+                            <div class="shared-post" style="border: 1px solid #dddddd; ">
+                                <div class="panel-heading" ><img src="{{post.original_post.creator.profile.profile_picture.url}}" class="img-circle pull-left" >
+                                    <!-- <button class="pull-right"><i class="fas fa-user-plus"></i></button> -->
+                                    <h4 style="font-size: 17px; font-weight: bold;"><a href="{% url 'profile' post.original_post.creator.profile.link %}">{{post.original_post.creator.profile.name}}</a>
+                                        <br>
+                                        <p style="font-size: 13.5px; font-weight: lighter;">{{post.original_post.create_date|naturaltime}} <i class="fas fa-globe-americas" style="font-size: 13px;"></i></p>
+                                    </h4>
+                                </div>
+                                <div class="panel-body">
+                                    <p>
+                                        <a id="{{post.id}}-content-shared" href="{% url 'posts:view-post' post.original_post.id %}">
+                                            {% if post.original_post.post_content|length > 222%}
+                                            {{post.original_post.post_content|slice:"0:222"}}
+                                            <span class="dots">... </span>
+                                            <span style="display: none;" class="more">{{post.original_post.post_content|slice:"222:"}}</span>
+                                            {% else %}
+                                            {{post.original_post.post_content}}
+                                            {% endif %}
+                                        </a>
+                                        {% if post.original_post.post_content|length > 222%}
+                                            <a id="{{post.id}}-show-more-button-shared" style="font-weight: 600px;text-decoration: none;" onclick="showMoreFunction('{{post.id}}-content-shared', '{{post.id}}-show-more-button-shared');">See More</a></span>
+                                        {% endif %}
+                                    </p>
+                                    {% if post.original_post.image != ''%}
+                                    <div class="panel-thumbnail"><img src="{{post.original_post.image}}" class="img-responsive"></div>
+                                    <div class="clearfix"></div>
+                                    {% endif%}
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="shared-post" style="border: 1px solid #dddddd; ">
+                                <p>Cannot view this post maybe it has been deleted</p>
+                            </div>
+                            {% endif %}
+                            <br>
+                            {% elif post.image != ''%}
+                            <div class="post-img" style="border: 1px solid #dddddd;">
+                                <div class="panel-body">
+                                <div class="panel-thumbnail"><img src="{{post.image}}" class="img-responsive"></div>
+                                <div class="clearfix"></div>
+                                </div>
+                            </div><!-- post-img-->
+                            <br>
+                            {% endif %}
 
-
-                  <!--  -->
-               </div>
-              
-    
-           </div><!--/row-->
-           <hr>
-           <h4 class="text-center">
-            <p style="font-size: 11px;">Privacy· Terms· Advertising· Ad Choices <i class="fas fa-angle-double-right"></i>· Cookies· More· Facepage © 2021</p>
-           </h4>
-           <hr>
-    
-            
-          
+                            <div class="input-group">
+                                <div class="input-group-btn">
+                                    {% if post in liked_posts %}
+                                        <form action="{% url 'posts:unlike-post' post.id %}" method="GET"> {%csrf_token%}
+                                            <button class="btn btn-default" style="float: left; "><i class="fas fa-thumbs-down"></i> {{ post.likes }}</button>
+                                        </form>  
+                                    {% else %}
+                                    <form action="{% url 'posts:like-post' post.id %}" method="GET"> {%csrf_token%}
+                                        <button class="btn btn-default" style="float: left;"><i class="fas fa-thumbs-up" ></i> {{ post.likes }}</button>
+                                    </form>
+                                    {% endif%}
+                                    
+                                    <form action="{% url 'posts:share-post' post.id %}" method="POST"> {%csrf_token%}
+                                        <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-share"></i></button>
+                                    </form>
+                                </div>
+                                <form action="{% url 'posts:add-comment' post.id %}" method="get"> {%csrf_token%}
+                                    <input name="comment-content" class="form-control" id="CommentInput" style="margin-left: 40px;" placeholder="Add a comment.." type="text">
+                                </form>
+                            </div>
+                            {% for comment in post.comment_set.all %}
+                            <div class="comment" style="margin-top: 20px;"><!--start comment-->
+                                    <img src="{{comment.creator.profile.profile_picture.url}}" class="img-circle pull-left" >
+                                    <!-- <button class="pull-right"><i class="fas fa-trash"></i></button>  -->
+                                    <div class="right">
+                                        <h4 style="font-size: 15px; font-weight: bold; ">{{ comment.creator.profile.name }}<br>
+                                            <p style="font-size: 13.5px; font-weight: 300; margin-top: 3px;">
+                                                {{comment.comment_content}}
+                                            </p>
+                                        </h4>
+                                    </div>
+                                </div>
+                            {% endfor%}     
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endfor %}
+                </div>
+            </div><!--/row-->
+            <hr>
+            <h4 class="text-center">
+                <p style="font-size: 11px;">Privacy· Terms· Advertising· Ad Choices <i class="fas fa-angle-double-right"></i>· Cookies· More· Facepage © 2021</p>
+            </h4>
+            <hr>
         </div><!-- /col-9 -->
     </div><!-- /padding -->
 </div>
@@ -191,3 +235,8 @@ Facepage
 
 
 {% endblock main%}
+
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'pages/js/postShowMore.js'%}"></script>
+{% endblock scripts %}

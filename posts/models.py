@@ -16,10 +16,8 @@ class Post(models.Model):
 
 
     def clean(self, *args, **kwargs) -> None:
-        if self.shared_post == True and self.image != None:
+        if self.shared_post and self.image != '':
             raise ValidationError(_("Shared post cannot have an image"))
-        if not self.shared_post and self.original_post != None:
-            raise ValidationError(_("non-shared posts cannot reference other posts"))
         if self.post_content == '' and not self.shared_post:
             raise ValidationError(_("non-shared posts cannot have no content"))
         return super().clean(*args, **kwargs)

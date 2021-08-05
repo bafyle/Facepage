@@ -3,5 +3,5 @@ from.views import testView
 
 app_name = 'notifications'
 urlpatterns = [
-    path(r'', testView, name='notifications-index'),
+    path(r'', testView, name='index'),
 ]

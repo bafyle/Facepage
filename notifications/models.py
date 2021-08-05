@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 # Create your models here.
 
 
@@ -16,6 +18,11 @@ class Notification(models.Model):
     picture = models.ImageField(default='profile_pics/default.jpg')
     date = models.DateTimeField(auto_now_add=True)
     route_id = models.SlugField(default=None)
+    seen = models.BooleanField(default=False)
+
+    # content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    # object_id = models.PositiveIntegerField()
+    # content_object = GenericForeignKey('content_type', 'object_id')
 
     def __str__(self):
         return f"{self.user_to} notification"

@@ -8,8 +8,6 @@
 
 
 {% block title %}{{user_profile_name}} profile{% endblock title %}
-
-{% block style %} {% endblock %}
 {% block sidebar %}
 <!-- sidebar -->
 <div class="column col-sm-2 col-xs-1 sidebar-offcanvas" id="sidebar">
@@ -84,7 +82,9 @@
                     </form>
                 </div>
                 {% endif %}
+                
                 {% for post in page_obj %}
+                {% comment %}
                     <div id="{{post.id}}" class="panel panel-default">
                         <div class="panel-heading">
                             <img src="{{ post.creator.profile.profile_picture.url }}" class="img-circle pull-left">
@@ -137,6 +137,112 @@
                             {% endfor %}
                         </div>
                     </div>
+                    {% endcomment %}
+                    <!--  -->
+                    <div id="{{post.id}}" class="panel panel-default">
+                        <div class="panel-heading" style="border-bottom: none;"	>
+                            <img src="{{ post.creator.profile.profile_picture.url }}" class="img-circle pull-left" >
+                            {% if navbar_link == user_profile_link %}
+                                <a onclick="deletePost('{{post.id}}');" class="delete-post-button"><button type="submit" class="pull-right"><i class="fas fa-trash-alt"></i></button></a>
+                                <a href="{% url 'posts:update' post.id %}"><button type="submit" class="pull-right"><i class="fas fa-edit"></i></button></a> 
+                            {% endif %}
+                            <h4 style="font-size: 17px; font-weight: bold;"><a href="{% url 'profile' post.creator.profile.link %}">{{ post.creator.profile.name}}</a>
+                                <br>
+                                <p style="font-size: 13.5px; font-weight: lighter;">{{post.create_date|naturaltime}} <i class="fas fa-globe-americas" style="font-size: 13px;"></i></p>
+                            </h4>
+                        </div>
+                        <p id="{{post.id}}-content" style="margin-left: 18px;">
+                            {% if post.post_content|length > 222%}
+                            {{post.post_content|slice:"0:222"}}<span class="dots">... <a id="{{post.id}}-show-more-button" style="font-weight: 600px;text-decoration: none;" onclick="showMoreFunction('{{post.id}}-content', '{{post.id}}-show-more-button')">See More</a></span>
+                            <span style="display: none;" class="more">{{post.post_content|slice:"222:"}}
+                            </span>
+                            {% else %}
+                            {{post.post_content}}
+                            {% endif %}
+                        </p>
+                        <div class="panel-body">
+                            {% if post.shared_post %}
+                            {% if post.original_post != none %}
+                            <div class="shared-post" style="border: 1px solid #dddddd; ">
+                                <div class="panel-heading" ><img src="{{post.original_post.creator.profile.profile_picture.url}}" class="img-circle pull-left" >
+                                    <!-- <button class="pull-right"><i class="fas fa-user-plus"></i></button> -->
+                                    <h4 style="font-size: 17px; font-weight: bold;"><a href="{% url 'profile' post.original_post.creator.profile.link %}">{{post.original_post.creator.profile.name}}</a>
+                                        <br>
+                                        <p style="font-size: 13.5px; font-weight: lighter;">{{post.original_post.create_date|naturaltime}} <i class="fas fa-globe-americas" style="font-size: 13px;"></i></p>
+                                    </h4>
+                                </div>
+                                <div class="panel-body">
+                                    <p>
+                                        <a id="{{post.id}}-content-shared" href="{% url 'posts:view-post' post.original_post.id %}">
+                                            {% if post.original_post.post_content|length > 222%}
+                                            {{post.original_post.post_content|slice:"0:222"}}
+                                            <span class="dots">... </span>
+                                            <span style="display: none;" class="more">{{post.original_post.post_content|slice:"222:"}}</span>
+                                            {% else %}
+                                            {{post.original_post.post_content}}
+                                            {% endif %}
+                                        </a>
+                                        {% if post.original_post.post_content|length > 222%}
+                                            <a id="{{post.id}}-show-more-button-shared" style="font-weight: 600px;text-decoration: none;" onclick="showMoreFunction('{{post.id}}-content-shared', '{{post.id}}-show-more-button-shared');">See More</a></span>
+                                        {% endif %}
+                                    </p>
+                                    {% if post.original_post.image != ''%}
+                                    <div class="panel-thumbnail"><img src="{{post.original_post.image}}" class="img-responsive"></div>
+                                    <div class="clearfix"></div>
+                                    {% endif%}
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="shared-post" style="border: 1px solid #dddddd; ">
+                                <p>Cannot view this post maybe it has been deleted</p>
+                            </div>
+                            {% endif %}
+                            <br>
+                            {% elif post.image != ''%}
+                            <div class="post-img" style="border: 1px solid #dddddd;">
+                                <div class="panel-body">
+                                <div class="panel-thumbnail"><img src="{{post.image}}" class="img-responsive"></div>
+                                <div class="clearfix"></div>
+                                </div>
+                            </div><!-- post-img-->
+                            <br>
+                            {% endif %}
+
+                            <div class="input-group">
+                                <div class="input-group-btn">
+                                    {% if post in liked_posts %}
+                                        <form action="{% url 'posts:unlike-post' post.id %}" method="GET"> {%csrf_token%}
+                                            <button class="btn btn-default" style="float: left; "><i class="fas fa-thumbs-down"></i> {{ post.likes }}</button>
+                                        </form>  
+                                    {% else %}
+                                    <form action="{% url 'posts:like-post' post.id %}" method="GET"> {%csrf_token%}
+                                        <button class="btn btn-default" style="float: left;"><i class="fas fa-thumbs-up" ></i> {{ post.likes }}</button>
+                                    </form>
+                                    {% endif%}
+                                    
+                                    <form action="{% url 'posts:share-post' post.id %}" method="POST"> {%csrf_token%}
+                                        <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-share"></i></button>
+                                    </form>
+                                </div>
+                                <form action="{% url 'posts:add-comment' post.id %}" method="get"> {%csrf_token%}
+                                    <input name="comment-content" class="form-control" id="CommentInput" style="margin-left: 40px;" placeholder="Add a comment.." type="text">
+                                </form>
+                            </div>
+                            {% for comment in post.comment_set.all %}
+                            <div class="comment" style="margin-top: 20px;"><!--start comment-->
+                                    <img src="{{comment.creator.profile.profile_picture.url}}" class="img-circle pull-left" >
+                                    <!-- <button class="pull-right"><i class="fas fa-trash"></i></button>  -->
+                                    <div class="right">
+                                        <h4 style="font-size: 15px; font-weight: bold; ">{{ comment.creator.profile.name }}<br>
+                                            <p style="font-size: 13.5px; font-weight: 300; margin-top: 3px;">
+                                                {{comment.comment_content}}
+                                            </p>
+                                        </h4>
+                                    </div>
+                                </div>
+                            {% endfor%}     
+                        </div>
+                    </div>
                 {% endfor %}
             </div>
         </div><!--/row-->
@@ -167,7 +273,9 @@
 
 {% block scripts %}
 {{ block.super }}
+<script src="{% static 'pages/js/postShowMore.js'%}"></script>
 <!-- loading older post using ajax -->
+{% comment %}
 <script src="{% static 'pages/js/chatjs/humanized_time_span.js'%}"></script>
 <script>
     var mainContainer = document.getElementById("main");
@@ -295,6 +403,7 @@
     }
 
 </script>
+{% endcomment%}
 <!-- deleting posts ajax -->
 {% if navbar_link == user_profile_link %}
 <script>
@@ -308,8 +417,12 @@
         {
             if(this.status === 200)
             {
-                var post = document.getElementById(postID);
-                post.remove();
+                var respond = JSON.parse(this.responseText);
+                if(respond.message === "good")
+                {
+                    var post = document.getElementById(postID);
+                    post.remove();
+                }
             }
         }
         xhr.send();
