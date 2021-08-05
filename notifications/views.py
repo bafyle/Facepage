@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.http import HttpResponseRedirect
+from django.db.models import Q
 
 from .models import Notification
 # Create your views here.
@@ -18,7 +19,6 @@ def notificationsView(request):
     else:
         messages.error(request, "you need to login first")
         return redirect('users:index')
-
 
 def deleteNotification(request, id):
     if request.user.is_authenticated:

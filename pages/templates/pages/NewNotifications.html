@@ -59,6 +59,7 @@ Notifications
                         <div class="row">
                             <div class="col-md-8">
                                 {% for n in notifications %}
+                                {% if n.content_object != None %}
                                 <div class="people-nearby">
                                     <div class="nearby-user">
                                         
@@ -98,6 +99,7 @@ Notifications
                                        
                                     </div>
                                 </div>
+                                {% endif %}
                                 {% endfor %}
                             </div>
                         </div>
