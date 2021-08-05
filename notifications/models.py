@@ -20,9 +20,9 @@ class Notification(models.Model):
     route_id = models.SlugField(default=None)
     seen = models.BooleanField(default=False)
 
-    # content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    # object_id = models.PositiveIntegerField()
-    # content_object = GenericForeignKey('content_type', 'object_id')
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True)
+    object_id = models.PositiveIntegerField(null=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
 
     def __str__(self):
         return f"{self.user_to} notification"

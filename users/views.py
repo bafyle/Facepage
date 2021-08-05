@@ -1,5 +1,5 @@
 from django.http.response import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.conf import settings
@@ -15,11 +15,10 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
 from .forms import DeleteAccountForm, ChangePictureBioForm, RegisterForm
-from .models import Profile
+from .models import Friend, Profile
 from .id_generator import id_generator
 from pathlib import Path
 from django.contrib.auth.models import User
-from .models import Friend
 from notifications.models import Notification
 import json
 
@@ -88,27 +87,53 @@ def register(request):
 
 def addFriend(request, link):
     """
-    This view create a new Friend in the Friends table between request.user and username
+    This view create a new notification to the user
     """
-    new_relation = Friend(side1=request.user, side2=User.objects.get(profile__link=link))
+    side2 = get_object_or_404(User, profile__link=link)
     try:
-        new_relation.save()
-        if Notification.objects.filter(user_from=request.user, user_to=new_relation.side2, route_id=request.user.profile.link).count() <= 0:
-            notification_content = f"{request.user.first_name} {request.user.last_name} sent you a friend request"
+        if Notification.objects.filter(user_from=request.user, user_to=side2, route_id=request.user.profile.link).count() <= 0:
+            notification_content = f"{request.user.profile.name()} sent you a friend request"
             newNotification = Notification(
                 user_from=request.user,
-                user_to=new_relation.side2,
+                user_to=side2,
                 content=notification_content,
                 type='F',
                 picture=request.user.profile.profile_picture.url,
-                route_id=request.user.profile.link
+                content_object=None,
+                route_id=request.user.profile.link,
             )
             newNotification.save()
     except:
-        messages.error(request, f"you already a friend with {new_relation.side2.profile.name()}")
+        messages.error(request, f"request send to {side2.profile.name()}")
         return redirect('posts:home')
     finally:
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+def createFriend(request, link):
+    if request.user.is_authenticated:
+        side2=get_object_or_404(User, profile__link=link)
+        new_friendship = Friend(side1=request.user, side2=side2)
+        try:
+            new_friendship.save()
+            Notification.objects.filter(user_from=side2, user_to=request.user, route_id=side2.profile.link).delete()
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        except:
+            messages.error(request, "You are already friends")
+            return redirect('posts:home')
+    else:
+        messages.error(request, "you need to login first")
+        return redirect('users:index')
+
+def declineFriend(request, link):
+    if request.user.is_authenticated:
+        side2=get_object_or_404(User, profile__link=link)
+        Notification.objects.filter(user_from=side2, user_to=request.user, route_id=side2.profile.link).delete()
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        messages.error(request, "you need to login first")
+        return redirect('users:index')
+        
+
 
 def accountSettings2(request):
     """

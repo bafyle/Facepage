@@ -220,12 +220,19 @@ def viewPost(request, post_id):
 
 def sharePost(request, post_id):
     if request.user.is_authenticated:
-        referenced_post = get_object_or_404(Post, id=post_id)
-        new_post = Post(
-            creator=request.user,
-            shared_post=True,
-            original_post=referenced_post
-        )
+        post = get_object_or_404(Post, id=post_id)
+        if post.shared_post:
+            new_post = Post(
+                creator=request.user,
+                shared_post=True,
+                original_post=post.original_post
+            )
+        else:
+            new_post = Post(
+                creator=request.user,
+                shared_post=True,
+                original_post=post
+            )
         new_post.save()
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
@@ -260,10 +267,10 @@ def likePost(request, post_id):
             post.save()
 
             if request.user is not post.creator:
-                if Notification.objects.filter(user_from=request.user, user_to=post.creator, route_id=post_id).count() <= 0:
-                    notification_content = f"{request.user.first_name} {request.user.last_name} liked your post: "
-                    if len(post.post_content) > 10:
-                        notification_content += f"{post.post_content[0:10]}..."
+                if Notification.objects.filter(user_from=request.user, type='L', route_id=post_id).count() <= 0:
+                    notification_content = f"{request.user.profile.name()} liked your post: "
+                    if len(post.post_content) > 20:
+                        notification_content += f"{post.post_content[0:20]}..."
                     else:
                         notification_content += f"{post.post_content}"
                     newNotification = Notification(
@@ -272,7 +279,8 @@ def likePost(request, post_id):
                         content=notification_content,
                         type='L',
                         picture=request.user.profile.profile_picture.url,
-                        route_id=post_id
+                        content_object=post,
+                        route_id=post.id,
                     )
                     newNotification.save()
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -314,11 +322,11 @@ def addComment(request, post_id):
         new_comment.save()
         commented_post.comments = Comment.objects.filter(post=commented_post).count()
         commented_post.save()
-        if request.user is not commented_post.creator:
-            if Notification.objects.filter(user_from=request.user, user_to=commented_post.creator, route_id=post_id).count() <= 0:
-                notification_content = f"{request.user.first_name} {request.user.last_name} commented on your post: "
-                if len(comment) > 10:
-                    notification_content += f"{comment[0:10]}..."
+        if request.user != commented_post.creator:
+            if Notification.objects.filter(user_from=request.user, type='C', route_id=post_id).count() <= 0:
+                notification_content = f"{request.user.profile.name()} commented on your post: "
+                if len(comment) > 20:
+                    notification_content += f"{comment[0:20]}..."
                 else:
                     notification_content += f"{comment}"
                 newNotification = Notification(
@@ -327,7 +335,8 @@ def addComment(request, post_id):
                     content=notification_content,
                     type='C',
                     picture=request.user.profile.profile_picture.url,
-                    route_id=post_id
+                    content_object=commented_post,
+                    route_id=commented_post.id,
                 )
                 newNotification.save()
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

@@ -1,7 +1,9 @@
 from django.urls import path
-from.views import testView
+from.views import *
 
 app_name = 'notifications'
 urlpatterns = [
-    path(r'', testView, name='index'),
+    path(r'', notificationsView, name='index'),
+    path(r'delete/<slug:id>', deleteNotification, name='delete-notification'),
+    
 ]

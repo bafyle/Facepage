@@ -10,10 +10,9 @@ class Post(models.Model):
     create_date = models.DateTimeField(default=timezone.now)
     likes = models.IntegerField(default=0)
     comments = models.IntegerField(default=0)
-    image = models.ImageField(default=None, blank=True)
+    image = models.ImageField(default='', blank=True)
     shared_post = models.BooleanField(default=False)
     original_post = models.ForeignKey(to='self', on_delete=models.SET_NULL, null=True, blank=True)
-
 
     def clean(self, *args, **kwargs) -> None:
         if self.shared_post and self.image != '':
