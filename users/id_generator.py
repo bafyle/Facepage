@@ -15,9 +15,8 @@ def id_generator(user, k) -> str:
     if id != '' and id is not None and user.last_name:
         id += user.last_name
     print(id)
-    file = open('users/bad-words.txt', 'r')
-    badWords = file.readlines()
-    file.close()
+    with open('users/bad-words.txt', 'r') as file:
+        badWords = file.readlines()
     allLeters = generator_letters()
     while True:
         randomString = generate_random_characters(k, allLeters)
@@ -25,4 +24,3 @@ def id_generator(user, k) -> str:
             id += randomString
             break
     return id
-

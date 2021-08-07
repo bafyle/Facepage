@@ -1,3 +1,5 @@
+from django.db.utils import IntegrityError
+from django.db.models import Q
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponseRedirect
@@ -9,7 +11,7 @@ from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from facepage.tokens import account_activation_token
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMessage, message
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
@@ -102,56 +104,112 @@ def register(request):
         form = RegisterForm()
     return render(request, 'pages/Register.html', {'form':form})
 
-def addFriend(request, link):
-    """
-    This view create a new notification to the user
-    """
-    side2 = get_object_or_404(User, profile__link=link)
-    try:
-        if Notification.objects.filter(user_from=request.user, user_to=side2, route_id=request.user.profile.link).count() <= 0:
-            notification_content = f"{request.user.profile.name()} sent you a friend request"
-            newNotification = Notification(
-                user_from=request.user,
-                user_to=side2,
-                content=notification_content,
-                type='F',
-                picture=request.user.profile.profile_picture.url,
-                content_object=None,
-                route_id=request.user.profile.link,
-            )
-            newNotification.save()
-    except:
-        messages.error(request, f"request send to {side2.profile.name()}")
-        return redirect('posts:home')
-    finally:
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
-def createFriend(request, link):
+def sendFriendRequest(request, link):
     if request.user.is_authenticated:
-        side2=get_object_or_404(User, profile__link=link)
-        new_friendship = Friend(side1=request.user, side2=side2)
-        try:
-            new_friendship.save()
-            Notification.objects.filter(user_from=side2, user_to=request.user, route_id=side2.profile.link).delete()
+        user = get_object_or_404(User, profile__link=link)
+        friendship_check = bool(
+            Friend.objects.filter(
+                ((Q(side1=request.user) & Q(side2=user)) | (Q(side1=user) & Q(side2=request.user))
+                ))
+            )
+        if not friendship_check:
+            new_relation = Friend(side1=request.user, side2=user)
+            new_relation.save()
+        else:
+            messages.error(request, "you are already friends")
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-        except:
-            messages.error(request, "You are already friends")
-            return redirect('posts:home')
+        notification = Notification.objects.filter(
+            user_from=request.user,
+            user_to=user,
+            route_id=request.user.profile.link
+        ).first()
+        if notification:
+            notification.delete()
+        notification_content = f"{request.user.profile.name()} sent you a friend request"
+        newNotification = Notification(
+            user_from=request.user,
+            user_to=user,
+            content=notification_content,
+            type='F',
+            picture=request.user.profile.profile_picture.url,
+            content_object=new_relation,
+            route_id=request.user.profile.link,
+        )
+        newNotification.save()
+        messages.success(request, "friend request sent")
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        message.error(request, "you must login first")
+        return redirect('users:index')
+
+def acceptFriendRequest(request, link):
+    if request.user.is_authenticated:
+        sender = User.objects.filter(profile__link=link).first()
+        if sender:
+            friendship = Friend.objects.filter(side1=sender, side2=request.user).first()
+            if friendship:
+                friendship.accepted = True
+                friendship.save()
+                # delete notification
+            else:
+                messages.error(request, "no such friend request to accept")
+            messages.success(request, "friendship accepted")
+        else:
+            messages.error(request, "no such user")
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        message.error(request, "you must login first")
+        return redirect('users:index')
+
+def declineFriendRequest(request, link):
+    """Delete a comming friend request """
+    if request.user.is_authenticated:
+        sender = User.objects.filter(profile__link=link).first()
+        if sender:
+            friendship = Friend.objects.filter((Q(side1=sender) & Q(side2=request.user)) | (Q(side1=request.user) & Q(side2=sender))).first()
+            if friendship:
+                friendship.delete()
+            else:
+                messages.error(request, "no such friend request to decline")
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+            notification = Notification.objects.filter(
+                user_from=sender,
+                user_to=request.user,
+                route_id=request.user.profile.link
+            ).first()
+            if notification:
+                notification.delete()
+            messages.success(request, "friendship declined")
+        else:
+            messages.error(request, "no such user")
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         messages.error(request, "you need to login first")
         return redirect('users:index')
 
-def declineFriend(request, link):
+def cancelFriendRequest(request, link):
+    """ delete a request that has been sent by the request.user"""
+    pass
+
+def unfriend(request, link):
     if request.user.is_authenticated:
-        side2=get_object_or_404(User, profile__link=link)
-        Notification.objects.filter(user_from=side2, user_to=request.user, route_id=side2.profile.link).delete()
+        user = User.objects.filter(profile__link=link).first()
+        if user:
+            friendship = Friend.objects.filter(
+                ((Q(side1=user) & Q(side2=request.user)) | (Q(side1=request.user) & Q(side2=user))) &  
+                Q(accepted=True)).first()
+            if friendship:
+                friendship.delete()
+            else:
+                messages.error(request, "no such friend")
+            messages.success(request, "friendship deleted")
+        else:
+            messages.error(request, "no such user")
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         messages.error(request, "you need to login first")
         return redirect('users:index')
         
-
-
 def accountSettings2(request):
     """
     Takes the new user email and password and check if they are valid and save them
@@ -377,10 +435,9 @@ def sendActivateEmail(request, user):
 def sendNewPassword(password, email):
     mail_subject = 'Facepage: password reset'
     message = """
-        Hello,
-        You have requested to reset your password, you new one is:
-    """ + password + """
-        \nPlease do NOT share it with anyone\nRegards: Facepage
+Your new password is: {password}\nPlease do NOT share it with anyone and
+don't forget to change your password once you log in to Facepage again\n
+AND DO NOT FORGET IT AGAIN!!! 
     """
     email = EmailMessage(
             mail_subject,

@@ -15,9 +15,10 @@ urlpatterns = [
     path(r'verification/', verifyEmailView, name='verification-sent'),
     path(r'activate/<uidb64>/<token>/', activate, name='activate'),
     path(r'personal-settings/', personalSettings, name='personal-settings'),
-    path(r'send-friend-request/<slug:link>/', addFriend, name='add-friend'),
-    path(r'accept-friend-request/<slug:link>/', createFriend, name='create-friend'),
-    path(r'decline-friend-request/<slug:link>/', declineFriend, name='decline-friend'),
+    path(r'send-friend-request/<slug:link>/', sendFriendRequest, name='add-friend'),
+    path(r'accept-friend-request/<slug:link>/', acceptFriendRequest, name='create-friend'),
+    path(r'decline-friend-request/<slug:link>/', declineFriendRequest, name='decline-friend'),
+    path(r'unfriend/<slug:link>/', unfriend, name='unfriend'),
     path(r'forgot-password/', forgotPasswordView, name='forgot-password'),
     
 ]

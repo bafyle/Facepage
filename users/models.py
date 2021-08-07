@@ -30,6 +30,7 @@ class Friend(models.Model):
         
     side1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name="Side1")
     side2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name="Side2")
+    accepted = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Friendship {self.side1.username} and {self.side2.username}"

@@ -60,6 +60,26 @@
                 <a href="{%url 'profile' user_profile_link %}">{{user_profile_name}}</a>
             </div>
             <div class="desc">{{user_bio}}</div>
+            <div class="friendship">
+                
+                {% if are_they_friends == False %}
+                <form action="{% url 'users:add-friend' user_profile_link%}" method="post">
+                    {%csrf_token%}
+                    <button>Send friend request</button>
+                </form>
+                {% elif are_they_friends == True %}
+                    <a href="{% url 'messenger:chat' user_profile_link %}">Send a message</a>
+                    <form action="{% url 'users:unfriend' user_profile_link%}" method="post">
+                        {%csrf_token%}
+                        <button>Unfriend</button>
+                    </form>
+                {% elif are_they_friends == 'pending' %}
+                <form action="{% url 'users:decline-friend' user_profile_link%}" method="post">
+                    {%csrf_token%}
+                    <button>cancel friend request</button>
+                </form>
+                {% endif %}
+            </div>
         </div>
 
     </div>
@@ -255,16 +275,11 @@
             <a href="?page={{ page_obj.next_page_number }}" id="nexPrev" class="next round">&#8250;</a>
         {% endif %}
         </div>
-
-
         <hr>
         <h4 class="text-center">
-        <p style="font-size: 11px;">Privacy· Terms· Advertising· Ad Choices <i class="fas fa-angle-double-right"></i>· Cookies· More· Facepage © 2021</p>
+            <p style="font-size: 11px;">Privacy· Terms· Advertising· Ad Choices <i class="fas fa-angle-double-right"></i>· Cookies· More· Facepage © 2021</p>
         </h4>
         <hr>
-
-
-
         </div><!-- /col-9 -->
     </div><!-- /padding -->
 </div>
@@ -273,19 +288,24 @@
 
 {% block scripts %}
 {{ block.super }}
+
 <script src="{% static 'pages/js/postShowMore.js'%}"></script>
-<!-- loading older post using ajax -->
+
 {% comment %}
+<!-- 
+    loading older post using ajax 
+    not updated yet
+-->
 <script src="{% static 'pages/js/chatjs/humanized_time_span.js'%}"></script>
 <script>
     var mainContainer = document.getElementById("main");
     var pageNumber = 0;
-    var pages = {{pages_count}};
+    var pages = '{{pages_count}}';
     mainContainer.addEventListener('scroll', () =>
     {
         if(mainContainer.scrollHeight - mainContainer.scrollTop === mainContainer.clientHeight)
         {
-            if(pageNumber < pages)
+            if(pageNumber < int(pages))
             {
                 pageNumber++;
                 getOlderPosts();

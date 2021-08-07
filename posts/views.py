@@ -15,7 +15,7 @@ def home(request):
     Home view, get your latest post and all your friends posts
     """
     if request.user.is_authenticated:
-        friends = Friend.objects.filter(Q(side2=request.user) | Q(side1=request.user))
+        friends = Friend.objects.filter((Q(side2=request.user) | Q(side1=request.user)) & Q(accepted=True))
         friends_posts = []
         for friend in friends:
             if friend.side1.username == request.user.username:
@@ -56,12 +56,16 @@ def profile(request, link):
         context = dict()
         user = get_object_or_404(User, profile__link=link)
         if request.user != user:
-            are_they_friends = bool(
-                Friend.objects.filter(
-                    (Q(side1=request.user) & Q(side2=user)) | (Q(side1=user) & Q(side2=request.user))
-                    )
-                )
-            context['are_they_friends'] = are_they_friends
+            are_they_friends = Friend.objects.filter(
+                    ((Q(side1=request.user) & Q(side2=user)) | (Q(side1=user) & Q(side2=request.user))
+                    ))
+            if are_they_friends.first():
+                if are_they_friends.first().accepted:
+                    context['are_they_friends'] = True
+                else:
+                    context['are_they_friends'] = 'pending'
+            else:
+                context['are_they_friends'] = False
         profile_posts = Post.objects.filter(creator__profile__link=link).order_by('-create_date')
         likes = Like.objects.filter(liker=request.user)
         liked_posts = []
@@ -147,8 +151,11 @@ def search(request):
                     if L[1] != user.profile.link:
                         count += 1
                 if count == len(users):
-                    are_they_friends = bool(Friend.objects.filter((Q(side1=request.user) & Q(side2=user)) 
-                                    | (Q(side1=user) & Q(side2=request.user))))
+                    are_they_friends = bool(
+                        Friend.objects.filter(
+                            ((Q(side1=request.user) & Q(side2=user)) | (Q(side1=user) & Q(side2=request.user))
+                            ) & Q(accepted=True))
+                        )
                     users.append([
                         user.profile.name(),
                         user.profile.link,

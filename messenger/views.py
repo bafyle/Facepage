@@ -14,7 +14,8 @@ def chat(request, link:str = None):
         username = User.objects.filter(profile__link=link).first()
         my_username = request.user.username
         get_friends_query = Friend.objects.filter(
-            Q(side1__username=my_username) | Q(side2__username=my_username)
+            (Q(side1__username=my_username) | Q(side2__username=my_username))
+            & Q(accepted=True)
         )    
         friends = list()
         found = False
@@ -74,7 +75,6 @@ def chat(request, link:str = None):
         messages.error(request, "You must login first")
         return redirect('users:index')
 
-    
 
 def sendMessage(request, link: str):
     username = User.objects.filter(profile__link=link).first()
