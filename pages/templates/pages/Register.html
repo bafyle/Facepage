@@ -166,6 +166,7 @@
                         var response = JSON.parse(this.responseText);
                         if(response.message == "good")
                         {
+                            removeAllChildren(errorsDiv);
                             removeAllChildren(card);
                             var p = document.createElement("p");
                             p.innerText = "Thank you for registering, a confirmation link has been sent to your account. Please click it to continue";
@@ -202,6 +203,14 @@
                     p.innerText = "There was an error please refresh the page";
                     card.appendChild(p);
                 };
+
+                xhr.onprogress = function(e)
+                {
+                    var p = document.createElement("p");
+                    p.innerText = "processing please wait...";
+                    errorsDiv.appendChild(p);
+                };
+
                 xhr.send(params);
             });
             function removeAllChildren(parent)

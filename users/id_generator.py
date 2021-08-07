@@ -1,6 +1,13 @@
 import random
 import string
 
+
+def generator_letters() -> str:
+    return ''.join(string.ascii_letters + string.digits + '-')
+
+def generate_random_characters(length: int, letters: str) -> str:
+    return ''.join(random.choices(letters, k=length))
+
 def id_generator(user, k) -> str:
     id = str()
     if user.first_name:
@@ -11,9 +18,9 @@ def id_generator(user, k) -> str:
     file = open('users/bad-words.txt', 'r')
     badWords = file.readlines()
     file.close()
-    allLeters = ''.join(string.ascii_letters + string.digits + '-')
+    allLeters = generator_letters()
     while True:
-        randomString = ''.join(random.choices(allLeters, k=k))
+        randomString = generate_random_characters(k, allLeters)
         if randomString not in badWords:
             id += randomString
             break

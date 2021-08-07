@@ -16,7 +16,7 @@ from django.utils.translation import gettext as _
 
 from .forms import DeleteAccountForm, ChangePictureBioForm, RegisterForm
 from .models import Friend, Profile
-from .id_generator import id_generator
+from .id_generator import *
 from pathlib import Path
 from django.contrib.auth.models import User
 from notifications.models import Notification
@@ -60,6 +60,23 @@ def logoutFunction(request):
     messages.success(request, "You have been logged out")
     return redirect('users:index')
 
+def forgotPasswordView(request):
+    if request.method == "POST":
+        email = request.POST['email']
+        user = User.objects.filter(email=email).first()
+        if user:
+            new_password = generate_random_characters(10, generator_letters())
+            user.set_password(new_password)
+            user.save()
+            try:
+                sendNewPassword(new_password, email)
+            except Exception as e:
+                return JsonResponse({'message':'cannot send'})
+            return JsonResponse({'message':'good'})
+        else:
+            return JsonResponse({'message':'no user'})
+    return render(request, 'pages/ForgotPassword.html')
+
 def register(request):
     if request.method == "POST":
         form = RegisterForm(request.POST)
@@ -74,7 +91,7 @@ def register(request):
                         break
                 new_profile = Profile(user=user, link=newLink, birthday=form.cleaned_data['birthday'], gender=form.cleaned_data['gender'])
                 new_profile.save()
-                sendEmail(request, user)
+                sendActivateEmail(request, user)
                 return JsonResponse({'message':'good'})
             except Exception as e:
                 user.delete()
@@ -341,7 +358,7 @@ def deleteAccount(request):
         return redirect('users:index')
 
 
-def sendEmail(request, user):
+def sendActivateEmail(request, user):
     current_site = get_current_site(request)
     mail_subject = 'Activate your Facepage account.'
     message = render_to_string('pages/AccountActivation.html', {
@@ -354,6 +371,21 @@ def sendEmail(request, user):
             mail_subject,
             message,
             to=[user.email],
+    )
+    email.send()
+
+def sendNewPassword(password, email):
+    mail_subject = 'Facepage: password reset'
+    message = """
+        Hello,
+        You have requested to reset your password, you new one is:
+    """ + password + """
+        \nPlease do NOT share it with anyone\nRegards: Facepage
+    """
+    email = EmailMessage(
+            mail_subject,
+            message,
+            to=[email],
     )
     email.send()
 
