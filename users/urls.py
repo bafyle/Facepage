@@ -19,6 +19,6 @@ urlpatterns = [
     path(r'accept-friend-request/<slug:link>/', acceptFriendRequest, name='create-friend'),
     path(r'decline-friend-request/<slug:link>/', declineFriendRequest, name='decline-friend'),
     path(r'unfriend/<slug:link>/', unfriend, name='unfriend'),
-    path(r'forgot-password/', forgotPasswordView, name='forgot-password'),
-    
+    path(r'cancel-friend-request/<slug:link>/', cancelFriendRequest, name='cancel-friend'),
+    path(r'forgot-password/', forgotPasswordView, name='forgot-password'),   
 ]

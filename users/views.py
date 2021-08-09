@@ -146,11 +146,17 @@ def acceptFriendRequest(request, link):
     if request.user.is_authenticated:
         sender = User.objects.filter(profile__link=link).first()
         if sender:
-            friendship = Friend.objects.filter(side1=sender, side2=request.user).first()
+            friendship = Friend.objects.filter(side1=sender, side2=request.user, accepted=False).first()
             if friendship:
                 friendship.accepted = True
                 friendship.save()
-                # delete notification
+                notification = Notification.objects.filter(
+                    user_from=sender,
+                    user_to=request.user,
+                    route_id=request.user.profile.link
+                ).first()
+                if notification:
+                    notification.delete()
             else:
                 messages.error(request, "no such friend request to accept")
             messages.success(request, "friendship accepted")
@@ -167,7 +173,7 @@ def declineFriendRequest(request, link):
         sender = User.objects.filter(profile__link=link).first()
         if sender:
             friendship = Friend.objects.filter((Q(side1=sender) & Q(side2=request.user)) | (Q(side1=request.user) & Q(side2=sender))).first()
-            if friendship:
+            if friendship and friendship.accepted == False:
                 friendship.delete()
             else:
                 messages.error(request, "no such friend request to decline")
@@ -175,7 +181,7 @@ def declineFriendRequest(request, link):
             notification = Notification.objects.filter(
                 user_from=sender,
                 user_to=request.user,
-                route_id=request.user.profile.link
+                type='F'
             ).first()
             if notification:
                 notification.delete()
@@ -189,7 +195,27 @@ def declineFriendRequest(request, link):
 
 def cancelFriendRequest(request, link):
     """ delete a request that has been sent by the request.user"""
-    pass
+    if request.user.is_authenticated:
+        user = get_object_or_404(User, profile__link = link)
+        friendship = Friend.objects.filter(side1=request.user, side2=user).first()
+        if friendship:
+            friendship.delete()
+        else:
+            messages.error(request, "no such friend request to cancel")
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        notification = Notification.objects.filter(
+            user_from=request.user,
+            user_to=user,
+            route_id=request.user.profile.link,
+            type='F'
+        ).first()
+        if notification:
+            notification.delete()
+        messages.success(request, "friendship declined")
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        messages.error(request, "you need to login first")
+        return redirect('users:index')
 
 def unfriend(request, link):
     if request.user.is_authenticated:

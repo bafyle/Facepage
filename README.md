@@ -32,14 +32,14 @@ $ virtualenv venv
 ~~~
 You can change 'venv' to anything else if you want
 
-* Activate you virtual environment by going to:
+* Activate you virtual environment by:
 ~~~
 $ cd ./venv/Scripts/
 $ ./activate
 ~~~
 * Now you can install any python library you want without affecting your main python interpreter
 
-* From here you can install django and the dependencies into you new environment
+* From here you can install django and the dependencies into your new environment
 
 ## Running the server
 After installing Pillow and six using pip, you can clone the repo and run the server by going the repo folder (which is Facepage) and running this command:
@@ -57,7 +57,7 @@ Django version 3.2.5, using settings 'facepage.settings'
 Starting development server at http://127.0.0.1:8000/
 Quit the server with CTRL-BREAK.
 ~~~
-Simply by holding CTRL and clicking that link, your main browser will open with the login page
+Go to https://127.0.0.1:8000/ and the login page will be there waiting for you
 
 ## User interactions
 users can:
@@ -74,3 +74,14 @@ users can:
 * Change profile cover picture
 * Search for users or posts
 * Get notifications about likes, comments and friend requests
+
+
+## Todo:
+- [ ] better password reset mechanism
+- [x] fix bugs in notifications for the friend request
+- [x] complete the design of the friendship between the users
+- [ ] add styling to these buttons:
+    * send friend request
+    * cancel friend request
+    * unfriend
+ 

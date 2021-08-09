@@ -3,7 +3,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from .models import *
 from django.contrib import messages
 from django.http import HttpResponseRedirect
-from django.db.models import Q
+from django.db.models import Q, query
 from django.core.paginator import Paginator
 from notifications.models import Notification
 
@@ -56,16 +56,29 @@ def profile(request, link):
         context = dict()
         user = get_object_or_404(User, profile__link=link)
         if request.user != user:
-            are_they_friends = Friend.objects.filter(
-                    ((Q(side1=request.user) & Q(side2=user)) | (Q(side1=user) & Q(side2=request.user))
-                    ))
-            if are_they_friends.first():
-                if are_they_friends.first().accepted:
-                    context['are_they_friends'] = True
+            # are_they_friends = Friend.objects.filter(
+            #         ((Q(side1=request.user) & Q(side2=user)) | (Q(side1=user) & Q(side2=request.user))
+            #         ))
+            # if are_they_friends.first():
+            #     if are_they_friends.first().accepted:
+            #         context['are_they_friends'] = True
+            #     else:
+            #         context['are_they_friends'] = 'pending'
+            # else:
+            #     context['are_they_friends'] = False
+            query = Friend.objects.filter(
+                        ((Q(side1=request.user) & Q(side2=user)) | (Q(side1=user) & Q(side2=request.user)))
+                    )
+            if query.first():
+                if query.first().accepted == True:
+                    context['friendship_status'] = 'accepted'
                 else:
-                    context['are_they_friends'] = 'pending'
+                    if query.first().side1 == request.user:
+                        context['friendship_status'] = 'sent'
+                    else:
+                        context['friendship_status'] = 'received'
             else:
-                context['are_they_friends'] = False
+                context['friendship_status'] = 'not-friends'
         profile_posts = Post.objects.filter(creator__profile__link=link).order_by('-create_date')
         likes = Like.objects.filter(liker=request.user)
         liked_posts = []

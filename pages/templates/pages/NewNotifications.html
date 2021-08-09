@@ -33,7 +33,7 @@ Notifications
     </ul>
   
     <!-- tiny only nav-->
-  <ul class="nav visible-xs" id="xs-menu">
+    <ul class="nav visible-xs" id="xs-menu">
         <li><a href="" class="text-center"><i class="glyphicon glyphicon-refresh"></i></a></li>
         <li><a href="#" class="text-center"><i class="glyphicon glyphicon-list"></i></a></li>
         <li><a href="#" class="text-center"><i class="fas fa-user-friends"></i></a></li>
@@ -62,41 +62,35 @@ Notifications
                                 {% if n.content_object != None %}
                                 <div class="people-nearby">
                                     <div class="nearby-user">
-                                        
-                                            <div class="row">
-                                                <div class="col-md-2 col-sm-2">
-                                                    <img src="{{n.picture}}" alt="user" class="profile-photo-lg">
-                                                </div>
-                                                <div class="col-md-7 col-sm-7" >
-                                                    <a {% if n.type == 'L' or n.type == 'C'%}
-                                                        href="{% url 'posts:view-post' n.route_id%}"
-                                                        {% endif %}
-                                                    >
-                                                    <p style="margin-top: 10px;">{{n.content}}</p>
-                                                    </a>
-                                                    {% if n.type == 'F'%}
-                                                    <form action="{% url 'users:create-friend' n.route_id%}" method="GET">
-                                                        <button type="submit" class="btn btn-primary" style="float: left; margin-right: 10px;">Accept</i></button>
-                                                    </form>
-                                                    <form action="{% url 'users:decline-friend' n.route_id%}" method="GET">
-                                                        <button type="submit" class="btn btn-primary" style="background-color: #efefef; color: black; border: none;">Decline</i></button>
-                                                    </form>
+                                        <div class="row">
+                                            <div class="col-md-2 col-sm-2">
+                                                <img src="{{n.picture}}" alt="user" class="profile-photo-lg">
+                                            </div>
+                                            <div class="col-md-7 col-sm-7" >
+                                                <a {% if n.type == 'L' or n.type == 'C'%}
+                                                    href="{% url 'posts:view-post' n.route_id%}"
                                                     {% endif %}
-                                                </div>
+                                                >
+                                                <p style="margin-top: 10px;">{{n.content}}</p>
+                                                </a>
                                                 {% if n.type == 'F'%}
+                                                <form action="{% url 'users:create-friend' n.route_id%}" method="GET">
+                                                    <button type="submit" class="btn btn-primary" style="float: left; margin-right: 10px;">Accept</i></button>
+                                                </form>
                                                 <form action="{% url 'users:decline-friend' n.route_id%}" method="GET">
-                                                {% else %}
-                                                <form action="{% url 'notifications:delete-notification' n.id%}" method="GET">
+                                                    <button type="submit" class="btn btn-primary" style="background-color: #efefef; color: black; border: none;">Decline</i></button>
+                                                </form>
                                                 {% endif %}
+                                            </div>
+                                            
+                                            <form action="{% url 'notifications:delete-notification' n.id %}" method="GET">
                                                 <span class="pull-right" style="margin-right: 10px;" >{{n.date|naturaltime}}</span>
                                                 <div class="col-md-3 col-sm-3">
-                                                    
                                                     <br>
                                                     <button class="btn btn-primary pull-right" type="submit" style="font-size: 10px; background-color: black;"><i class="fas fa-trash"></i></button>
                                                 </div>
-                                                </form>																								
-                                            </div>
-                                       
+                                            </form>																								
+                                        </div>
                                     </div>
                                 </div>
                                 {% endif %}

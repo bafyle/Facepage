@@ -82,13 +82,15 @@ Search: {{search}}
                                 <p class="text-muted"><i class="fas fa-map-marker-alt"></i> Lives in Cairo, Egypt</p> -->
                                 </div>
                                 
+                                {% comment %}
                                 <div class="col-md-3 col-sm-3">
                                 {% if user.3 and user.1 != navbar_link %}
                                     <a href="{% url 'messenger:chat' user.1%}" class="btn btn-primary pull-right" type="submit"><i class="fab fa-rocketchat"></i></a>
                                 {% elif user.3 != True and user.1 != navbar_link %}
                                     <a href="{% url 'users:add-friend' user.1%}" class="btn btn-primary pull-right" type="submit"><i class="fas fa-user-plus"></i></a>
                                 {% endif %}
-                                </div>																							
+                                </div>
+                                {% endcomment %}
                             </div>
                             </div>
                             {% endfor %}

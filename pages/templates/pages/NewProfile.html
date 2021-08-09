@@ -61,20 +61,29 @@
             </div>
             <div class="desc">{{user_bio}}</div>
             <div class="friendship">
-                
-                {% if are_they_friends == False %}
-                <form action="{% url 'users:add-friend' user_profile_link%}" method="post">
+                {% if friendship_status == 'not-friends' %}
+                <form action="{% url 'users:add-friend' user_profile_link %}" method="post">
                     {%csrf_token%}
                     <button>Send friend request</button>
                 </form>
-                {% elif are_they_friends == True %}
+                {% elif friendship_status == 'accepted' %}
                     <a href="{% url 'messenger:chat' user_profile_link %}">Send a message</a>
-                    <form action="{% url 'users:unfriend' user_profile_link%}" method="post">
+                    <form action="{% url 'users:unfriend' user_profile_link %}" method="post">
                         {%csrf_token%}
                         <button>Unfriend</button>
                     </form>
-                {% elif are_they_friends == 'pending' %}
-                <form action="{% url 'users:decline-friend' user_profile_link%}" method="post">
+                {% elif friendship_status == 'received' %}
+                    <span>{{user_profile_name}} wants to be friend with you: </span>
+                    <form action="{% url 'users:create-friend' user_profile_link %}" method="post">
+                        {%csrf_token%}
+                        <button>Accept</button>
+                    </form>
+                    <form action="{% url 'users:decline-friend' user_profile_link %}" method="post">
+                        {%csrf_token%}
+                        <button>Decline</button>
+                    </form>
+                {% elif friendship_status == 'sent' %}
+                <form action="{% url 'users:cancel-friend' user_profile_link %}" method="post">
                     {%csrf_token%}
                     <button>cancel friend request</button>
                 </form>
