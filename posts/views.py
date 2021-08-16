@@ -289,10 +289,13 @@ def likePost(request, post_id):
             if request.user is not post.creator:
                 if Notification.objects.filter(user_from=request.user, type='L', route_id=post_id).count() <= 0:
                     notification_content = f"{request.user.profile.name()} liked your post: "
-                    if len(post.post_content) > 20:
-                        notification_content += f"{post.post_content[0:20]}..."
+                    if not post.shared_post:
+                        if len(post.post_content) > 20:
+                            notification_content += f"{post.post_content[0:20]}..."
+                        else:
+                            notification_content += f"{post.post_content}"
                     else:
-                        notification_content += f"{post.post_content}"
+                        notification_content = f"{request.user.profile.name()} liked your you shared"
                     newNotification = Notification(
                         user_from=request.user,
                         user_to=post.creator,
@@ -345,10 +348,13 @@ def addComment(request, post_id):
         if request.user != commented_post.creator:
             if Notification.objects.filter(user_from=request.user, type='C', route_id=post_id).count() <= 0:
                 notification_content = f"{request.user.profile.name()} commented on your post: "
-                if len(comment) > 20:
-                    notification_content += f"{comment[0:20]}..."
+                if not commented_post.shared_post:
+                    if len(comment) > 20:
+                        notification_content += f"{comment[0:20]}..."
+                    else:
+                        notification_content += f"{comment}"
                 else:
-                    notification_content += f"{comment}"
+                    notification_content = f"{request.user.profile.name()} commented on a post you shared"
                 newNotification = Notification(
                     user_from=request.user,
                     user_to=commented_post.creator,

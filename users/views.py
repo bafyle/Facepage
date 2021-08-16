@@ -153,7 +153,7 @@ def acceptFriendRequest(request, link):
                 notification = Notification.objects.filter(
                     user_from=sender,
                     user_to=request.user,
-                    route_id=request.user.profile.link
+                    type='F'
                 ).first()
                 if notification:
                     notification.delete()
@@ -198,7 +198,7 @@ def cancelFriendRequest(request, link):
     if request.user.is_authenticated:
         user = get_object_or_404(User, profile__link = link)
         friendship = Friend.objects.filter(side1=request.user, side2=user).first()
-        if friendship:
+        if friendship and friendship.accepted == False:
             friendship.delete()
         else:
             messages.error(request, "no such friend request to cancel")
@@ -433,7 +433,13 @@ def deleteAccount(request):
                     return redirect('users:delete')
             else:
                 form = DeleteAccountForm()
-            return render(request, 'pages/DeleteAccount.html', context={'form': form})
+                context = {
+                    'profile_pic': request.user.profile.profile_picture.url,
+                    'navbar_name': request.user.first_name,
+                    'navbar_link': request.user.profile.link,
+                    'form': form,
+                }
+            return render(request, 'pages/DeleteAccount.html', context)
         else:
             messages.error(request, "Can not delete a superuser account")
             return redirect('posts:home')
@@ -460,7 +466,7 @@ def sendActivateEmail(request, user):
 
 def sendNewPassword(password, email):
     mail_subject = 'Facepage: password reset'
-    message = """
+    message = f"""
 Your new password is: {password}\nPlease do NOT share it with anyone and
 don't forget to change your password once you log in to Facepage again\n
 AND DO NOT FORGET IT AGAIN!!! 

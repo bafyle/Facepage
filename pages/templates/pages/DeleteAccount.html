@@ -1,4 +1,5 @@
-{% extends 'pages/BaseUsers.html' %}
+{% extends 'pages/BaseSettings.html' %}
+{% comment %}
 {% block head %}
     <title>Delete Account</title>
 {% endblock %}
@@ -22,4 +23,34 @@
             <input type="submit" value="Delete">
         </form>
     </div>
+{% endblock %}
+{% endcomment %}
+{% block main %}
+<div class="column col-sm-10 col-xs-11" id="main">
+    <div class="padding">
+        <div class="full col-sm-9" >
+            <div class="item">
+                <span>
+                    <strong>
+                        By deleting your account, you will delete all comments and posts you shared
+                        <br>
+                        think twice about your decision
+                        <br>
+                        Type your username and "i want to delete my account" in the confirmation
+                    </strong>
+                </span>
+                <br>
+                <br>
+                <form action="{% url 'users:delete' %}" method="post">
+                    {%csrf_token%}
+                    <label for="{{form.username.id_for_label}}">Username: </label>
+                    <input id="{{form.username.id_for_label}}" type="text"> 
+                    <label for="{{form.confirmation.id_for_label}}">Confirmation: </label>
+                    <textarea id="{{form.confirmation.id_for_label}}" name="bio" rows="2" style="resize:vertical;">{{bio_form.bio.value}}</textarea>
+                    <input type="submit" value="Delete">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

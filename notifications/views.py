@@ -1,3 +1,5 @@
+import json
+from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.http import HttpResponseRedirect
@@ -24,19 +26,22 @@ def notificationsView(request):
 
 def deleteNotification(request, id):
     if request.user.is_authenticated:
-        notification = get_object_or_404(Notification, id=id)
-        if notification.type == 'F':
-            link = notification.route_id
-            sender = User.objects.filter(profile__link=link).first()
-            if sender:
-                friendship = Friend.objects.filter((Q(side1=sender) & Q(side2=request.user)) | (Q(side1=request.user) & Q(side2=sender))).first()
-                if friendship and friendship.accepted == False:
-                    friendship.delete()
-                else:
-                    messages.error(request, "no such friend request to decline")
-                    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-        notification.delete()
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        notification = Notification.objects.filter(id=id).first()
+        if notification:
+            if notification.type == 'F':
+                link = notification.route_id
+                sender = User.objects.filter(profile__link=link).first()
+                if sender:
+                    friendship = Friend.objects.filter((Q(side1=sender) & Q(side2=request.user)) | (Q(side1=request.user) & Q(side2=sender))).first()
+                    if friendship and friendship.accepted == False:
+                        friendship.delete()
+                    else:
+                        messages.error(request, "no such friend request to decline")
+                        return JsonResponse({"message":"no-friend"})
+            notification.delete()
+            return JsonResponse({"message":"good"})
+        else:
+            return JsonResponse({"message":"no-notification"})
     else:
         messages.error(request, "you need to login first")
         return redirect('users:index')
