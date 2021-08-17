@@ -4,6 +4,9 @@ from django.core.validators import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
+from django.db.models.signals import post_delete
+from django.dispatch.dispatcher import receiver
+
 class Post(models.Model):
     post_content = models.TextField(blank=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -49,3 +52,7 @@ class Like(models.Model):
 
     def __str__(self):
         return f"Like ID: {self.id} On Post: {self.post.id} from: {self.liker.username}"
+
+# @receiver(post_delete, sender=Post)
+# def deletePostPhotoFromServer(sender, instance, **kwargs):
+#     instance.image.delete(False)

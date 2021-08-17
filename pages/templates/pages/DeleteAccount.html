@@ -44,9 +44,9 @@
                 <form action="{% url 'users:delete' %}" method="post">
                     {%csrf_token%}
                     <label for="{{form.username.id_for_label}}">Username: </label>
-                    <input id="{{form.username.id_for_label}}" type="text"> 
+                    <input id="{{form.username.id_for_label}}" name="username" type="text"> 
                     <label for="{{form.confirmation.id_for_label}}">Confirmation: </label>
-                    <textarea id="{{form.confirmation.id_for_label}}" name="bio" rows="2" style="resize:vertical;">{{bio_form.bio.value}}</textarea>
+                    <textarea id="{{form.confirmation.id_for_label}}" name="confirmation" rows="2" style="resize:vertical;">{{bio_form.bio.value}}</textarea>
                     <input type="submit" value="Delete">
                 </form>
             </div>

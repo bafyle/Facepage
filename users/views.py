@@ -17,9 +17,8 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
 from .forms import DeleteAccountForm, ChangePictureBioForm, RegisterForm
-from .models import Friend, Profile
+from .models import Friend, Profile, deletePhoto
 from .id_generator import *
-from pathlib import Path
 from django.contrib.auth.models import User
 from notifications.models import Notification
 import json
@@ -326,12 +325,12 @@ def personalSettings(request):
                 if bioForm.cleaned_data['profile_picture'] != 'profile_pics/default.jpg':
                     old_image = request.user.profile.profile_picture.url
                     if old_image.split('/')[-1] != 'default.jpg':
-                        deletePhoto(old_image)
+                        request.user.profile.profile_picture.delete(False)
                     request.user.profile.profile_picture = bioForm.cleaned_data['profile_picture']
                 if bioForm.cleaned_data['profile_cover'] != 'profile_covers/default.jpg':
                     old_image = request.user.profile.profile_cover.url
                     if old_image.split('/')[-1] != 'default.jpg':
-                        deletePhoto(old_image)
+                        request.user.profile.profile_cover.delete(False)
                     request.user.profile.profile_cover = bioForm.cleaned_data['profile_cover']
                 request.user.profile.bio = bioForm.cleaned_data['bio']
                 request.user.first_name = bioForm.cleaned_data['first_name']
@@ -418,6 +417,8 @@ def deleteAccount(request):
         if not request.user.is_superuser:
             if request.method == 'POST':
                 form = DeleteAccountForm(request.POST)
+                for key in request.POST:
+                    print(key + " " + request.POST[key])
                 if form.is_valid():
                     if form.cleaned_data['username'] == request.user.username and form.cleaned_data['confirmation'] == "i want to delete my account":
                         user = request.user
@@ -497,10 +498,3 @@ def activate(request, uidb64, token):
 
 def verifyEmailView(request):
     return render(request, 'pages/VerificationSent.html')
-
-def deletePhoto(mediaPath):
-    this_file_dir = Path(__file__).resolve().parent.parent
-    file_path_without_edit = str(this_file_dir) + mediaPath
-    file_path = file_path_without_edit.replace('\\', '/', -1)
-    if os.path.isfile(file_path):
-        os.remove(file_path)

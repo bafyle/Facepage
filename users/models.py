@@ -1,8 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-from .id_generator import id_generator
-from django.conf import settings
-# Create your models here.
+from pathlib import Path
+import os
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -34,3 +33,11 @@ class Friend(models.Model):
 
     def __str__(self):
         return f"Friendship {self.side1.username} and {self.side2.username}"
+
+
+def deletePhoto(mediaPath):
+    this_file_dir = Path(__file__).resolve().parent.parent
+    file_path_without_edit = str(this_file_dir) + mediaPath
+    file_path = file_path_without_edit.replace('\\', '/', -1)
+    if os.path.isfile(file_path):
+        os.remove(file_path)
