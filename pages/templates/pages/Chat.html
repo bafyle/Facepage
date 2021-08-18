@@ -130,7 +130,7 @@
 				{% if his_link %}
 				<div class="col-7 col-lg-8 col-md-8 col-sm-7 whiteish-border-top no-padding" style="margin-top: 15px;">
 					<div class="chat-screen-info-container flex-container whiteish-border-bottom">		
-						<img class="rounded-image image-56px margin-left-md margin-top-sm margin-bottom-sm"src="{{his_profile_picture_url}}"/>
+						<a href="{% url 'profile' his_link %}"><img class="rounded-image image-56px margin-left-md margin-top-sm margin-bottom-sm"src="{{his_profile_picture_url}}"></a>
 						<div class="flex-container chat-text-info-container margin-left-md">
 						<p class="chat-info-text"><a href="" class="Rfriend-name" >{{his_username}}</a> </p>
 						</div>
@@ -187,14 +187,15 @@
 			var submitButton = document.getElementById("submit-button");
 			chat.scrollTop += chat.scrollHeight;
 
-			/// sumbit when pressing enter key
-			// postForm.addEventListener("submit", sendFunction);
-			// messageInput.addEventListener("keypress", (e) =>{
-			// 	if(e.keyCode === 13)
-			// 	{
-			// 		submitButton.click();
-			// 	}
-			// });
+			// sumbit when pressing enter key
+			postForm.addEventListener("submit", sendFunction);
+			messageInput.addEventListener("keypress", (e) =>{
+				if(e.keyCode === 13 && !evt.shiftKey)
+				{
+					e.preventDefault();
+					submitButton.click();
+				}
+			});
 
 			function sendFunction(event)
 			{

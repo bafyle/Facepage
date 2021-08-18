@@ -1,13 +1,58 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from users.models import Friend
 from .models import Message
 from django.db.models import Q
 from django.contrib.auth.models import User
 from .forms import SendMessageForm
-from django.core.serializers import serialize
 from django.utils import timezone
+
+
+
+def newChat(request, link:str = None):
+    if request.user.is_authenticated:
+        context = dict()
+        me = request.user
+        friends_query = Friend.objects.filter(
+            (Q(side1=me) | Q(side2=me))
+            & Q(accepted=True)
+        )
+        context['profile_pic'] = me.profile.profile_picture.url
+        context['navbar_name'] = me.first_name
+        context['navbar_link'] = me.profile.link
+        friends = list()
+        for friend in friends_query:
+            if friend.side1 != me:
+                friends.append(friend.side1)
+            else:
+                friends.append(friend.side2)
+        context['friends'] = friends
+        if link:
+            found = False
+            user = User.objects.filter(profile__link=link).first()
+            if not user:
+                messages.error(request, "there is no user with this link")
+                return redirect('posts:home')
+            if user not in friends:
+                messages.error(request, "You can chat only with your friends")
+                return redirect('posts:home')
+            else:
+                chat = Message.objects.filter(
+                    (Q(sender=me) & Q(receiver=user)) | 
+                    (Q(sender=user) & Q(receiver=me))
+                ).order_by('send_date')
+                for message in chat:
+                    message.seen = True
+                    message.save()
+                context['form'] = SendMessageForm()
+                context['chat'] = chat
+                context['his_username'] = user.profile.name()
+                context['his_link'] = user.profile.link
+                context['his_profile_picture_url'] = user.profile.profile_picture.url
+        return render(request, 'pages/Chat.html', context)
+
+
 
 def chat(request, link:str = None):
     if request.user.is_authenticated:
@@ -16,7 +61,7 @@ def chat(request, link:str = None):
         get_friends_query = Friend.objects.filter(
             (Q(side1__username=my_username) | Q(side2__username=my_username))
             & Q(accepted=True)
-        )    
+        )
         friends = list()
         found = False
         for friend in get_friends_query:
@@ -53,19 +98,7 @@ def chat(request, link:str = None):
             chat_information['his_profile_picture_url'] = username.profile.profile_picture.url
         chat_information['friends'] = friends
         chat_information['unseen_messages'] = unseen_messages
-        if request.method == 'POST':
-            form = SendMessageForm(request.POST)
-            if form.is_valid():
-                message = form.cleaned_data['message_input']
-                receiver_user = User.objects.get(username=username)
-                new_message = Message(sender=request.user, receiver=receiver_user, message_content = message)
-                new_message.save()
-                form = SendMessageForm()
-            else:
-                messages.error(request, "Error in sending the message")
-        else:
-            form = SendMessageForm()
-        chat_information['form'] = form
+        chat_information['form'] = SendMessageForm()
         chat_information['profile_pic'] = request.user.profile.profile_picture.url
         chat_information['navbar_name'] = request.user.first_name
         chat_information['navbar_link'] = request.user.profile.link
