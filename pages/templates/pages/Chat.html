@@ -165,7 +165,7 @@
 						<div class="col-12 chat-footer-container margin-bottom-md">
 							<form id="post-form" class="flex-container chat-footer"> {% csrf_token%}
 								<textarea id="{{form.message_input.id_for_label}}" class="no-resize no-outline chat-textarea-input padding-sm margin-right-sm"></textarea>
-								<button type="submit" class="send-msg-btn">
+								<button id="submit-button" type="submit" class="send-msg-btn">
 									<i class="fas fa-angle-right fa-lg" style="color:#3578e5; outline:none; border:none;"></i> 
 								</button>
 							</form>
@@ -184,10 +184,17 @@
 			var postForm = document.getElementById("post-form");
 			var messageInput = document.getElementById("{{form.message_input.id_for_label}}");
 			var chat = document.getElementById("chat-text-container");
-
+			var submitButton = document.getElementById("submit-button");
 			chat.scrollTop += chat.scrollHeight;
 
-			postForm.addEventListener("submit", sendFunction);
+			/// sumbit when pressing enter key
+			// postForm.addEventListener("submit", sendFunction);
+			// messageInput.addEventListener("keypress", (e) =>{
+			// 	if(e.keyCode === 13)
+			// 	{
+			// 		submitButton.click();
+			// 	}
+			// });
 
 			function sendFunction(event)
 			{
