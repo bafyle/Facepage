@@ -190,7 +190,7 @@
 			// sumbit when pressing enter key
 			postForm.addEventListener("submit", sendFunction);
 			messageInput.addEventListener("keypress", (e) =>{
-				if(e.keyCode === 13 && !evt.shiftKey)
+				if(e.keyCode === 13 && !e.shiftKey)
 				{
 					e.preventDefault();
 					submitButton.click();
