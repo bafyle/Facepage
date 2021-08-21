@@ -19,12 +19,13 @@ def notificationsView(request):
             'profile_pic': request.user.profile.profile_picture.url,
             'notifications': notifications,
         }
+        notifications.update(seen=True)
         return render(request, 'pages/NewNotifications.html', context)
     else:
         messages.error(request, "you need to login first")
         return redirect('users:index')
 
-def deleteNotification(request, id):
+def deleteNotificationAjax(request, id):
     if request.user.is_authenticated:
         notification = Notification.objects.filter(id=id).first()
         if notification:

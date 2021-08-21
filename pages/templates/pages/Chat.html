@@ -180,6 +180,7 @@
 		<script src="{% static 'pages/js/bootstrap2.js'%}"></script>
 		{% if his_link %}
 		<script src="{% static 'pages/js/chatjs/humanized_time_span.js'%}"></script>
+		<script src="{% static 'pages/js/csrf.js'%}"></script>
 		<script type="text/javascript">
 			var postForm = document.getElementById("post-form");
 			var messageInput = document.getElementById("{{form.message_input.id_for_label}}");
@@ -207,7 +208,7 @@
 				
 				// get the message 
 				var message = messageInput.value;
-				var csrf = document.getElementsByName("csrfmiddlewaretoken")[0].value;
+				const csrf = getCookie('csrftoken');
 				var params = "message_input="+message +"&csrfmiddlewaretoken="+csrf;
 				xhr.open("POST", "{% url 'messenger:send' his_link %}", true);
 				xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");

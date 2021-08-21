@@ -129,14 +129,15 @@ Notifications
 
 {% block scripts %}
 {{block.super}}
-
+<script src="{% static 'pages/js/csrf.js' %}"></script>
 <script>
     var container = document.getElementById("notifications-container");
     function deleteNotificationDiv(notificationID)
     {
         var notificationDiv = document.getElementById(notificationID);
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", "/notifications/delete/" + notificationID + '/', true);
+        xhr.open("POST", "/notifications/delete/" + notificationID + '/', true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
         xhr.onload = function (e)
         {
@@ -154,7 +155,7 @@ Notifications
         {
             container.innerHTML += "<span id='error'>There was an error please refresh the page</span>";
         };
-        xhr.send();
+        xhr.send("csrfmiddlewaretoken=" +getCookie('csrftoken'));
     }
 </script>
 {% endblock %}

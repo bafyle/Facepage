@@ -141,6 +141,12 @@ MEDIA_URL = '/media/'
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # Email settings
+
+# sending emails to the console for now
+# delete if if you want to send real emails
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
 EMAIL_USE_SSL = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'androw240@gmail.com'

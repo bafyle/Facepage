@@ -34,7 +34,7 @@
                 <div class="card card-4">
                     <div id="card-body" class="card-body">
                         <h2 class="title" style="font-weight: bold;">Sign Up <br><span style="position: relative; font-weight: 400; font-size: 15px;">It's quick and easy.</span></h2>
-                        <form id="register-form"> {%csrf_token%}
+                        <form id="register-form">
                             {{ form.non_field_errors }}
                             <div class="row row-space">
                                 {{form.first_name.errors}}
@@ -105,7 +105,7 @@
                                 </div>
                             </div>
                             <div class="input-group">
-                                <p style="font-size: 11px;">By clicking Sign Up, you agree to our <a href="">Terms</a>, <a href="">Data Policy </a>and <a href="">Cookie Policy </a>. You may receive SMS notifications from us and can opt out at any time.</p>
+                                <p style="font-size: 11px;">By clicking Sign Up, you agree to our <a href="">Terms</a>, <a href="">Data Policy </a>and <a href="">Cookie Policy </a></p>
                             </div>
                             <div class="p-t-15">
                                 <button class="btn btn--radius-2 btn--blue" type="submit">Sign up</button>
@@ -130,6 +130,7 @@
 
         <!-- Main JS-->
         <script src="{% static 'pages/js/global.js'%}"></script>
+        <script src = "{% static 'pages/js/csrf.js'%}"></script>
         <!-- Ajax script -->
         <script>
             var errorsDiv = document.getElementById("errors")
@@ -137,7 +138,7 @@
             form.addEventListener("submit", (submitEvent)=>{
                 submitEvent.preventDefault();
                 var xhr = new XMLHttpRequest();
-                var csrf = document.getElementsByName("csrfmiddlewaretoken")[0].value
+                const csrf = getCookie('csrftoken');
                 var params =
                     "&first_name="+document.getElementById("id_first_name").value + 
                     "&last_name="+document.getElementById("id_last_name").value+
@@ -164,9 +165,9 @@
                     if(this.status === 200)
                     {
                         var response = JSON.parse(this.responseText);
+                        removeAllChildren(errorsDiv);
                         if(response.message == "good")
                         {
-                            removeAllChildren(errorsDiv);
                             removeAllChildren(card);
                             var p = document.createElement("p");
                             p.innerText = "Thank you for registering, a confirmation link has been sent to your account. Please click it to continue";
@@ -180,7 +181,6 @@
                         }
                         else
                         {
-                            removeAllChildren(errorsDiv);
                             for(var key in response)
                             {
                                 var value = response[key];
@@ -192,6 +192,10 @@
                                 }
                             }
                         }
+                    }
+                    else if(this.status === 403)
+                    {
+                        location.reload()
                     }
                 };
                 xhr.onerror = function(e)

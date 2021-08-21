@@ -208,6 +208,7 @@ def updatePost(request, post_id):
                 post.post_content = request.POST['new-post-content']
                 post.save()
                 messages.success(request, "Post updated successfully")
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
             context = {
                 'post': post,
                 'navbar_name': request.user.first_name,
@@ -259,7 +260,7 @@ def sharePost(request, post_id):
         messages.error(request, "You must be logged in first")
         return redirect('users:index')
 
-def deletePost(request, post_id):
+def deletePostAjax(request, post_id):
     """
     This function delete a particular post by the id of that post
     and redirect to the same page
@@ -311,6 +312,40 @@ def likePost(request, post_id):
         messages.error(request, "You must be logged in first")
         return redirect('users:index')
 
+def likePostAjax(request, post_id):
+    if request.user.is_authenticated:
+        post = Post.objects.get(id=post_id)
+        isPostLiked = bool(Like.objects.filter(post=post, liker=request.user))
+        if not isPostLiked:
+            new_like = Like(post=post, liker=request.user)
+            new_like.save()
+            post.likes = Like.objects.filter(post=post).count()
+            post.save()
+
+            if request.user is not post.creator:
+                if Notification.objects.filter(user_from=request.user, type='L', route_id=post_id).count() <= 0:
+                    notification_content = f"{request.user.profile.name()} liked your post: "
+                    if not post.shared_post:
+                        if len(post.post_content) > 20:
+                            notification_content += f"{post.post_content[0:20]}..."
+                        else:
+                            notification_content += f"{post.post_content}"
+                    else:
+                        notification_content = f"{request.user.profile.name()} liked your you shared"
+                    newNotification = Notification(
+                        user_from=request.user,
+                        user_to=post.creator,
+                        content=notification_content,
+                        type='L',
+                        picture=request.user.profile.profile_picture.url,
+                        content_object=post,
+                        route_id=post.id,
+                    )
+                    newNotification.save()
+        return JsonResponse({"message":"good"})
+    else:
+        messages.error(request, "You must be logged in first")
+        return redirect('users:index')
 
 def unlikePost(request, post_id):
     """
@@ -330,6 +365,24 @@ def unlikePost(request, post_id):
     else:
         messages.error(request, "You must be logged in first")
         return redirect('users:index')
+
+def unlikePostAjax(request, post_id):
+    """
+    This function removes a like from the database for a particular post
+    and update that post like number by recounting how many rows in the 
+    like table for that post
+    """
+    if request.user.is_authenticated:
+        post = Post.objects.get(id=post_id)
+        likeObject = Like.objects.filter(post=post, liker=request.user)
+        isPostLiked = bool(likeObject)
+        if isPostLiked:
+            likeObject.delete()
+            post.likes = Like.objects.filter(post=post).count()
+            post.save()
+        return JsonResponse({"message":"good"})
+    else:
+        JsonResponse({"message":"not-authed"})
 
 def addComment(request, post_id):
     """
@@ -369,4 +422,42 @@ def addComment(request, post_id):
     else:
         messages.error(request, "You must be logged in first")
         return redirect('users:index')
+
+def addCommentAjax(request, post_id):
+    """
+    Same idea of the likePost functions, adds a comment to a post via a
+    GET request and recount how many comments for that post to update
+    the comment counter for that post
+    """
+    if request.user.is_authenticated:
+        comment = request.GET['comment-content']
+        commented_post = Post.objects.get(id=post_id)
+
+        new_comment = Comment(comment_content=comment, post=commented_post, creator=request.user)
+        new_comment.save()
+        commented_post.comments = Comment.objects.filter(post=commented_post).count()
+        commented_post.save()
+        if request.user != commented_post.creator:
+            if Notification.objects.filter(user_from=request.user, type='C', route_id=post_id).count() <= 0:
+                notification_content = f"{request.user.profile.name()} commented on your post: "
+                if not commented_post.shared_post:
+                    if len(comment) > 20:
+                        notification_content += f"{comment[0:20]}..."
+                    else:
+                        notification_content += f"{comment}"
+                else:
+                    notification_content = f"{request.user.profile.name()} commented on a post you shared"
+                newNotification = Notification(
+                    user_from=request.user,
+                    user_to=commented_post.creator,
+                    content=notification_content,
+                    type='C',
+                    picture=request.user.profile.profile_picture.url,
+                    content_object=commented_post,
+                    route_id=commented_post.id,
+                )
+                newNotification.save()
+        return JsonResponse({"message":"good"})
+    else:
+        JsonResponse({"message":"not-authed"})
 

@@ -244,12 +244,15 @@
 
 {% block scripts %}
 {{ block.super }}
+{% if my_post %}
+<script src="{% static 'pages/js/csrf.js' %}"></script>
 <script>
     function deletePost(postID)
     {
         var xhr = new XMLHttpRequest();
         var url = '/home/delete-post/'+postID+'/';
-        xhr.open("GET", url, true);
+        xhr.open("POST", url, true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
         xhr.onload = function()
         {
@@ -259,12 +262,13 @@
                 if(respond.message === "good")
                 {
                     var post = document.getElementById('post');
-                    post.innerHTML = "<center><p>Post has been deleted</p></center>"
+                    post.innerHTML = "<center><p style='padding-top: 10px;'>Post deleted</p></center>"
                 }
             }
         }
-        xhr.send();
+        xhr.send("csrfmiddlewaretoken=" +getCookie('csrftoken'));
     }
 </script>
+{% endif %}
 <script src="{% static 'pages/js/postShowMore.js'%}"></script>
 {% endblock scripts %}

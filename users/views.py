@@ -23,7 +23,6 @@ from django.contrib.auth.models import User
 from notifications.models import Notification
 import json
 
-import os
 
 # Create your views here.
 
@@ -79,24 +78,24 @@ def forgotPasswordView(request):
     return render(request, 'pages/ForgotPassword.html')
 
 def register(request):
+    if request.user.is_authenticated:
+        return redirect('users:index')
     if request.method == "POST":
         form = RegisterForm(request.POST)
         if form.is_valid():
-            try:
-                user = form.save()
-                newLink = ''
-                while True:
-                    id_generated = id_generator(user, settings.ID_LENGTH)
-                    if User.objects.filter(profile__link=id_generated).count() == 0:
-                        newLink = id_generated
-                        break
-                new_profile = Profile(user=user, link=newLink, birthday=form.cleaned_data['birthday'], gender=form.cleaned_data['gender'])
-                new_profile.save()
-                sendActivateEmail(request, user)
-                return JsonResponse({'message':'good'})
-            except Exception as e:
+            user = form.instance
+            newLink = ''
+            while True:
+                id_generated = id_generator(user, settings.ID_LENGTH)
+                if User.objects.filter(profile__link=id_generated).count() == 0:
+                    newLink = id_generated
+                    break
+            new_profile = Profile(user=user, link=newLink, birthday=form.cleaned_data['birthday'], gender=form.cleaned_data['gender'])
+            form.save()
+            new_profile.save()
+            if not sendActivateEmail(request, user, True):
                 user.delete()
-                raise e
+            return JsonResponse({'message':'good'})
         else:
             return JsonResponse(json.loads(form.errors.as_json()))
     else:
@@ -449,7 +448,11 @@ def deleteAccount(request):
         return redirect('users:index')
 
 
-def sendActivateEmail(request, user):
+def sendActivateEmail(request, user, failSilently: bool = False):
+    """
+    This is not a view function, it sends an email with
+    an activation link
+    """
     current_site = get_current_site(request)
     mail_subject = 'Activate your Facepage account.'
     message = render_to_string('pages/AccountActivation.html', {
@@ -463,9 +466,9 @@ def sendActivateEmail(request, user):
             message,
             to=[user.email],
     )
-    email.send()
+    return email.send(fail_silently=failSilently)
 
-def sendNewPassword(password, email):
+def sendNewPassword(password, email, failSilently: bool = False):
     mail_subject = 'Facepage: password reset'
     message = f"""
 Your new password is: {password}\nPlease do NOT share it with anyone and
@@ -477,7 +480,7 @@ AND DO NOT FORGET IT AGAIN!!!
             message,
             to=[email],
     )
-    email.send()
+    return email.send(fail_silently=failSilently)
 
 def activate(request, uidb64, token):
     try:

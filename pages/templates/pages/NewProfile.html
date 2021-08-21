@@ -183,8 +183,7 @@
                         <p id="{{post.id}}-content" style="margin-left: 18px;">
                             {% if post.post_content|length > 222%}
                             {{post.post_content|slice:"0:222"}}<span class="dots">... <a id="{{post.id}}-show-more-button" style="font-weight: 600px;text-decoration: none;" onclick="showMoreFunction('{{post.id}}-content', '{{post.id}}-show-more-button')">See More</a></span>
-                            <span style="display: none;" class="more">{{post.post_content|slice:"222:"}}
-                            </span>
+                            <span style="display: none;" class="more">{{post.post_content|slice:"222:"}}</span>
                             {% else %}
                             {{post.post_content}}
                             {% endif %}

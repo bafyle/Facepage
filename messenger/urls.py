@@ -5,6 +5,6 @@ app_name = 'messenger'
 urlpatterns = [
     path(r'<str:link>/', newChat, name='chat'),
     path(r'', newChat, name='empty-chat'),
-    path(r'<str:link>/send/', sendMessage, name='send'),
-    path(r'<str:link>/get/', getMessages, name='get-messages'),
+    path(r'<str:link>/send/', sendMessageAjax, name='send'),
+    path(r'<str:link>/get/', getMessagesAjax, name='get-messages'),
 ]
