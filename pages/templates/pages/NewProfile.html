@@ -3,6 +3,7 @@
 {% load static %}
 
 {% block style_link%}
+{{block.super}}
 <link href="{% static 'pages/css/profile.css'%}" rel="stylesheet">
 {% endblock style_link%}
 
@@ -100,7 +101,7 @@
         <div class="row">
             <!-- main col left --> 
             <div id="col-sm-5" class="col-sm-5">
-                {% if navbar_link == user_profile_link %}
+                {% if request.user.profile.link == user_profile_link %}
                 <div class="well"> 
                     <form class="form-horizontal" action="{% url 'posts:add-post' %}" method="POST"> {%csrf_token%}
                     <h4>What's New</h4>
@@ -117,7 +118,7 @@
                     <div id="{{post.id}}" class="panel panel-default">
                         <div class="panel-heading">
                             <img src="{{ post.creator.profile.profile_picture.url }}" class="img-circle pull-left">
-                            {% if navbar_link == user_profile_link %}
+                            {% if request.user.profile.link == user_profile_link %}
                                 <a onclick="deletePost('{{post.id}}');" class="delete-post-button"><button type="submit" class="pull-right"><i class="fas fa-trash-alt"></i></button></a>
                                 <a href="{% url 'posts:update' post.id %}"><button type="submit" class="pull-right"><i class="fas fa-edit"></i></button></a> 
                             {% endif %}
@@ -171,11 +172,11 @@
                     <div id="{{post.id}}" class="panel panel-default">
                         <div class="panel-heading" style="border-bottom: none;"	>
                             <img src="{{ post.creator.profile.profile_picture.url }}" class="img-circle pull-left" >
-                            {% if navbar_link == user_profile_link %}
+                            {% if request.user.profile.link == user_profile_link %}
                                 <a onclick="deletePost('{{post.id}}');" class="delete-post-button"><button type="submit" class="pull-right"><i class="fas fa-trash-alt"></i></button></a>
                                 <a href="{% url 'posts:update' post.id %}"><button type="submit" class="pull-right"><i class="fas fa-edit"></i></button></a> 
                             {% endif %}
-                            <h4 style="font-size: 17px; font-weight: bold;"><a href="{% url 'profile' post.creator.profile.link %}">{{ post.creator.profile.name}}</a>
+                            <h4 style="font-size: 17px; font-weight: bold;"><a href="{% url 'profile' post.creator.profile.link %}">{{ post.creator.profile.name}}</a> {% if post.shared_post%}<small>shared a post:</small>{% endif %}
                                 <br>
                                 <p style="font-size: 13.5px; font-weight: lighter;">{{post.create_date|naturaltime}} <i class="fas fa-globe-americas" style="font-size: 13px;"></i></p>
                             </h4>
@@ -222,7 +223,7 @@
                             </div>
                             {% else %}
                             <div class="shared-post" style="border: 1px solid #dddddd; ">
-                                <p>Cannot view this post maybe it has been deleted</p>
+                                <p style="padding-top: 6px; padding-left: 5px;">Cannot view this post maybe it has been deleted</p>
                             </div>
                             {% endif %}
                             <br>
@@ -433,7 +434,7 @@
 </script>
 {% endcomment%}
 <!-- deleting posts ajax -->
-{% if navbar_link == user_profile_link %}
+{% if request.user.profile.link == user_profile_link %}
 <script>
     function deletePost(postID)
     {

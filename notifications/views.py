@@ -1,10 +1,8 @@
-import json
 from django.http.response import JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import redirect, render
 from django.contrib import messages
-from django.http import HttpResponseRedirect
 from django.db.models import Q
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model as User
 
 from .models import Notification
 from users.models import Friend
@@ -19,7 +17,9 @@ def notificationsView(request):
             'profile_pic': request.user.profile.profile_picture.url,
             'notifications': notifications,
         }
-        notifications.update(seen=True)
+        for notification in notifications:
+            notification.seen = True
+            notification.save()
         return render(request, 'pages/NewNotifications.html', context)
     else:
         messages.error(request, "you need to login first")
@@ -31,7 +31,7 @@ def deleteNotificationAjax(request, id):
         if notification:
             if notification.type == 'F':
                 link = notification.route_id
-                sender = User.objects.filter(profile__link=link).first()
+                sender = User().objects.filter(profile__link=link).first()
                 if sender:
                     friendship = Friend.objects.filter((Q(side1=sender) & Q(side2=request.user)) | (Q(side1=request.user) & Q(side2=sender))).first()
                     if friendship and friendship.accepted == False:

@@ -1,15 +1,12 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model as User
 from django.core.validators import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
-from django.db.models.signals import post_delete
-from django.dispatch.dispatcher import receiver
-
 class Post(models.Model):
     post_content = models.TextField(blank=True)
-    creator = models.ForeignKey(User, on_delete=models.CASCADE)
+    creator = models.ForeignKey(User(), on_delete=models.CASCADE)
     create_date = models.DateTimeField(default=timezone.now)
     likes = models.IntegerField(default=0)
     comments = models.IntegerField(default=0)
@@ -36,7 +33,7 @@ class Post(models.Model):
 
 class Comment(models.Model):
     comment_content = models.CharField(max_length=1000)
-    creator = models.ForeignKey(User, on_delete=models.CASCADE)
+    creator = models.ForeignKey(User(), on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     create_date = models.DateTimeField(default=timezone.now)
 
@@ -48,7 +45,7 @@ class Comment(models.Model):
 
 class Like(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    liker = models.ForeignKey(User, on_delete=models.CASCADE)
+    liker = models.ForeignKey(User(), on_delete=models.CASCADE)
 
     def __str__(self):
         return f"Like ID: {self.id} On Post: {self.post.id} from: {self.liker.username}"

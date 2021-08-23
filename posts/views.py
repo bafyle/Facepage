@@ -1,9 +1,11 @@
 from django.http.response import Http404, JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
-from .models import *
+from .models import Post, Comment, Like
+from django.contrib.auth import get_user_model as User
+from django.utils import timezone
 from django.contrib import messages
-from django.http import HttpResponseRedirect
-from django.db.models import Q, query
+from django.http import HttpResponseRedirect, HttpRequest
+from django.db.models import Q
 from django.core.paginator import Paginator
 from notifications.models import Notification
 
@@ -38,9 +40,6 @@ def home(request):
             'friends_posts':friends_posts,
             'liked_posts': liked_posts,
             'my_last_post': my_last_post,
-            'navbar_link': request.user.profile.link,
-            'profile_pic': request.user.profile.profile_picture.url,
-            'navbar_name': request.user.first_name,
         }
         
         return render(request, 'pages/NewHome.html', context)
@@ -54,7 +53,7 @@ def profile(request, link):
     """
     if request.user.is_authenticated:
         context = dict()
-        user = get_object_or_404(User, profile__link=link)
+        user = get_object_or_404(User(), profile__link=link)
         if request.user != user:
             # are_they_friends = Friend.objects.filter(
             #         ((Q(side1=request.user) & Q(side2=user)) | (Q(side1=user) & Q(side2=request.user))
@@ -97,9 +96,6 @@ def profile(request, link):
         context['user_profile_name'] = user.profile.name()
         context['user_bio'] = user.profile.bio
 
-        context['navbar_name'] = request.user.first_name
-        context['navbar_link'] = request.user.profile.link
-        context['profile_pic'] = request.user.profile.profile_picture.url
         context['pages_count'] = len(profile_posts) // 5
         return render(request, 'pages/NewProfile.html', context)
     else:
@@ -158,7 +154,7 @@ def search(request):
             for post in Post.objects.filter(post_content__icontains=keyword):
                 if post not in posts:
                     posts.append(post)
-            for user in User.objects.filter(Q(first_name__icontains=keyword) | Q(last_name__icontains=keyword)):
+            for user in User().objects.filter(Q(first_name__icontains=keyword) | Q(last_name__icontains=keyword)):
                 count = 0
                 for L in users:
                     if L[1] != user.profile.link:
@@ -176,9 +172,6 @@ def search(request):
                         are_they_friends
                         ])
         context = {'search': search, 'posts': posts, 'users': users}
-        context['navbar_name'] = request.user.first_name
-        context['navbar_link'] = request.user.profile.link
-        context['profile_pic'] = request.user.profile.profile_picture.url
         return render(request, 'Pages/NewSearch.html', context)
     else:
         messages.error(request, "You need to login first in order to do that")
@@ -197,7 +190,7 @@ def createPost(request):
         messages.error(request, "You must be logged in first")
         return redirect('users:index')
 
-def updatePost(request, post_id):
+def updatePost(request: HttpRequest, post_id):
     """
     Update view, update a particular post by the id of the post
     """
@@ -205,32 +198,28 @@ def updatePost(request, post_id):
         post = get_object_or_404(Post, id=post_id)
         if post.creator == request.user:
             if request.method == "POST":
-                post.post_content = request.POST['new-post-content']
-                post.save()
-                messages.success(request, "Post updated successfully")
-                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-            context = {
-                'post': post,
-                'navbar_name': request.user.first_name,
-                'navbar_link': request.user.profile.link,
-                'profile_pic': request.user.profile.profile_picture.url
-            }
-            return render(request, 'pages/NewUpdate.html', context)
+                if request.POST.get("submit-button").lower() == "save":
+                    post.post_content = request.POST['new-post-content']
+                    post.save()
+                    messages.success(request, "Post updated successfully")
+                    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+                else:
+                    return redirect('profile', link=request.user.profile.link)
+            else:
+                return render(request, 'pages/NewUpdate.html', {'post': post})
         else:
             raise Http404
     else:
         messages.error(request, "You must login first")
         return redirect('users:index')
 
+
 def viewPost(request, post_id):
     if request.user.is_authenticated:
         post = get_object_or_404(Post, id=post_id)
         context = {
             'post': post,
-            'liked': bool(Like.objects.filter(liker=request.user, post=post)),
-            'navbar_name': request.user.first_name,
-            'navbar_link': request.user.profile.link,
-            'profile_pic': request.user.profile.profile_picture.url,
+            'liked': Like.objects.filter(liker=request.user, post=post).exists(),
             'my_post': post.creator == request.user,
         }
         return render(request, 'pages/ViewPost.html', context)
@@ -460,4 +449,3 @@ def addCommentAjax(request, post_id):
         return JsonResponse({"message":"good"})
     else:
         JsonResponse({"message":"not-authed"})
-

@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model as User
 from django.core.validators import ValidationError
 from django.utils.translation import gettext_lazy as _
 from .models import Profile
@@ -24,12 +24,5 @@ class RegisterForm(UserCreationForm):
     gender = forms.ChoiceField(widget=forms.RadioSelect, choices=[('M', 'Male'), ('F', 'Female')])
 
     class Meta:
-        model = User
+        model = User()
         fields = ['username', 'password1', 'password2', 'first_name', 'last_name', 'email']
-    
-    def clean(self):
-       email = self.cleaned_data.get('email')
-       if User.objects.filter(email=email).exists():
-            raise ValidationError(_("Email exists"))
-       return self.cleaned_data
-

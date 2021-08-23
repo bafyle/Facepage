@@ -1,7 +1,6 @@
 import random
 import string
 
-
 def generator_letters() -> str:
     return ''.join(string.ascii_letters + string.digits + '-')
 

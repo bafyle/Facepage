@@ -126,7 +126,7 @@
                     <a onclick="deletePost('{{post.id}}');" class="delete-post-button"><button type="submit" class="pull-right"><i class="fas fa-trash-alt"></i></button></a>
                     <a href="{% url 'posts:update' post.id %}"><button type="submit" class="pull-right"><i class="fas fa-edit"></i></button></a>
                 {% endif %}
-                <h4 style="font-size: 17px; font-weight: bold;"><a href="{% url 'profile' post.creator.profile.link %}">{{post.creator.profile.name}}</a>
+                <h4 style="font-size: 17px; font-weight: bold;"><a href="{% url 'profile' post.creator.profile.link %}">{{post.creator.profile.name}}</a> {% if post.shared_post%}<small>shared a post:</small>{% endif %}
                     <br>
                     <p style="font-size: 13.5px; font-weight: lighter;">{{post.create_date|naturaltime}} <i class="fas fa-globe-americas" style="font-size: 13px;"></i></p>
                 </h4>

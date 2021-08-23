@@ -1,4 +1,3 @@
-from django.db.utils import IntegrityError
 from django.db.models import Q
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
@@ -10,16 +9,16 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
-from facepage.tokens import account_activation_token
+from .tokens import account_activation_token
 from django.core.mail import EmailMessage, message
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
 from .forms import DeleteAccountForm, ChangePictureBioForm, RegisterForm
-from .models import Friend, Profile, deletePhoto
+from .models import Friend, Profile
 from .id_generator import *
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model as User
 from notifications.models import Notification
 import json
 
@@ -63,7 +62,7 @@ def logoutFunction(request):
 def forgotPasswordView(request):
     if request.method == "POST":
         email = request.POST['email']
-        user = User.objects.filter(email=email).first()
+        user = User().objects.filter(email=email).first()
         if user:
             new_password = generate_random_characters(10, generator_letters())
             user.set_password(new_password)
@@ -87,7 +86,7 @@ def register(request):
             newLink = ''
             while True:
                 id_generated = id_generator(user, settings.ID_LENGTH)
-                if User.objects.filter(profile__link=id_generated).count() == 0:
+                if User().objects.filter(profile__link=id_generated).count() == 0:
                     newLink = id_generated
                     break
             new_profile = Profile(user=user, link=newLink, birthday=form.cleaned_data['birthday'], gender=form.cleaned_data['gender'])
@@ -104,7 +103,7 @@ def register(request):
 
 def sendFriendRequest(request, link):
     if request.user.is_authenticated:
-        user = get_object_or_404(User, profile__link=link)
+        user = get_object_or_404(User(), profile__link=link)
         friendship_check = bool(
             Friend.objects.filter(
                 ((Q(side1=request.user) & Q(side2=user)) | (Q(side1=user) & Q(side2=request.user))
@@ -142,7 +141,7 @@ def sendFriendRequest(request, link):
 
 def acceptFriendRequest(request, link):
     if request.user.is_authenticated:
-        sender = User.objects.filter(profile__link=link).first()
+        sender = User().objects.filter(profile__link=link).first()
         if sender:
             friendship = Friend.objects.filter(side1=sender, side2=request.user, accepted=False).first()
             if friendship:
@@ -168,7 +167,7 @@ def acceptFriendRequest(request, link):
 def declineFriendRequest(request, link):
     """Delete a comming friend request """
     if request.user.is_authenticated:
-        sender = User.objects.filter(profile__link=link).first()
+        sender = User().objects.filter(profile__link=link).first()
         if sender:
             friendship = Friend.objects.filter((Q(side1=sender) & Q(side2=request.user)) | (Q(side1=request.user) & Q(side2=sender))).first()
             if friendship and friendship.accepted == False:
@@ -194,7 +193,7 @@ def declineFriendRequest(request, link):
 def cancelFriendRequest(request, link):
     """ delete a request that has been sent by the request.user"""
     if request.user.is_authenticated:
-        user = get_object_or_404(User, profile__link = link)
+        user = get_object_or_404(User(), profile__link = link)
         friendship = Friend.objects.filter(side1=request.user, side2=user).first()
         if friendship and friendship.accepted == False:
             friendship.delete()
@@ -217,7 +216,7 @@ def cancelFriendRequest(request, link):
 
 def unfriend(request, link):
     if request.user.is_authenticated:
-        user = User.objects.filter(profile__link=link).first()
+        user = User().objects.filter(profile__link=link).first()
         if user:
             friendship = Friend.objects.filter(
                 ((Q(side1=user) & Q(side2=request.user)) | (Q(side1=request.user) & Q(side2=user))) &  
@@ -370,7 +369,7 @@ def deleteMyProfileCover(request):
     if request.user.is_authenticated:
         old_image = request.user.profile.profile_cover.url
         if old_image.split('/')[-1] != 'default.jpg':
-            deletePhoto(old_image)
+            request.user.profile.profile_cover.delete(False)
         else:
             messages.error(request, "you don't have a profile picture to delete")
             return redirect('users:personal-settings')
@@ -393,7 +392,7 @@ def deleteMyProfilePicture(request):
     if request.user.is_authenticated:
         old_image = request.user.profile.profile_picture.url
         if old_image.split('/')[-1] != 'default.jpg':
-            deletePhoto(old_image)
+            request.user.profile.profile_picture.delete(False)
         else:
             messages.error(request, "you don't have a profile picture to delete")
             return redirect('users:personal-settings')
@@ -485,9 +484,9 @@ AND DO NOT FORGET IT AGAIN!!!
 def activate(request, uidb64, token):
     try:
         uid = force_text(urlsafe_base64_decode(uidb64))
-        user = User.objects.get(pk=uid)
+        user = User().objects.get(pk=uid)
         
-    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+    except(TypeError, ValueError, OverflowError, User().DoesNotExist):
         user = None
     if user is not None and account_activation_token.check_token(user, token):
         user.profile.verified = True

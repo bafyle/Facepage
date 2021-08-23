@@ -56,7 +56,7 @@
                                 <a href="{% url 'notifications:index'%}"><i class="fas fa-bell"></i> Notifications</a>
                                 </li>
                                 <li>
-                                <a href="{% url 'profile' navbar_link %}"><img src="{{profile_pic}}" class="img-circle pull-left" style="width: 40px;height: 40px; margin-top: -10px;"><span class="badge">{{navbar_name}}</span></a>
+                                <a href="{% url 'profile' request.user.profile.link %}"><img src="{{request.user.profile.profile_picture.url}}" class="img-circle pull-left" style="width: 40px;height: 40px; margin-top: -10px;"><span class="badge"> {{request.user.get_short_name}}</span></a>
                                 </li>
                             </ul>
                             <ul class="nav navbar-nav navbar-right">
@@ -78,13 +78,13 @@
                     <div class="row row-offcanvas row-offcanvas-left">
                         {% block sidebar %}
                         {% endblock sidebar %}
-                        <!-- {% if messages %}
+                       {% if messages %}
                             {% for message in messages %}
                                 <div class="alert alert-{{message.tags}}" style="display:flex; text-align: center; justify-content: center; font-weight: bold; color: red;">
                                     {{ message }}
                                 </div>
                             {% endfor %}
-                        {% endif %} -->
+                        {% endif %}
                         {% block main %}
                             
                         {% endblock main%}

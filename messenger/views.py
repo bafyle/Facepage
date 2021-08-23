@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from users.models import Friend
 from .models import Message
 from django.db.models import Q
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model as User
 from .forms import SendMessageForm
 from django.utils import timezone
 
@@ -28,7 +28,7 @@ def newChat(request, link:str = None):
                 friends.append(friend.side2)
         context['friends'] = friends
         if link:
-            user = User.objects.filter(profile__link=link).first()
+            user = User().objects.filter(profile__link=link).first()
             if not user:
                 messages.error(request, "there is no user with this link")
                 return redirect('posts:home')
@@ -54,7 +54,7 @@ def newChat(request, link:str = None):
 
 def chat(request, link:str = None):
     if request.user.is_authenticated:
-        username = User.objects.filter(profile__link=link).first()
+        username = User().objects.filter(profile__link=link).first()
         my_username = request.user.username
         get_friends_query = Friend.objects.filter(
             (Q(side1__username=my_username) | Q(side2__username=my_username))
@@ -108,12 +108,12 @@ def chat(request, link:str = None):
 
 
 def sendMessageAjax(request, link: str):
-    username = User.objects.filter(profile__link=link).first()
+    username = User().objects.filter(profile__link=link).first()
     if request.method == 'POST':
         form = SendMessageForm(request.POST)
         if form.is_valid():
             message = form.cleaned_data['message_input']
-            receiver_user = User.objects.get(username=username)
+            receiver_user = User().objects.get(username=username)
             new_message = Message(sender=request.user, receiver=receiver_user, message_content = message)
             new_message.save()
             response = dict()
@@ -125,7 +125,7 @@ def sendMessageAjax(request, link: str):
 
 def getMessagesAjax(request, link: str):
     my_username = request.user
-    username = username = User.objects.filter(profile__link=link).first()
+    username = username = User().objects.filter(profile__link=link).first()
     chat = Message.objects.filter(
         Q(sender__username=username) & Q(receiver__username=my_username) & Q(seen=False)
     ).order_by('send_date')
@@ -134,7 +134,7 @@ def getMessagesAjax(request, link: str):
     for index, message in enumerate(chat2):
         for key in message:
             if key == "sender":
-                message[key] = User.objects.get(id=message[key]).first_name
+                message[key] = User().objects.get(id=message[key]).first_name
             elif key == "send_date":
                 message[key] = timezone.localtime(message[key]).strftime("%Y/%m/%d %H:%M:%S")
         response[index] = message
