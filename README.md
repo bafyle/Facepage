@@ -78,8 +78,6 @@ users can:
 
 ## Todo:
 - [ ] better password reset mechanism
-- [x] fix bugs in notifications for the friend request
-- [x] complete the design of the friendship between the users
 - [ ] add styling to these buttons:
     * send friend request
     * cancel friend request

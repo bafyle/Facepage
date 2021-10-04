@@ -105,10 +105,7 @@ def sendFriendRequest(request, link):
     if request.user.is_authenticated:
         user = get_object_or_404(User(), profile__link=link)
         friendship_check = bool(
-            Friend.objects.filter(
-                ((Q(side1=request.user) & Q(side2=user)) | (Q(side1=user) & Q(side2=request.user))
-                ))
-            )
+            Friend.objects.filter(((Q(side1=request.user) & Q(side2=user)) | (Q(side1=user) & Q(side2=request.user)))))
         if not friendship_check:
             new_relation = Friend(side1=request.user, side2=user)
             new_relation.save()

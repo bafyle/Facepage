@@ -53,7 +53,7 @@
                 <!-- main col left --> 
                 <div class="col-sm-5">
                     <div class="well"> 
-                        <form class="form-horizontal" role="form" action="{% url 'posts:update' post.id %}" method="POST"> {%csrf_token%}
+                        <form id="update-form"class="form-horizontal" role="form" action="{% url 'posts:update' post.id %}" method="POST"> {%csrf_token%}
                             <h4>Update post</h4>
                             <div class="form-group" style="padding:14px;">
                             <textarea id="new-post-content" name="new-post-content" class="form-control">{{post.post_content}}</textarea>
@@ -61,10 +61,13 @@
                             
                             <button class="btn btn-secondry pull-right" name="submit-button" type="submit" value="Back">Cancel</button>
                             <button class="btn btn-primary pull-right" name="submit-button" type="submit" value="Save">Save</button>
-                            <ul class="list-inline">
+                            <ul id="error-list" class="list-inline">
                                 <li></li>
                                 <li></li>
                                 <li></li>
+                                {% for error in errors %}
+                                    <li>{{error}}</li>
+                                {% endfor %}
                             </ul>
                         </form>
                     </div>

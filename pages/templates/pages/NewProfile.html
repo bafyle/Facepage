@@ -439,7 +439,7 @@
     function deletePost(postID)
     {
         var xhr = new XMLHttpRequest();
-        var url = '/home/delete-post/'+postID+'/';
+        var url = '/home/delete/'+postID+'/';
         xhr.open("GET", url, true);
 
         xhr.onload = function()

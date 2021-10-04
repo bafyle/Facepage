@@ -8,7 +8,7 @@ from django.http import HttpResponseRedirect, HttpRequest
 from django.db.models import Q
 from django.core.paginator import Paginator
 from notifications.models import Notification
-
+from django.core.exceptions import ValidationError
 from users.models import Friend
 
 
@@ -200,7 +200,10 @@ def updatePost(request: HttpRequest, post_id):
             if request.method == "POST":
                 if request.POST.get("submit-button").lower() == "save":
                     post.post_content = request.POST['new-post-content']
-                    post.save()
+                    try:
+                        post.save()
+                    except ValidationError as error:
+                        return render(request, 'pages/NewUpdate.html', {'post': post, 'errors': error.messages})
                     messages.success(request, "Post updated successfully")
                     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
                 else:
