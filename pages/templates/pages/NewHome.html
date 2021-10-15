@@ -54,12 +54,21 @@ Facepage
             <div class="col-sm-5">
                
                 <div class="well"> 
-                    <form class="form-horizontal" role="form" action="{% url 'posts:add-post' %}" method="POST"> {%csrf_token%}
-                    <h4>What's New</h4>
-                        <div class="form-group" style="padding:14px;">
-                        <textarea name="new-post-content" class="form-control" placeholder="What's on your mind?"></textarea>
-                    </div>
-                    <!--this button for home post window --><button class="btn btn-primary pull-right" type="submit" value="submit">Post</button><ul class="list-inline"><li><a href=""><i class="fas fa-photo-video"></i></a></li><li><a href=""><i class="fas fa-user-tag"></i></a></li><li><a href=""><i class="glyphicon glyphicon-map-marker"></i></a></li></ul>
+                    <form enctype="multipart/form-data" class="form-horizontal" role="form" action="{% url 'posts:add-post' %}" method="POST"> {%csrf_token%}
+                        <h4>What's New</h4>
+                            <div class="form-group" style="padding:14px;">
+                            <textarea name="content" class="form-control" placeholder="What's on your mind?"></textarea>
+                        </div>
+                        <!--this button for home post window -->
+                        <button class="btn btn-primary pull-right" type="submit" value="submit">Post</button>
+                        <ul class="list-inline">
+                            <li>
+                                <input type="file" name="image" accept="image/*">
+                                <!-- <a href=""><i class="fas fa-photo-video"></i></a> -->
+                            </li>
+                            <li><a href=""><i class="fas fa-user-tag"></i></a></li>
+                            <li><a href=""><i class="glyphicon glyphicon-map-marker"></i></a></li>
+                        </ul>
                     </form>
                 </div>
                 {% comment %}
@@ -163,7 +172,7 @@ Facepage
                                         {% endif %}
                                     </p>
                                     {% if post.original_post.image != ''%}
-                                    <div class="panel-thumbnail"><img src="{{post.original_post.image}}" class="img-responsive"></div>
+                                    <div class="panel-thumbnail"><img src="{{post.original_post.image.url}}" class="img-responsive"></div>
                                     <div class="clearfix"></div>
                                     {% endif%}
                                 </div>
@@ -177,7 +186,7 @@ Facepage
                             {% elif post.image != ''%}
                             <div class="post-img" style="border: 1px solid #dddddd;">
                                 <div class="panel-body">
-                                <div class="panel-thumbnail"><img src="{{post.image}}" class="img-responsive"></div>
+                                <div class="panel-thumbnail"><img src="{{post.image.url}}" class="img-responsive"></div>
                                 <div class="clearfix"></div>
                                 </div>
                             </div><!-- post-img-->

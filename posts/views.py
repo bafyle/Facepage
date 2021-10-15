@@ -10,7 +10,7 @@ from django.core.paginator import Paginator
 from notifications.models import Notification
 from django.core.exceptions import ValidationError
 from users.models import Friend
-
+from .forms import CreatePostForm
 
 def home(request):
     """
@@ -25,21 +25,14 @@ def home(request):
             else:
                 friends_posts.append(Post.objects.filter(creator=friend.side1).order_by('-create_date')[:2])
         
-        likes = Like.objects.filter(liker=request.user)
-        liked_posts = []
-        for like in likes:
-            liked_posts.append(Post.objects.get(id=like.post.id))
+        friends_posts.insert(0, [Post.objects.filter(creator=request.user).last()])
         
-        get_last_post = Post.objects.filter(creator=request.user.id)
-        if not get_last_post:
-            my_last_post = []
-        else:
-            my_last_post = get_last_post.latest('create_date')
+        likes = Like.objects.filter(liker=request.user)
+        liked_posts = [Post.objects.get(id=like.post.id) for like in likes]
         
         context = {
             'friends_posts':friends_posts,
             'liked_posts': liked_posts,
-            'my_last_post': my_last_post,
         }
         
         return render(request, 'pages/NewHome.html', context)
@@ -183,8 +176,16 @@ def createPost(request):
     from a post request and redirects to the same page
     """
     if request.user.is_authenticated:
-        new_post = Post(post_content=request.POST['new-post-content'], creator=request.user)
-        new_post.save()
+        post_creation_form = CreatePostForm(request.POST, request.FILES)
+        if post_creation_form.is_valid():   
+            print(post_creation_form)
+            print(post_creation_form.cleaned_data)
+            new_post = Post(post_content=post_creation_form.cleaned_data['content'], creator=request.user, image=post_creation_form.cleaned_data['image'])
+            print(new_post.image.url)
+            new_post.save()
+        else:
+            pass
+            print(post_creation_form.errors)
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         messages.error(request, "You must be logged in first")
