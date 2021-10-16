@@ -78,8 +78,11 @@ users can:
 
 ## Todo:
 - [ ] better password reset mechanism
-- [ ] add styling to these buttons:
+- [x] add styling to these buttons:
     * send friend request
     * cancel friend request
     * unfriend
- 
+- [ ] redesign the chat app using web sockets
+- [ ] implement some functionalities using ajax:
+    * like a post
+    * comment

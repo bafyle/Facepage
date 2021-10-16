@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth import get_user_model as User
+from django.core.validators import RegexValidator
+
+PHONE_NUMBER_REGEX = RegexValidator(r'^01[0125][0-9]{8}$', 'only valid phone numbers are required')
 
 class Profile(models.Model):
     user = models.OneToOneField(User(), on_delete=models.CASCADE)
@@ -7,7 +10,7 @@ class Profile(models.Model):
     profile_picture = models.ImageField(default='profile_pics/default.jpg', upload_to='profile_pics')
     profile_cover = models.ImageField(default='profile_covers/default.jpg', upload_to='profile_covers')
     bio = models.CharField(max_length=100, blank=True)
-    phone_number = models.CharField(max_length=50, blank=True, default='')
+    phone_number = models.CharField(max_length=50, blank=True, default='', validators=[PHONE_NUMBER_REGEX])
     verified = models.BooleanField(default=False)
     birthday = models.DateField(null=True)
 

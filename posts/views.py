@@ -25,8 +25,9 @@ def home_view(request):
             else:
                 friends_posts.append(Post.objects.filter(creator=friend.side1).order_by('-create_date')[:2])
         
-        friends_posts.insert(0, [Post.objects.filter(creator=request.user).last()])
-        
+        last_post = Post.objects.filter(creator=request.user).last()
+        my_last_post = [last_post] if last_post is not None else list() 
+        friends_posts.insert(0, my_last_post)
         likes = Like.objects.filter(liker=request.user)
         liked_posts = [Post.objects.get(id=like.post.id) for like in likes]
         
@@ -178,10 +179,7 @@ def create_post_view(request):
     if request.user.is_authenticated:
         post_creation_form = CreatePostForm(request.POST, request.FILES)
         if post_creation_form.is_valid():   
-            print(post_creation_form)
-            print(post_creation_form.cleaned_data)
             new_post = Post(post_content=post_creation_form.cleaned_data['content'], creator=request.user, image=post_creation_form.cleaned_data['image'])
-            print(new_post.image.url)
             new_post.save()
         else:
             pass
@@ -280,7 +278,7 @@ def like_post_view(request, post_id):
             post.likes = Like.objects.filter(post=post).count()
             post.save()
 
-            if request.user is not post.creator:
+            if request.user != post.creator:
                 if Notification.objects.filter(user_from=request.user, type='L', route_id=post_id).count() <= 0:
                     notification_content = f"{request.user.profile.name()} liked your post: "
                     if not post.shared_post:
@@ -315,7 +313,7 @@ def like_post_ajax(request, post_id):
             post.likes = Like.objects.filter(post=post).count()
             post.save()
 
-            if request.user is not post.creator:
+            if request.user != post.creator:
                 if Notification.objects.filter(user_from=request.user, type='L', route_id=post_id).count() <= 0:
                     notification_content = f"{request.user.profile.name()} liked your post: "
                     if not post.shared_post:

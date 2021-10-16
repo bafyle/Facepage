@@ -77,10 +77,10 @@ Notifications
                                                 </a>
                                                 {% if n.type == 'F'%}
                                                 <form action="{% url 'users:create-friend' n.route_id%}" method="GET">
-                                                    <button type="submit" class="btn btn-primary" style="float: left; margin-right: 10px;">Accept</i></button>
+                                                    <button type="submit" class="btn btn-primary" style="float: left; margin-right: 10px;">Accept</button>
                                                 </form>
                                                 <form action="{% url 'users:decline-friend' n.route_id%}" method="GET">
-                                                    <button type="submit" class="btn btn-primary" style="background-color: #efefef; color: black; border: none;">Decline</i></button>
+                                                    <button type="submit" class="btn btn-primary" style="background-color: #efefef; color: black; border: none;">Decline</button>
                                                 </form>
                                                 {% endif %}
                                             </div>

@@ -338,16 +338,14 @@ def personal_settings_view(request):
                 messages.success(request, "changes saved")
             else:
                 messages.error(request, "invalid data has been entered")
-        else:
-            default_values_for_form = {
-                'bio': request.user.profile.bio,
-                'first_name': request.user.first_name,
-                'last_name': request.user.last_name,
-                'phone_number': request.user.profile.phone_number,
-                'gender': request.user.profile.gender,
-                'birthday': request.user.profile.birthday.strftime("%Y-%m-%d"),
-            }
-            bio_form = ChangePictureBioForm(default_values_for_form)
+        bio_form = ChangePictureBioForm({
+            'bio': request.user.profile.bio,
+            'first_name': request.user.first_name,
+            'last_name': request.user.last_name,
+            'phone_number': request.user.profile.phone_number,
+            'gender': request.user.profile.gender,
+            'birthday': request.user.profile.birthday.strftime("%Y-%m-%d"),
+        })
         context = {
             'profile_pic': request.user.profile.profile_picture.url,
             'profile_cover': request.user.profile.profile_cover.url,
