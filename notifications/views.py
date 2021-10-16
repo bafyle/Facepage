@@ -8,7 +8,7 @@ from .models import Notification
 from users.models import Friend
 # Create your views here.
 
-def notificationsView(request):
+def notifications_view(request):
     if request.user.is_authenticated:
         notifications = Notification.objects.filter(user_to=request.user).order_by('-date')[0:10]
         context = {
@@ -25,7 +25,7 @@ def notificationsView(request):
         messages.error(request, "you need to login first")
         return redirect('users:index')
 
-def deleteNotificationAjax(request, id):
+def delete_notification_ajax(request, id):
     if request.user.is_authenticated:
         notification = Notification.objects.filter(id=id).first()
         if notification:

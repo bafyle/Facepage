@@ -18,14 +18,14 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from posts.views import profile
+from posts.views import profile_view
 
 
 urlpatterns = [
     path(r'admin/', admin.site.urls, name='admin'),
     path(r'', include('users.urls'), name='users'),
     path(r'home/', include('posts.urls'), name='home'),
-    path(r'profile/<slug:link>/', profile, name='profile'),
+    path(r'profile/<slug:link>/', profile_view, name='profile'),
     #path(r'profile/<slug:link>/get/', getProfilePosts, name='profile-posts'),
     path(r'messenger/', include('messenger.urls'), name='messenger'),
     path(r'notifications/', include('notifications.urls'), name='notifications'),

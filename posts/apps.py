@@ -6,5 +6,5 @@ class PostsConfig(AppConfig):
     name = 'posts'
 
     def ready(self) -> None:
-        from .signals import deletePhotoFromServer
+        from .signals import delete_post_photo
         return super().ready()

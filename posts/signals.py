@@ -3,6 +3,6 @@ from django.dispatch.dispatcher import receiver
 from .models import Post
 
 @receiver(post_delete, sender=Post)
-def deletePhotoFromServer(instance, **kwargs):
+def delete_post_photo(instance, **kwargs):
     instance.image.delete(False)
     

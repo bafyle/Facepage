@@ -3,6 +3,6 @@ from.views import *
 
 app_name = 'notifications'
 urlpatterns = [
-    path(r'', notificationsView, name='index'),
-    path(r'delete/<slug:id>/', deleteNotificationAjax, name='delete-notification'),
+    path(r'', notifications_view, name='index'),
+    path(r'delete/<slug:id>/', delete_notification_ajax, name='delete-notification'),
 ]

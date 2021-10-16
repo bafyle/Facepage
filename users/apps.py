@@ -6,5 +6,5 @@ class UsersConfig(AppConfig):
     name = 'users'
 
     def ready(self) -> None:
-        from .signals import deletePhotoFromServer
+        from .signals import delete_photo
         return super().ready()

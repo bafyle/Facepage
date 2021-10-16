@@ -33,7 +33,7 @@ def index(request):
         return redirect('posts:home')
     return render(request, 'pages/Login.html')
 
-def loginFunction(request):
+def login_view(request):
     """
     this function takes the username and the password the user entered and
     check if they are valid. If they are valid then it logs the user in and redirects 
@@ -48,10 +48,10 @@ def loginFunction(request):
         if user is not None:
             login(request, user)
         else:
-            messages.error(request, "wrong username or password")
+            messages.error(request, "Wrong username or password")
     return redirect('users:index')
 
-def logoutFunction(request):
+def logout_view(request):
     """
     this function logs you out and redirects you to the login page
     """
@@ -59,7 +59,7 @@ def logoutFunction(request):
     messages.success(request, "You have been logged out")
     return redirect('users:index')
 
-def forgotPasswordView(request):
+def forgot_password_view(request):
     if request.method == "POST":
         email = request.POST['email']
         user = User().objects.filter(email=email).first()
@@ -68,7 +68,7 @@ def forgotPasswordView(request):
             user.set_password(new_password)
             user.save()
             try:
-                sendNewPassword(new_password, email)
+                send_new_password(new_password, email)
             except Exception as e:
                 return JsonResponse({'message':'cannot send'})
             return JsonResponse({'message':'good'})
@@ -76,23 +76,23 @@ def forgotPasswordView(request):
             return JsonResponse({'message':'no user'})
     return render(request, 'pages/ForgotPassword.html')
 
-def register(request):
+def register_view(request):
     if request.user.is_authenticated:
         return redirect('users:index')
     if request.method == "POST":
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.instance
-            newLink = ''
+            new_link = ''
             while True:
                 id_generated = id_generator(user, settings.ID_LENGTH)
                 if User().objects.filter(profile__link=id_generated).count() == 0:
-                    newLink = id_generated
+                    new_link = id_generated
                     break
-            new_profile = Profile(user=user, link=newLink, birthday=form.cleaned_data['birthday'], gender=form.cleaned_data['gender'])
+            new_profile = Profile(user=user, link=new_link, birthday=form.cleaned_data['birthday'], gender=form.cleaned_data['gender'])
             form.save()
             new_profile.save()
-            if not sendActivateEmail(request, user, True):
+            if not send_activate_email(request, user, True):
                 user.delete()
             return JsonResponse({'message':'good'})
         else:
@@ -101,7 +101,7 @@ def register(request):
         form = RegisterForm()
     return render(request, 'pages/Register.html', {'form':form})
 
-def sendFriendRequest(request, link):
+def send_friend_request_view(request, link):
     if request.user.is_authenticated:
         user = get_object_or_404(User(), profile__link=link)
         friendship_check = bool(
@@ -120,7 +120,7 @@ def sendFriendRequest(request, link):
         if notification:
             notification.delete()
         notification_content = f"{request.user.profile.name()} sent you a friend request"
-        newNotification = Notification(
+        new_notification = Notification(
             user_from=request.user,
             user_to=user,
             content=notification_content,
@@ -129,14 +129,14 @@ def sendFriendRequest(request, link):
             content_object=new_relation,
             route_id=request.user.profile.link,
         )
-        newNotification.save()
+        new_notification.save()
         messages.success(request, "friend request sent")
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         message.error(request, "you must login first")
         return redirect('users:index')
 
-def acceptFriendRequest(request, link):
+def accept_friend_request_view(request, link):
     if request.user.is_authenticated:
         sender = User().objects.filter(profile__link=link).first()
         if sender:
@@ -161,7 +161,7 @@ def acceptFriendRequest(request, link):
         message.error(request, "you must login first")
         return redirect('users:index')
 
-def declineFriendRequest(request, link):
+def decline_friend_request_view(request, link):
     """Delete a comming friend request """
     if request.user.is_authenticated:
         sender = User().objects.filter(profile__link=link).first()
@@ -187,7 +187,7 @@ def declineFriendRequest(request, link):
         messages.error(request, "you need to login first")
         return redirect('users:index')
 
-def cancelFriendRequest(request, link):
+def cancel_friend_request_view(request, link):
     """ delete a request that has been sent by the request.user"""
     if request.user.is_authenticated:
         user = get_object_or_404(User(), profile__link = link)
@@ -211,7 +211,7 @@ def cancelFriendRequest(request, link):
         messages.error(request, "you need to login first")
         return redirect('users:index')
 
-def unfriend(request, link):
+def unfriend_view(request, link):
     if request.user.is_authenticated:
         user = User().objects.filter(profile__link=link).first()
         if user:
@@ -230,7 +230,7 @@ def unfriend(request, link):
         messages.error(request, "you need to login first")
         return redirect('users:index')
         
-def accountSettings2(request):
+def accout_settings_2_view(request):
     """
     Takes the new user email and password and check if they are valid and save them
     after saving it redirects to the login page to login again with the new data
@@ -250,8 +250,8 @@ def accountSettings2(request):
                 messages.success(request, "password has changed, you need to login again")
                 return redirect('users:index')
             except ValidationError as error:
-                for errorMessage in error:
-                    messages.error(request, errorMessage)
+                for error_message in error:
+                    messages.error(request, error_message)
                 return redirect('users:account-settings')
         else:
             context = {
@@ -312,27 +312,27 @@ def accountSettings(request):
         messages.error(request, "you must login first")
         return redirect('users:index')
 
-def personalSettings(request):
+def personal_settings_view(request):
     if request.user.is_authenticated:
         if request.method == "POST":
-            bioForm = ChangePictureBioForm(request.POST, request.FILES)
-            if bioForm.is_valid():
-                if bioForm.cleaned_data['profile_picture'] != 'profile_pics/default.jpg':
+            bio_form = ChangePictureBioForm(request.POST, request.FILES)
+            if bio_form.is_valid():
+                if bio_form.cleaned_data['profile_picture'] != 'profile_pics/default.jpg':
                     old_image = request.user.profile.profile_picture.url
                     if old_image.split('/')[-1] != 'default.jpg':
                         request.user.profile.profile_picture.delete(False)
-                    request.user.profile.profile_picture = bioForm.cleaned_data['profile_picture']
-                if bioForm.cleaned_data['profile_cover'] != 'profile_covers/default.jpg':
+                    request.user.profile.profile_picture = bio_form.cleaned_data['profile_picture']
+                if bio_form.cleaned_data['profile_cover'] != 'profile_covers/default.jpg':
                     old_image = request.user.profile.profile_cover.url
                     if old_image.split('/')[-1] != 'default.jpg':
                         request.user.profile.profile_cover.delete(False)
-                    request.user.profile.profile_cover = bioForm.cleaned_data['profile_cover']
-                request.user.profile.bio = bioForm.cleaned_data['bio']
-                request.user.first_name = bioForm.cleaned_data['first_name']
-                request.user.last_name = bioForm.cleaned_data['last_name']
-                request.user.profile.phone_number = bioForm.cleaned_data['phone_number']
-                request.user.profile.gender = bioForm.cleaned_data['gender']
-                request.user.profile.birthday = bioForm.cleaned_data['birthday']
+                    request.user.profile.profile_cover = bio_form.cleaned_data['profile_cover']
+                request.user.profile.bio = bio_form.cleaned_data['bio']
+                request.user.first_name = bio_form.cleaned_data['first_name']
+                request.user.last_name = bio_form.cleaned_data['last_name']
+                request.user.profile.phone_number = bio_form.cleaned_data['phone_number']
+                request.user.profile.gender = bio_form.cleaned_data['gender']
+                request.user.profile.birthday = bio_form.cleaned_data['birthday']
                 request.user.profile.save()
                 request.user.save()
                 messages.success(request, "changes saved")
@@ -347,7 +347,7 @@ def personalSettings(request):
                 'gender': request.user.profile.gender,
                 'birthday': request.user.profile.birthday.strftime("%Y-%m-%d"),
             }
-            bioForm = ChangePictureBioForm(default_values_for_form)
+            bio_form = ChangePictureBioForm(default_values_for_form)
         context = {
             'profile_pic': request.user.profile.profile_picture.url,
             'profile_cover': request.user.profile.profile_cover.url,
@@ -355,14 +355,14 @@ def personalSettings(request):
             'navbar_link': request.user.profile.link,
             'email': request.user.email,
             'username': request.user.username,
-            'bio_form': bioForm,
+            'bio_form': bio_form,
         }
         return render(request, 'pages/newPersonalSettings.html', context)
     else:
         messages.error(request, "you must login first")
         return redirect('users:index')
 
-def deleteMyProfileCover(request):
+def delete_profile_cover_view(request):
     if request.user.is_authenticated:
         old_image = request.user.profile.profile_cover.url
         if old_image.split('/')[-1] != 'default.jpg':
@@ -380,7 +380,7 @@ def deleteMyProfileCover(request):
         messages.error(request, "you must login first")
         return redirect('users:index')
 
-def deleteMyProfilePicture(request):
+def delete_profile_picture_view(request):
     """
     This function is for deleting the existing profile picture of the account
     and set it to the default one by deleting the profile instance from the
@@ -402,7 +402,7 @@ def deleteMyProfilePicture(request):
         messages.error(request, "you must login first")
         return redirect('users:index')
 
-def deleteAccount(request):
+def delete_account_view(request):
     """
     This function makes sure that the user want to delete his account
     it takes the confirmations and the username text from the user 
@@ -444,7 +444,7 @@ def deleteAccount(request):
         return redirect('users:index')
 
 
-def sendActivateEmail(request, user, failSilently: bool = False):
+def send_activate_email(request, user, failSilently: bool = False):
     """
     This is not a view function, it sends an email with
     an activation link
@@ -464,19 +464,18 @@ def sendActivateEmail(request, user, failSilently: bool = False):
     )
     return email.send(fail_silently=failSilently)
 
-def sendNewPassword(password, email, failSilently: bool = False):
+def send_new_password(password, email, fail_silently: bool = False):
     mail_subject = 'Facepage: password reset'
     message = f"""
 Your new password is: {password}\nPlease do NOT share it with anyone and
 don't forget to change your password once you log in to Facepage again\n
-AND DO NOT FORGET IT AGAIN!!! 
-    """
+AND DO NOT FORGET IT AGAIN!!! """
     email = EmailMessage(
             mail_subject,
             message,
             to=[email],
     )
-    return email.send(fail_silently=failSilently)
+    return email.send(fail_silently=fail_silently)
 
 def activate(request, uidb64, token):
     try:
@@ -495,5 +494,5 @@ def activate(request, uidb64, token):
         messages.success(request, 'Activation link is invalid!')
         return redirect('users:login')
 
-def verifyEmailView(request):
+def verify_email_view(request):
     return render(request, 'pages/VerificationSent.html')

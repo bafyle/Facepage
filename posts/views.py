@@ -12,7 +12,7 @@ from django.core.exceptions import ValidationError
 from users.models import Friend
 from .forms import CreatePostForm
 
-def home(request):
+def home_view(request):
     """
     Home view, get your latest post and all your friends posts
     """
@@ -40,7 +40,7 @@ def home(request):
         messages.error(request, "you need to login first")
         return redirect('users:index')
 
-def profile(request, link):
+def profile_view(request, link):
     """
     Profile view, get all the posts of this user and be friend with them
     """
@@ -95,7 +95,7 @@ def profile(request, link):
         messages.error(request, "You need to login first to view this profile")
         return redirect('posts:home')
 
-def getProfilePosts(request, link:str):
+def get_profile_posts(request, link:str):
     page = int(request.GET.get('page'))
     lowIndex = page*5
     highIndex = lowIndex + 5
@@ -132,7 +132,7 @@ def getProfilePosts(request, link:str):
         posts[index] = post
     return JsonResponse(posts)
 
-def search(request):
+def search_view(request):
     """
     Search view, get all posts and accounts that contains what a particular word
     """
@@ -170,7 +170,7 @@ def search(request):
         messages.error(request, "You need to login first in order to do that")
         return redirect('posts:home')
 
-def createPost(request):
+def create_post_view(request):
     """
     This function create a new post with with data from 'new-post-content' that comes
     from a post request and redirects to the same page
@@ -191,7 +191,7 @@ def createPost(request):
         messages.error(request, "You must be logged in first")
         return redirect('users:index')
 
-def updatePost(request: HttpRequest, post_id):
+def update_post_view(request: HttpRequest, post_id):
     """
     Update view, update a particular post by the id of the post
     """
@@ -218,7 +218,7 @@ def updatePost(request: HttpRequest, post_id):
         return redirect('users:index')
 
 
-def viewPost(request, post_id):
+def view_post_view(request, post_id):
     if request.user.is_authenticated:
         post = get_object_or_404(Post, id=post_id)
         context = {
@@ -232,7 +232,7 @@ def viewPost(request, post_id):
         return redirect('users:login')
 
 
-def sharePost(request, post_id):
+def share_post_view(request, post_id):
     if request.user.is_authenticated:
         post = get_object_or_404(Post, id=post_id)
         if post.shared_post:
@@ -253,7 +253,7 @@ def sharePost(request, post_id):
         messages.error(request, "You must be logged in first")
         return redirect('users:index')
 
-def deletePostAjax(request, post_id):
+def delete_post_ajax(request, post_id):
     """
     This function delete a particular post by the id of that post
     and redirect to the same page
@@ -265,7 +265,7 @@ def deletePostAjax(request, post_id):
     else:
         raise Http404
 
-def likePost(request, post_id):
+def like_post_view(request, post_id):
     """
     This function add a like to the database for a particular post
     and update that post like number by recounting how many rows in the 
@@ -305,7 +305,7 @@ def likePost(request, post_id):
         messages.error(request, "You must be logged in first")
         return redirect('users:index')
 
-def likePostAjax(request, post_id):
+def like_post_ajax(request, post_id):
     if request.user.is_authenticated:
         post = Post.objects.get(id=post_id)
         isPostLiked = bool(Like.objects.filter(post=post, liker=request.user))
@@ -340,7 +340,7 @@ def likePostAjax(request, post_id):
         messages.error(request, "You must be logged in first")
         return redirect('users:index')
 
-def unlikePost(request, post_id):
+def unlike_post_view(request, post_id):
     """
     This function removes a like from the database for a particular post
     and update that post like number by recounting how many rows in the 
@@ -359,7 +359,7 @@ def unlikePost(request, post_id):
         messages.error(request, "You must be logged in first")
         return redirect('users:index')
 
-def unlikePostAjax(request, post_id):
+def unlike_post_ajax(request, post_id):
     """
     This function removes a like from the database for a particular post
     and update that post like number by recounting how many rows in the 
@@ -377,7 +377,7 @@ def unlikePostAjax(request, post_id):
     else:
         JsonResponse({"message":"not-authed"})
 
-def addComment(request, post_id):
+def add_comment_view(request, post_id):
     """
     Same idea of the likePost functions, adds a comment to a post via a
     GET request and recount how many comments for that post to update
@@ -416,7 +416,7 @@ def addComment(request, post_id):
         messages.error(request, "You must be logged in first")
         return redirect('users:index')
 
-def addCommentAjax(request, post_id):
+def add_comment_ajax(request, post_id):
     """
     Same idea of the likePost functions, adds a comment to a post via a
     GET request and recount how many comments for that post to update

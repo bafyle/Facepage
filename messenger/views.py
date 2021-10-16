@@ -9,7 +9,7 @@ from .forms import SendMessageForm
 from django.utils import timezone
 
 
-def newChat(request, link:str = None):
+def chat_view(request, link:str = None):
     if request.user.is_authenticated:
         context = dict()
         me = request.user
@@ -51,7 +51,7 @@ def newChat(request, link:str = None):
         return render(request, 'pages/Chat.html', context)
 
 
-
+@DeprecationWarning
 def chat(request, link:str = None):
     if request.user.is_authenticated:
         username = User().objects.filter(profile__link=link).first()
@@ -107,7 +107,7 @@ def chat(request, link:str = None):
         return redirect('users:index')
 
 
-def sendMessageAjax(request, link: str):
+def send_message_ajax(request, link: str):
     username = User().objects.filter(profile__link=link).first()
     if request.method == 'POST':
         form = SendMessageForm(request.POST)
@@ -123,7 +123,7 @@ def sendMessageAjax(request, link: str):
     return JsonResponse(response)
 
 
-def getMessagesAjax(request, link: str):
+def get_messages_ajax(request, link: str):
     my_username = request.user
     username = username = User().objects.filter(profile__link=link).first()
     chat = Message.objects.filter(
