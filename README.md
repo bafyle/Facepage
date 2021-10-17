@@ -1,6 +1,6 @@
 # Facepage
 
-Facepage is two-person project to make minimal website that looks like Facebook for the purpose of learning using Python and Django
+Facepage is a two-person project to make a minimal website that looks like Facebook as a challenge for ourselves using Python programming language and Django web framework
 
 ## Content:
 - [Facepage](#facepage)
@@ -84,5 +84,6 @@ users can:
     * unfriend
 - [ ] redesign the chat app using web sockets
 - [ ] implement some functionalities using ajax:
-    * like a post
-    * comment
+  * [x] like a post
+  * [ ] comment
+- [ ] compress uploaded photos

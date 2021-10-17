@@ -181,7 +181,8 @@
 		{% if his_link %}
 		<script src="{% static 'pages/js/chatjs/humanized_time_span.js'%}"></script>
 		<script src="{% static 'pages/js/csrf.js'%}"></script>
-		<script type="text/javascript">
+		<script>
+
 			var postForm = document.getElementById("post-form");
 			var messageInput = document.getElementById("{{form.message_input.id_for_label}}");
 			var chat = document.getElementById("chat-text-container");

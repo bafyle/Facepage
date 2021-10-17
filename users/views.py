@@ -9,6 +9,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
+from django.views.decorators.csrf import ensure_csrf_cookie
 from .tokens import account_activation_token
 from django.core.mail import EmailMessage, message
 from django.contrib.auth.password_validation import validate_password
@@ -76,6 +77,7 @@ def forgot_password_view(request):
             return JsonResponse({'message':'no user'})
     return render(request, 'pages/ForgotPassword.html')
 
+@ensure_csrf_cookie
 def register_view(request):
     if request.user.is_authenticated:
         return redirect('users:index')

@@ -333,7 +333,7 @@ def like_post_ajax(request, post_id):
                         route_id=post.id,
                     )
                     newNotification.save()
-        return JsonResponse({"message":"good"})
+        return JsonResponse({"message":"good", 'likes': post.likes})
     else:
         messages.error(request, "You must be logged in first")
         return redirect('users:index')
@@ -371,7 +371,7 @@ def unlike_post_ajax(request, post_id):
             likeObject.delete()
             post.likes = Like.objects.filter(post=post).count()
             post.save()
-        return JsonResponse({"message":"good"})
+        return JsonResponse({"message":"good", 'likes': post.likes})
     else:
         JsonResponse({"message":"not-authed"})
 

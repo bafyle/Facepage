@@ -7,8 +7,9 @@ from django.db.models import Q
 from django.contrib.auth import get_user_model as User
 from .forms import SendMessageForm
 from django.utils import timezone
+from django.views.decorators.csrf import ensure_csrf_cookie
 
-
+@ensure_csrf_cookie
 def chat_view(request, link:str = None):
     if request.user.is_authenticated:
         context = dict()

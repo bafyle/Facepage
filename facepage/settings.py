@@ -172,7 +172,3 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 # The length of profile link
 ID_LENGTH = 7
-
-
-
-
