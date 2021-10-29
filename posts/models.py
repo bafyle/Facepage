@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model as User
-from django.core.validators import ValidationError
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
@@ -19,6 +19,8 @@ class Post(models.Model):
             raise ValidationError(_("Shared post cannot have an image"))
         if self.post_content == '' and not self.shared_post:
             raise ValidationError(_("non-shared posts cannot have no content"))
+        if self.original_post != None and self.shared_post == False:
+            raise ValidationError(_("non-shared posts cannot have reference to any posts"))
         return super().clean(*args, **kwargs)
 
     def save(self, *args, **kwargs):

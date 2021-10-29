@@ -77,13 +77,15 @@ users can:
 
 
 ## Todo:
-- [ ] better password reset mechanism
-- [x] add styling to these buttons:
-    * send friend request
-    * cancel friend request
-    * unfriend
-- [ ] redesign the chat app using web sockets
-- [ ] implement some functionalities using ajax:
-  * [x] like a post
-  * [ ] comment
-- [ ] compress uploaded photos
+- [ ] Better password reset mechanism
+- [x] Add styling to these buttons:
+    * Send friend request
+    * Cancel friend request
+    * Unfriend
+- [ ] Redesign the chat app using web sockets
+- [ ] Implement some functionalities using ajax:
+  * [x] Like a post
+  * [ ] Comment
+- [ ] Compress uploaded photos
+- [ ] Redesign the friendship system between the users
+- [ ] Redesign the notification

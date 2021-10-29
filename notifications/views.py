@@ -1,4 +1,5 @@
-from django.http.response import JsonResponse
+from django.http.request import host_validation_re
+from django.http.response import HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.db.models import Q
@@ -39,7 +40,10 @@ def delete_notification_ajax(request, id):
                     else:
                         messages.error(request, "no such friend request to decline")
                         return JsonResponse({"message":"no-friend"})
-            notification.delete()
+            if notification.user_to == request.user:
+                notification.delete()
+            else:
+                return HttpResponseNotAllowed(['POST', 'GET'])
             return JsonResponse({"message":"good"})
         else:
             return JsonResponse({"message":"no-notification"})

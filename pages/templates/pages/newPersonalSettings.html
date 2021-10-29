@@ -32,7 +32,6 @@
               <p>Bio<br><span style="color: rgb(90, 90, 90); font-size: 13px;">Be as specific as possible</span></p>
               <textarea id="{{bio_form.bio.id_for_label}}" name="bio" rows="2" style="resize:vertical;">{{bio_form.bio.value}}</textarea>
             </div>
-            <button class="buttonS" type="submit" >Save</button>
             <div class="item" style="margin-top: 20px">
               <p>Profile Picture</p>
               <input id="{{bio_form.profile_picuture.id_for_label}}" type="file" accept="image/*" name="profile_picture"/>
@@ -49,17 +48,10 @@
               {% else %}
                 <a href="{% url 'users:delete-profile-cover' %}">Delete current profile cover</a>
               {% endif %}
-              
+              <button class="buttonS" type="submit">Save</button>
             </div> 
-            
             <br>
-            
-            
-        
             <hr><br>
-      
-
-
         </form>
         </div>
        <hr>

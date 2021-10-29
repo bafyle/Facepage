@@ -241,6 +241,7 @@
 {{ block.super }}
 {% if my_post %}
 <script src="{% static 'pages/js/csrf.js' %}"></script>
+<script src="{% static 'pages/js/postShowMore.js'%}"></script>
 <script>
     function deletePost(postID)
     {
@@ -265,7 +266,7 @@
     }
 </script>
 {% endif %}
-<script src="{% static 'pages/js/postShowMore.js'%}"></script>
+
 <!-- Ajax call for liking and disliking posts -->
 <script>
 function likeButtonAction(buttonID)
