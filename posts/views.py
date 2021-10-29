@@ -1,4 +1,4 @@
-from django.http.response import Http404, JsonResponse
+from django.http.response import Http404, HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from .models import Post, Comment, Like
 from django.contrib.auth import get_user_model as User
@@ -133,12 +133,12 @@ def get_profile_posts(request, link:str):
         posts[index] = post
     return JsonResponse(posts)
 
-def search_view(request):
+def search_view(request: HttpRequest):
     """
     Search view, get all posts and accounts that contains what a particular word
     """
     if request.user.is_authenticated:
-        search = str(request.GET['search-text'])
+        search = str(request.GET.get('search-text'))
         search_keywords = search.split(' ')
         while search_keywords.count('') > 0:
             search_keywords.remove('')
@@ -261,7 +261,7 @@ def delete_post_ajax(request, post_id):
         post.delete()
         return JsonResponse({"message": "good"})
     else:
-        raise Http404
+        raise HttpResponseNotAllowed(["DELETE", "POST"])
 
 def like_post_view(request, post_id):
     """

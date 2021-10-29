@@ -88,4 +88,4 @@ users can:
   * [ ] Comment
 - [ ] Compress uploaded photos
 - [ ] Redesign the friendship system between the users
-- [ ] Redesign the notification
+- [ ] Redesign the notification system

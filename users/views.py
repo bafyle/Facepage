@@ -1,5 +1,3 @@
-from datetime import time
-from django.core import exceptions
 from django.db.models import Q
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
@@ -21,16 +19,13 @@ from django.utils.translation import gettext as _
 from django.core.validators import validate_email
 
 from .forms import DeleteAccountForm, ChangePictureBioForm, RegisterForm
-from .models import Friend, Profile, ForgetPassswordRequests
+from .models import Friend, Profile, EmailRequest
 from .id_generator import *
 from django.contrib.auth import get_user_model as User
 from notifications.models import Notification
 import json
 
-
-# Create your views here.
-
-def index(request):
+def index(request: HttpRequest):
     """
     view the login page or redirects to the home page if you are already logged in
     """
@@ -38,7 +33,7 @@ def index(request):
         return redirect('posts:home')
     return render(request, 'pages/Login.html')
 
-def login_view(request):
+def login_view(request: HttpRequest):
     """
     this function takes the username and the password the user entered and
     check if they are valid. If they are valid then it logs the user in and redirects 
@@ -51,15 +46,18 @@ def login_view(request):
         pw = request.POST['pass']
         user = authenticate(username=username, password=pw)
         if user is not None:
-            login(request, user)
+            if Profile.objects.get(user=user).verified == False:
+                if EmailRequest.objects.get_or_create(user=user)[0].get_time_difference() > (5 * 60):
+                    send_activate_email(request, user, True)
+                messages.error(request,"Please check your email for activation link")
+                return redirect('users:index')
+            else:
+                login(request, user)
         else:
             messages.error(request, "Wrong username or password")
     return redirect('users:index')
 
-def logout_view(request):
-    """
-    this function logs you out and redirects you to the login page
-    """
+def logout_view(request: HttpRequest):
     logout(request)
     messages.success(request, "You have been logged out")
     return redirect('users:index')
@@ -73,7 +71,7 @@ def forgot_password_view(request: HttpRequest):
             return JsonResponse({"message": "not valid email"})
         if (requester := User().objects.filter(email=email).first()) == None:
             return JsonResponse({"message": "no user"})
-        forget_password_request = ForgetPassswordRequests.objects.get_or_create(user=requester)[0]
+        forget_password_request = EmailRequest.objects.get_or_create(user=requester)[0]
         if (x := forget_password_request.get_time_difference()) > 0 and x < (5 * 60):
             return JsonResponse({"message": "time limit"})
         new_password = generate_random_characters(10, generator_letters())
@@ -91,7 +89,7 @@ def forgot_password_view(request: HttpRequest):
 
 
 @ensure_csrf_cookie
-def register_view(request):
+def register_view(request: HttpRequest):
     if request.user.is_authenticated:
         return redirect('users:index')
     if request.method == "POST":
@@ -116,7 +114,7 @@ def register_view(request):
         form = RegisterForm()
     return render(request, 'pages/Register.html', {'form':form})
 
-def send_friend_request_view(request, link):
+def send_friend_request_view(request: HttpRequest, link: str):
     if request.user.is_authenticated:
         user = get_object_or_404(User(), profile__link=link)
         friendship_check = bool(
@@ -151,13 +149,14 @@ def send_friend_request_view(request, link):
         message.error(request, "you must login first")
         return redirect('users:index')
 
-def accept_friend_request_view(request, link):
+def accept_friend_request_view(request: HttpRequest, link: str):
     if request.user.is_authenticated:
         sender = User().objects.filter(profile__link=link).first()
         if sender:
             friendship = Friend.objects.filter(side1=sender, side2=request.user, accepted=False).first()
             if friendship:
                 friendship.accepted = True
+                friendship.acceptance_date = timezone.localtime(timezone.now())
                 friendship.save()
                 notification = Notification.objects.filter(
                     user_from=sender,
@@ -176,7 +175,7 @@ def accept_friend_request_view(request, link):
         message.error(request, "you must login first")
         return redirect('users:index')
 
-def decline_friend_request_view(request, link):
+def decline_friend_request_view(request: HttpRequest, link: str):
     """Delete a comming friend request """
     if request.user.is_authenticated:
         sender = User().objects.filter(profile__link=link).first()
@@ -202,7 +201,7 @@ def decline_friend_request_view(request, link):
         messages.error(request, "you need to login first")
         return redirect('users:index')
 
-def cancel_friend_request_view(request, link):
+def cancel_friend_request_view(request: HttpRequest, link: str):
     """ delete a request that has been sent by the request.user"""
     if request.user.is_authenticated:
         user = get_object_or_404(User(), profile__link = link)
@@ -226,7 +225,7 @@ def cancel_friend_request_view(request, link):
         messages.error(request, "you need to login first")
         return redirect('users:index')
 
-def unfriend_view(request, link):
+def unfriend_view(request: HttpRequest, link: str):
     if request.user.is_authenticated:
         user = User().objects.filter(profile__link=link).first()
         if user:
@@ -245,7 +244,7 @@ def unfriend_view(request, link):
         messages.error(request, "you need to login first")
         return redirect('users:index')
         
-def accout_settings_view(request):
+def accout_settings_view(request: HttpRequest):
     """
     Takes the new user email and password and check if they are valid and save them
     after saving it redirects to the login page to login again with the new data
@@ -281,7 +280,7 @@ def accout_settings_view(request):
         messages.error(request, "you must login first")
         return redirect('users:index')
 
-def personal_settings_view(request):
+def personal_settings_view(request: HttpRequest):
     if request.user.is_authenticated:
         if request.method == "POST":
             bio_form = ChangePictureBioForm(request.POST, request.FILES)
@@ -329,7 +328,7 @@ def personal_settings_view(request):
         messages.error(request, "you must login first")
         return redirect('users:index')
 
-def delete_profile_cover_view(request):
+def delete_profile_cover_view(request: HttpRequest):
     if request.user.is_authenticated:
         old_image = request.user.profile.profile_cover.url
         if old_image.split('/')[-1] != 'default.jpg':
@@ -347,7 +346,7 @@ def delete_profile_cover_view(request):
         messages.error(request, "you must login first")
         return redirect('users:index')
 
-def delete_profile_picture_view(request):
+def delete_profile_picture_view(request: HttpRequest):
     """
     This function is for deleting the existing profile picture of the account
     and set it to the default one by deleting the profile instance from the
@@ -369,7 +368,7 @@ def delete_profile_picture_view(request):
         messages.error(request, "you must login first")
         return redirect('users:index')
 
-def delete_account_view(request):
+def delete_account_view(request: HttpRequest):
     """
     This function makes sure that the user want to delete his account
     it takes the confirmations and the username text from the user 
@@ -411,7 +410,7 @@ def delete_account_view(request):
         return redirect('users:index')
 
 
-def send_activate_email(request, user, failSilently: bool = False):
+def send_activate_email(request: HttpRequest, user: User(), failSilently: bool = False):
     """
     This is not a view function, it sends an email with
     an activation link
@@ -444,11 +443,10 @@ AND DO NOT FORGET IT AGAIN!!! """
     )
     return email.send(fail_silently=fail_silently)
 
-def activate(request, uidb64, token):
+def activate(request: HttpRequest, uidb64, token):
     try:
         uid = force_text(urlsafe_base64_decode(uidb64))
         user = User().objects.get(pk=uid)
-        
     except(TypeError, ValueError, OverflowError, User().DoesNotExist):
         user = None
     if user is not None and account_activation_token.check_token(user, token):
@@ -461,5 +459,5 @@ def activate(request, uidb64, token):
         messages.success(request, 'Activation link is invalid!')
         return redirect('users:login')
 
-def verify_email_view(request):
+def verify_email_view(request: HttpRequest):
     return render(request, 'pages/VerificationSent.html')
