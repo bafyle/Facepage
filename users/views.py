@@ -1,11 +1,14 @@
+from datetime import time
+from django.core import exceptions
 from django.db.models import Q
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpRequest
 from django.contrib import messages
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.sites.shortcuts import get_current_site
+from django.utils import timezone
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
@@ -15,9 +18,10 @@ from django.core.mail import EmailMessage, message
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
+from django.core.validators import validate_email
 
 from .forms import DeleteAccountForm, ChangePictureBioForm, RegisterForm
-from .models import Friend, Profile
+from .models import Friend, Profile, ForgetPassswordRequests
 from .id_generator import *
 from django.contrib.auth import get_user_model as User
 from notifications.models import Notification
@@ -60,22 +64,31 @@ def logout_view(request):
     messages.success(request, "You have been logged out")
     return redirect('users:index')
 
-def forgot_password_view(request):
+def forgot_password_view(request: HttpRequest):
     if request.method == "POST":
-        email = request.POST['email']
-        user = User().objects.filter(email=email).first()
-        if user:
-            new_password = generate_random_characters(10, generator_letters())
-            user.set_password(new_password)
-            user.save()
-            try:
-                send_new_password(new_password, email)
-            except Exception as e:
-                return JsonResponse({'message':'cannot send'})
-            return JsonResponse({'message':'good'})
-        else:
-            return JsonResponse({'message':'no user'})
-    return render(request, 'pages/ForgotPassword.html')
+        email = request.POST.get("email")
+        try:
+            validate_email(email)
+        except ValidationError as error:
+            return JsonResponse({"message": "not valid email"})
+        if (requester := User().objects.filter(email=email).first()) == None:
+            return JsonResponse({"message": "no user"})
+        forget_password_request = ForgetPassswordRequests.objects.get_or_create(user=requester)[0]
+        if (x := forget_password_request.get_time_difference()) > 0 and x < (5 * 60):
+            return JsonResponse({"message": "time limit"})
+        new_password = generate_random_characters(10, generator_letters())
+        requester.set_password(new_password)
+        requester.save()
+        try:
+            send_new_password(new_password, email)
+            forget_password_request.last_request = timezone.localtime(timezone.now())
+            forget_password_request.save()
+        except Exception as e:
+            return JsonResponse({'message': e.__str__()})
+        return JsonResponse({'message':'good'})
+    else:
+        return render(request, 'pages/ForgotPassword.html')
+
 
 @ensure_csrf_cookie
 def register_view(request):
@@ -232,7 +245,7 @@ def unfriend_view(request, link):
         messages.error(request, "you need to login first")
         return redirect('users:index')
         
-def accout_settings_2_view(request):
+def accout_settings_view(request):
     """
     Takes the new user email and password and check if they are valid and save them
     after saving it redirects to the login page to login again with the new data
@@ -255,52 +268,6 @@ def accout_settings_2_view(request):
                 for error_message in error:
                     messages.error(request, error_message)
                 return redirect('users:account-settings')
-        else:
-            context = {
-                'profile_pic': request.user.profile.profile_picture.url,
-                'navbar_name': request.user.first_name,
-                'navbar_link': request.user.profile.link,
-                'email': request.user.email,
-                'username': request.user.username,
-            }
-            return render(request, 'pages/newAccountSettings.html', context)
-    else:
-        messages.error(request, "you must login first")
-        return redirect('users:index')
-
-@DeprecationWarning
-def accountSettings(request):
-    """
-    Takes the new user email and password and check if they are valid and save them
-    after saving it redirects to the login page to login again with the new data
-    """
-    if request.user.is_authenticated:
-        if request.method == "POST":
-            if request.POST['password1'] != request.POST['password2']:
-                messages.error(request, "Passwords doesn't match")
-                return redirect('users:account-settings')
-            else:
-                new_password = request.POST['password1']
-                password_security = 0
-                for char in new_password:
-                    char = str(char)
-                    if char.isalpha():
-                        password_security += 1
-                    if char.isupper():
-                        password_security += 1
-                if password_security > 2:
-                    user = request.user
-                    user.set_password(request.POST['password1'])
-                    if request.POST['email'] is not None:
-                        user.email = request.POST['email']
-                    else:
-                        user.email = ''
-                    user.save()
-                    messages.success(request, "password has changed, you need to login again")
-                else:
-                    messages.error(request, "password must have a at least 1 uppercase letter and it cannot be entirely numeric")
-                    return redirect('users:account-settings')
-            return redirect('users:index')
         else:
             context = {
                 'profile_pic': request.user.profile.profile_picture.url,

@@ -51,7 +51,3 @@ class Like(models.Model):
 
     def __str__(self):
         return f"Like ID: {self.id} On Post: {self.post.id} from: {self.liker.username}"
-
-# @receiver(post_delete, sender=Post)
-# def deletePostPhotoFromServer(sender, instance, **kwargs):
-#     instance.image.delete(False)

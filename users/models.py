@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth import get_user_model as User
 from django.core.validators import RegexValidator
+from django.utils import timezone
+
 
 PHONE_NUMBER_REGEX = RegexValidator(r'^01[0125][0-9]{8}$', 'only valid phone numbers are required')
 
@@ -34,3 +36,13 @@ class Friend(models.Model):
 
     def __str__(self):
         return f"Friendship {self.side1.username} and {self.side2.username}"
+
+class ForgetPassswordRequests(models.Model):
+    user = models.ForeignKey(User(), on_delete=models.CASCADE, related_name="requester")
+    last_request = models.DateTimeField(blank=True, null=True)
+
+    def get_time_difference(self):
+        now = timezone.localtime(timezone.now())
+        time_difference = now - timezone.localtime(self.last_request)
+        return time_difference.total_seconds()
+
