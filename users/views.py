@@ -1,27 +1,27 @@
 from django.db.models import Q
 from django.http.response import JsonResponse
-from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponseRedirect, HttpRequest
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
-from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.sites.shortcuts import get_current_site
+from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth import get_user_model as User
+from django.conf import settings
 from django.utils import timezone
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.translation import gettext as _
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import ensure_csrf_cookie
-from .tokens import account_activation_token
 from django.core.mail import EmailMessage, message
-from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from django.utils.translation import gettext as _
 from django.core.validators import validate_email
 
 from .forms import DeleteAccountForm, ChangePictureBioForm, RegisterForm
-from .models import Friend, Profile, EmailRequest
+from .models import Friend, Profile, SendEmailRequest, NewAccountActivationLink
 from .id_generator import *
-from django.contrib.auth import get_user_model as User
+from .tokens import account_activation_token
 from notifications.models import Notification
 import json
 
@@ -47,9 +47,9 @@ def login_view(request: HttpRequest):
         user = authenticate(username=username, password=pw)
         if user is not None:
             if Profile.objects.get(user=user).verified == False:
-                if EmailRequest.objects.get_or_create(user=user)[0].get_time_difference() > (5 * 60):
+                if SendEmailRequest.objects.get_or_create(user=user)[0].get_time_difference() > (5 * 60):
                     send_activate_email(request, user, True)
-                messages.error(request,"Please check your email for activation link")
+                messages.error(request,"Your account is not verified, check your email")
                 return redirect('users:index')
             else:
                 login(request, user)
@@ -71,7 +71,7 @@ def forgot_password_view(request: HttpRequest):
             return JsonResponse({"message": "not valid email"})
         if (requester := User().objects.filter(email=email).first()) == None:
             return JsonResponse({"message": "no user"})
-        forget_password_request = EmailRequest.objects.get_or_create(user=requester)[0]
+        forget_password_request = SendEmailRequest.objects.get_or_create(user=requester)[0]
         if (x := forget_password_request.get_time_difference()) > 0 and x < (5 * 60):
             return JsonResponse({"message": "time limit"})
         new_password = generate_random_characters(10, generator_letters())
@@ -105,8 +105,14 @@ def register_view(request: HttpRequest):
             new_profile = Profile(user=user, link=new_link, birthday=form.cleaned_data['birthday'], gender=form.cleaned_data['gender'])
             form.save()
             new_profile.save()
-            if not send_activate_email(request, user, True):
+            send_email = send_activate_email(request, user, True)
+            if not send_email[0]:
                 user.delete()
+                return JsonResponse({"message": "email not send"})
+            NewAccountActivationLink(
+                user=user,
+                link=f"{send_email[1]}/{send_email[2]}"
+            ).save()
             return JsonResponse({'message':'good'})
         else:
             return JsonResponse(json.loads(form.errors.as_json()))
@@ -417,18 +423,20 @@ def send_activate_email(request: HttpRequest, user: User(), failSilently: bool =
     """
     current_site = get_current_site(request)
     mail_subject = 'Activate your Facepage account.'
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = account_activation_token.make_token(user)
     message = render_to_string('pages/AccountActivation.html', {
         'user': user,
         'domain': current_site.domain,
-        'uid':urlsafe_base64_encode(force_bytes(user.pk)),
-        'token':account_activation_token.make_token(user),
+        'uid':uid,
+        'token':token,
     })
     email = EmailMessage(
             mail_subject,
             message,
             to=[user.email],
     )
-    return email.send(fail_silently=failSilently)
+    return email.send(fail_silently=failSilently), uid, token
 
 def send_new_password(password, email, fail_silently: bool = False):
     mail_subject = 'Facepage: password reset'
@@ -447,6 +455,15 @@ def activate(request: HttpRequest, uidb64, token):
     try:
         uid = force_text(urlsafe_base64_decode(uidb64))
         user = User().objects.get(pk=uid)
+        if (x := NewAccountActivationLink.objects.filter(
+                    user=user,
+                    link=f"{uidb64}/{token}"
+                ).first()):
+            if x.expired():
+                x.delete()
+                user.delete()
+                messages.success(request, "Expired activation link, please register with a new account")
+                return redirect('users:index')
     except(TypeError, ValueError, OverflowError, User().DoesNotExist):
         user = None
     if user is not None and account_activation_token.check_token(user, token):

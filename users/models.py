@@ -1,6 +1,9 @@
+from datetime import time
 from django.db import models
 from django.contrib.auth import get_user_model as User
 from django.core.validators import RegexValidator
+from django.db.models import constraints
+from django.db.models.constraints import UniqueConstraint
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -30,8 +33,10 @@ class Profile(models.Model):
 
 class Friend(models.Model):
     class Meta:
-        unique_together = (('side1', 'side2'), )
-        
+        constraints = [
+            UniqueConstraint(fields=['side1', 'side2'], name='Unique_frienship')
+        ]
+    
     side1 = models.ForeignKey(User(), on_delete=models.CASCADE, related_name="Side1")
     side2 = models.ForeignKey(User(), on_delete=models.CASCADE, related_name="Side2")
     accepted = models.BooleanField(default=False)
@@ -44,7 +49,7 @@ class Friend(models.Model):
     def __str__(self):
         return f"Friendship {self.side1.username} and {self.side2.username}"
 
-class EmailRequest(models.Model):
+class SendEmailRequest(models.Model):
     user = models.ForeignKey(User(), on_delete=models.CASCADE, related_name="requester")
     last_request = models.DateTimeField(blank=True, null=True)
 
@@ -52,3 +57,14 @@ class EmailRequest(models.Model):
         now = timezone.localtime(timezone.now())
         time_difference = now - timezone.localtime(self.last_request)
         return time_difference.total_seconds()
+
+class NewAccountActivationLink(models.Model):
+    user = models.ForeignKey(User(), on_delete=models.CASCADE)
+    link = models.CharField(max_length=100, null=False, blank=False, unique=True)
+    create_date = models.DateTimeField(null=False, blank=False, default=timezone.now)
+
+    def expired(self) -> bool:
+        now = timezone.localtime(timezone.now())
+        if (now - timezone.localtime(self.create_date)).total_seconds() > 60*60*24:
+            return True
+        return False
