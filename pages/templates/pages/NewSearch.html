@@ -73,20 +73,20 @@ Search: {{search}}
                             <div class="nearby-user">
                                 <div class="row">
                                     <div class="col-md-2 col-sm-2">
-                                        <img src="{{user.2}}" alt="{{user.0}}" class="profile-photo-lg">
+                                        <a href="{% url 'profile' user.0.profile.link %}"><img src="{{user.0.profile.profile_picture.url}}" alt="{{user.0.get_full_name}}" class="profile-photo-lg"></a>
                                     </div>
                                     <div class="col-md-7 col-sm-7">
-                                        <h5><a href="{% url 'profile' user.1 %}" class="profile-link">{{user.0}}</a></h5>
+                                        <h5><a href="{% url 'profile' user.0.profile.link %}" class="profile-link">{{user.0.get_full_name}}</a></h5>
                                         <!-- <p><i class="fas fa-user-friends"> </i> 80 mutual friends</p>
                                         <p class="text-muted"><i class="fas fa-map-marker-alt"></i> Lives in Cairo, Egypt</p> -->
                                     </div>
                                     
                                     {% comment %}
                                     <div class="col-md-3 col-sm-3">
-                                        {% if user.3 and user.1 != navbar_link %}
-                                        <a href="{% url 'messenger:chat' user.1%}" class="btn btn-primary pull-right" type="submit"><i class="fab fa-rocketchat"></i></a>
-                                        {% elif user.3 != True and user.1 != navbar_link %}
-                                        <a href="{% url 'users:add-friend' user.1%}" class="btn btn-primary pull-right" type="submit"><i class="fas fa-user-plus"></i></a>
+                                        {% if user.1 and user.0.profile.link != navbar_link %}
+                                        <a href="{% url 'messenger:chat' user.0.profile.link %}" class="btn btn-primary pull-right" type="submit"><i class="fab fa-rocketchat"></i></a>
+                                        {% elif user.1 != True and user.0.profile.link != navbar_link %}
+                                        <a href="{% url 'users:add-friend' user.0.profile.link %}" class="btn btn-primary pull-right" type="submit"><i class="fas fa-user-plus"></i></a>
                                         {% endif %}
                                     </div>
                                     {% endcomment %}
@@ -97,7 +97,7 @@ Search: {{search}}
                             {% if posts|length > 0 %}
                             <hr>
                             <h3 id='posts-label'>Posts with '{{search}}':</h3>
-                            {% for post in posts%}
+                            {% for post in posts %}
                             <div class="panel panel-default">
                                 <div class="panel-heading" >
                                     <img src="{{ post.creator.profile.profile_picture.url }}" class="img-circle pull-left">
@@ -126,7 +126,7 @@ Search: {{search}}
                                     {% endif %}
                                     </div>
                                 </div>
-                            {% endfor%}
+                            {% endfor %}
                             {% endif %}
                             </div>
                         </div>

@@ -46,6 +46,11 @@
                                 </div>
                             </form>
                             <ul class="nav navbar-nav">
+                                {% if request.user.is_staff %}
+                                <li>
+                                <a href="{% url 'admin:index' %}"><i class="glyphicon glyphicon-hdd"></i> Admin panel</a>
+                                </li>
+                                {% endif %}
                                 <li>
                                 <a href="{% url 'posts:home' %}"><i class="glyphicon glyphicon-home"></i> Home</a>
                                 </li>

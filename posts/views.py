@@ -1,16 +1,16 @@
 from django.http.response import Http404, HttpResponseNotAllowed, JsonResponse
-from django.shortcuts import redirect, render, get_object_or_404
-from .models import Post, Comment, Like
-from django.contrib.auth import get_user_model as User
-from django.utils import timezone
-from django.contrib import messages
 from django.http import HttpResponseRedirect, HttpRequest
+from django.shortcuts import redirect, render, get_object_or_404
+from django.contrib.auth import get_user_model as User
+from django.contrib import messages
+from django.utils import timezone
 from django.db.models import Q
 from django.core.paginator import Paginator
-from notifications.models import Notification
 from django.core.exceptions import ValidationError
+from notifications.models import Notification
 from users.models import Friend
 from .forms import CreatePostForm
+from .models import Post, Comment, Like
 
 def home_view(request):
     """
@@ -49,16 +49,6 @@ def profile_view(request, link):
         context = dict()
         user = get_object_or_404(User(), profile__link=link)
         if request.user != user:
-            # are_they_friends = Friend.objects.filter(
-            #         ((Q(side1=request.user) & Q(side2=user)) | (Q(side1=user) & Q(side2=request.user))
-            #         ))
-            # if are_they_friends.first():
-            #     if are_they_friends.first().accepted:
-            #         context['are_they_friends'] = True
-            #     else:
-            #         context['are_they_friends'] = 'pending'
-            # else:
-            #     context['are_they_friends'] = False
             query = Friend.objects.filter(
                         ((Q(side1=request.user) & Q(side2=user)) | (Q(side1=user) & Q(side2=request.user)))
                     )
@@ -138,33 +128,20 @@ def search_view(request: HttpRequest):
     Search view, get all posts and accounts that contains what a particular word
     """
     if request.user.is_authenticated:
-        search = str(request.GET.get('search-text'))
+        search = str(request.GET.get('search-text')).strip()
         search_keywords = search.split(' ')
-        while search_keywords.count('') > 0:
-            search_keywords.remove('')
-        posts = []
-        users = list()
+        posts = set()
+        users = set()
         for keyword in search_keywords:
-            for post in Post.objects.filter(post_content__icontains=keyword):
-                if post not in posts:
-                    posts.append(post)
+            for post in Post.objects.filter(post_content__icontains=keyword).distinct():
+                posts.add(post)
             for user in User().objects.filter(Q(first_name__icontains=keyword) | Q(last_name__icontains=keyword)):
-                count = 0
-                for L in users:
-                    if L[1] != user.profile.link:
-                        count += 1
-                if count == len(users):
                     are_they_friends = bool(
                         Friend.objects.filter(
                             ((Q(side1=request.user) & Q(side2=user)) | (Q(side1=user) & Q(side2=request.user))
                             ) & Q(accepted=True))
                         )
-                    users.append([
-                        user.profile.name(),
-                        user.profile.link,
-                        user.profile.profile_picture.url,
-                        are_they_friends
-                        ])
+                    users.add((user, are_they_friends))
         context = {'search': search, 'posts': posts, 'users': users}
         return render(request, 'Pages/NewSearch.html', context)
     else:
@@ -182,8 +159,9 @@ def create_post_view(request):
             new_post = Post(post_content=post_creation_form.cleaned_data['content'], creator=request.user, image=post_creation_form.cleaned_data['image'])
             new_post.save()
         else:
-            pass
+            # debug
             print(post_creation_form.errors)
+            messages.error(request, "post hasn't been created")
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         messages.error(request, "You must be logged in first")
@@ -210,7 +188,7 @@ def update_post_view(request: HttpRequest, post_id):
             else:
                 return render(request, 'pages/NewUpdate.html', {'post': post})
         else:
-            raise Http404
+            raise HttpResponseNotAllowed(["POST"])
     else:
         messages.error(request, "You must login first")
         return redirect('users:index')

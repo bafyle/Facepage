@@ -12,9 +12,7 @@ from django.utils import timezone
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.translation import gettext as _
-from django.template.loader import render_to_string
-from django.views.decorators.csrf import ensure_csrf_cookie
-from django.core.mail import EmailMessage, message
+from django.core.mail import EmailMessage
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 
@@ -24,6 +22,9 @@ from .id_generator import *
 from .tokens import account_activation_token
 from notifications.models import Notification
 import json
+
+from django.template.loader import render_to_string
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 def index(request: HttpRequest):
     """
@@ -152,7 +153,7 @@ def send_friend_request_view(request: HttpRequest, link: str):
         messages.success(request, "friend request sent")
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
-        message.error(request, "you must login first")
+        messages.error(request, "you must login first")
         return redirect('users:index')
 
 def accept_friend_request_view(request: HttpRequest, link: str):
@@ -178,7 +179,7 @@ def accept_friend_request_view(request: HttpRequest, link: str):
             messages.error(request, "no such user")
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
-        message.error(request, "you must login first")
+        messages.error(request, "you must login first")
         return redirect('users:index')
 
 def decline_friend_request_view(request: HttpRequest, link: str):
