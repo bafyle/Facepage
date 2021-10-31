@@ -181,7 +181,7 @@
 		{% if his_link %}
 		<script src="{% static 'pages/js/chatjs/humanized_time_span.js'%}"></script>
 		<script src="{% static 'pages/js/csrf.js'%}"></script>
-		<script>
+		<!-- <script>
 
 			var postForm = document.getElementById("post-form");
 			var messageInput = document.getElementById("{{form.message_input.id_for_label}}");
@@ -316,6 +316,88 @@
 
 				return messageDiv;
 			}
+		</script> -->
+		<script>
+
+			const $postForm = $("#post-form");
+			const $messageInput = $("#{{form.message_input.id_for_label}}");
+			const $chat = $("#chat-text-container");
+			const $submitButton = $("#submit-button");
+			$chat.scrollTop($chat.scrollTop() + $chat.height());
+
+			const websocket = new WebSocket(
+					'ws://'
+					+ window.location.host + '/chat/'
+					+ '{{pk}}'
+					+ '/'
+				);
+			const sendFunction = () => 
+			{
+				websocket.send(JSON.stringify({
+					message_input: $messageInput.val(),
+					sender: "{{request.user.profile.link}}"
+				}));
+			}
+			const createReceiveMessage = (message) =>
+			{
+				let $messageDiv = $("<div></div>")
+				.addClass("received-chat-text-container margin-left-sm margin-top-sm margin-bottom-sm flex-container")
+				
+				let $img = $("<img>").addClass("rounded-image image-32px margin-right-sm").attr("src", "{{his_profile_picture_url}}");
+				let $messageTextDiv = $("<div></div>").addClass("received-text-container padding-sm").text(message.message);
+				let $br = $("<br>");
+				let $messageDateDiv = $("<div></div>").addClass("Lmessage-date").text(humanized_time_span(message.send_date))
+				$br.appendTo($messageTextDiv);
+
+				$messageDateDiv.appendTo($messageTextDiv);
+				
+				$img.appendTo($messageDiv);
+				$messageTextDiv.appendTo($messageDiv);
+				return $messageDiv;
+			};
+
+			const createSendMessage = (message) =>
+			{
+				let $messageDiv = $("<div></div>").addClass("sent-chat-text-container margin-right-sm margin-top-sm margin-bottom-sm flex-container");
+				let $messageTextDiv = $("<div></div>").addClass("sent-text-container padding-sm white-text").html(message.message);
+				let $br = $("<br>");
+				let $messageDateDiv = $("<div></div>").addClass("Rmessage-date").html(humanized_time_span(message.send_date));
+				$br.appendTo($messageTextDiv);
+				$messageDateDiv.appendTo($messageTextDiv);
+				$messageTextDiv.appendTo($messageDiv);
+
+				return $messageDiv;
+			};
+			$(function(){
+				$postForm.submit((e)=>{
+
+					e.preventDefault();
+					sendFunction()
+				})
+				$messageInput.keypress((e) =>
+				{
+					if(e.keyCode === 13 && !e.shiftKey)
+					{
+						e.preventDefault();
+						$submitButton.click();
+					}
+				})
+				websocket.onmessage = function(e)
+				{
+					var response = JSON.parse(e.data);
+					if(response.sender === "{{navbar_link}}")
+					{
+						var $message = createSendMessage(response)
+					}
+					else
+					{
+						var $message = createReceiveMessage(response);
+					}
+					$message.appendTo($chat);
+					$chat.scrollTop($chat.scrollTop() + $chat.height());
+					$messageInput.val("").focus();
+				}
+			});
 		</script>
 		{% endif %}
 	</body>

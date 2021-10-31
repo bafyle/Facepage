@@ -13,23 +13,25 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 def chat_view(request, link:str = None):
     if request.user.is_authenticated:
         context = dict()
-        me = request.user
         friends_query = Friend.objects.filter(
-            (Q(side1=me) | Q(side2=me))
+            (Q(side1=request.user) | Q(side2=request.user))
             & Q(accepted=True)
         )
-        context['profile_pic'] = me.profile.profile_picture.url
-        context['navbar_name'] = me.first_name
-        context['navbar_link'] = me.profile.link
+        context['profile_pic'] = request.user.profile.profile_picture.url
+        context['navbar_name'] = request.user.first_name
+        context['navbar_link'] = request.user.profile.link
         friends = list()
         for friend in friends_query:
-            if friend.side1 != me:
+            if friend.side1 != request.user:
                 friends.append(friend.side1)
             else:
                 friends.append(friend.side2)
         context['friends'] = friends
         if link:
             user = User().objects.filter(profile__link=link).first()
+            relation = Friend.objects.filter(
+                ((Q(side1=user) & Q(side2=request.user)) | (Q(side1=request.user) & Q(side2=user))) &  
+                Q(accepted=True)).first()
             if not user:
                 messages.error(request, "there is no user with this link")
                 return redirect('posts:home')
@@ -38,8 +40,8 @@ def chat_view(request, link:str = None):
                 return redirect('posts:home')
             else:
                 chat = Message.objects.filter(
-                    (Q(sender=me) & Q(receiver=user)) | 
-                    (Q(sender=user) & Q(receiver=me))
+                    (Q(sender=request.user) & Q(receiver=user)) | 
+                    (Q(sender=user) & Q(receiver=request.user))
                 ).order_by('send_date')
                 for message in chat:
                     message.seen = True
@@ -49,6 +51,7 @@ def chat_view(request, link:str = None):
                 context['his_username'] = user.profile.name()
                 context['his_link'] = user.profile.link
                 context['his_profile_picture_url'] = user.profile.profile_picture.url
+                context['pk'] = relation.pk
         return render(request, 'pages/Chat.html', context)
 
 
@@ -108,7 +111,7 @@ def chat(request, link:str = None):
         return redirect('users:index')
 
 
-def send_message_ajax(request, link: str):
+def user_send_message_ajax(request, link: str):
     username = User().objects.filter(profile__link=link).first()
     if request.method == 'POST':
         form = SendMessageForm(request.POST)
@@ -124,7 +127,7 @@ def send_message_ajax(request, link: str):
     return JsonResponse(response)
 
 
-def get_messages_ajax(request, link: str):
+def user_receiver_message_ajax(request, link: str):
     my_username = request.user
     username = username = User().objects.filter(profile__link=link).first()
     chat = Message.objects.filter(
