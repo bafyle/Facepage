@@ -29,13 +29,9 @@ class ChatWebsocket(AsyncWebsocketConsumer):
         try:
             message = await self.save_and_get_new_message(message=message_from_socket)
         except ValidationError as error:
-            await self.channel_layer.group_send(
-                self.pk,
-                {
-                    'type': 'chat_message_wrong',
-                    'error': 'empty-message'
-                }
-            )
+            await self.send(text_data=json.dumps({
+                'error': error.messages
+            }))
         else:
             send_date = timezone.localtime(message.send_date).strftime("%Y/%m/%d %H:%M:%S")
             sender_link = await self.get_user_link(message.sender)
