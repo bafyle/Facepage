@@ -6,6 +6,7 @@ from users.models import Friend
 from messenger.models import Message
 from django.db.models import Q
 import json
+from django.core.exceptions import ValidationError
 
 class ChatWebsocket(AsyncWebsocketConsumer):
 
@@ -24,28 +25,43 @@ class ChatWebsocket(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data_in_json = json.loads(text_data)
-        message_from_socket = data_in_json.get('message_input')
-        message = await self.save_and_get_new_message(message=message_from_socket)
-        send_date = timezone.localtime(message.send_date).strftime("%Y/%m/%d %H:%M:%S")
-        sender_link = await self.get_user_link(message.sender)
-        receiver_link = await self.get_user_link(message.receiver)
-        await self.channel_layer.group_send(
-            self.pk,
-            {
-                'type': 'chat_message',
-                'message': message_from_socket,
-                'send_date': send_date,
-                'sender': sender_link,
-                'receiver': receiver_link
-            }
-        )
+        message_from_socket = data_in_json.get('message_input').strip()
+        try:
+            message = await self.save_and_get_new_message(message=message_from_socket)
+        except ValidationError as error:
+            await self.channel_layer.group_send(
+                self.pk,
+                {
+                    'type': 'chat_message_wrong',
+                    'error': 'empty-message'
+                }
+            )
+        else:
+            send_date = timezone.localtime(message.send_date).strftime("%Y/%m/%d %H:%M:%S")
+            sender_link = await self.get_user_link(message.sender)
+            receiver_link = await self.get_user_link(message.receiver)
+            await self.channel_layer.group_send(
+                self.pk,
+                {
+                    'type': 'chat_message_correct',
+                    'message': message_from_socket,
+                    'send_date': send_date,
+                    'sender': sender_link,
+                    'receiver': receiver_link
+                }
+            )
     
-    async def chat_message(self, event):
+    async def chat_message_correct(self, event):
         await self.send(text_data=json.dumps({
             'message': event.get('message'),
             'send_date': event.get('send_date'),
             'sender': event.get("sender"),
             'receiver': event.get("receiver")
+        }))
+    
+    async def chat_message_wrong(self, event):
+        await self.send(text_data=json.dumps({
+            'error': event.get('error')
         }))
 
     async def disconnect(self, code):
@@ -64,9 +80,7 @@ class ChatWebsocket(AsyncWebsocketConsumer):
     @database_sync_to_async
     def save_and_get_new_message(self, message):
         relation = Friend.objects.get(pk=self.pk)
-        new_message = Message(message_content=message, sender=self.user, receiver=relation.side1 if relation.side2 == self.user else relation.side2)
-        new_message.save()
-        return new_message
+        return Message.objects.create(message_content=message, sender=self.user, receiver=relation.side1 if relation.side2 == self.user else relation.side2)
     
     @database_sync_to_async
     def get_user_link(self, user):

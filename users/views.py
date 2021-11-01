@@ -73,7 +73,7 @@ def forgot_password_view(request: HttpRequest):
         if (requester := User().objects.filter(email=email).first()) == None:
             return JsonResponse({"message": "no user"})
         forget_password_request = SendEmailRequest.objects.get_or_create(user=requester)[0]
-        if (x := forget_password_request.get_time_difference()) > 0 and x < (5 * 60):
+        if forget_password_request.is_still_soon():
             return JsonResponse({"message": "time limit"})
         new_password = generate_random_characters(10, generator_letters())
         requester.set_password(new_password)

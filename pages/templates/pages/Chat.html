@@ -376,24 +376,32 @@
 				})
 				$messageInput.keypress((e) =>
 				{
-					if(e.keyCode === 13 && !e.shiftKey)
+					if(e.keyCode === 13 && !e.shiftKey && $messageInput.val().trim() != "")
 					{
 						e.preventDefault();
 						$submitButton.click();
 					}
+					$messageInput.attr("placeholder", "")
 				})
 				websocket.onmessage = function(e)
 				{
 					var response = JSON.parse(e.data);
-					if(response.sender === "{{navbar_link}}")
+					if (response.message != undefined)
 					{
-						var $message = createSendMessage(response)
+						if(response.sender === "{{navbar_link}}")
+						{
+							var $message = createSendMessage(response)
+						}
+						else
+						{
+							var $message = createReceiveMessage(response);
+						}
+						$message.appendTo($chat);
 					}
 					else
 					{
-						var $message = createReceiveMessage(response);
+						$messageInput.attr("placeholder", "cannot send empty message")
 					}
-					$message.appendTo($chat);
 					$chat.scrollTop($chat.scrollTop() + $chat.height());
 					$messageInput.val("").focus();
 				}

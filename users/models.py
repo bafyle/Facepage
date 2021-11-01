@@ -57,6 +57,11 @@ class SendEmailRequest(models.Model):
         now = timezone.localtime(timezone.now())
         time_difference = now - timezone.localtime(self.last_request)
         return time_difference.total_seconds()
+    
+    def is_still_soon(self) -> bool:
+        if (x := self.get_time_difference() )> 0 and x < (5 * 60):
+            return True
+        return False
 
 class NewAccountActivationLink(models.Model):
     user = models.ForeignKey(User(), on_delete=models.CASCADE)
