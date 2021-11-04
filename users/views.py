@@ -1,3 +1,4 @@
+from typing import Tuple
 from django.db.models import Q
 from django.http.response import JsonResponse
 from django.http import HttpResponseRedirect, HttpRequest
@@ -15,6 +16,7 @@ from django.utils.translation import gettext as _
 from django.core.mail import EmailMessage
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+from django.dispatch import Signal
 
 from .forms import DeleteAccountForm, ChangePictureBioForm, RegisterForm
 from .models import Friend, Profile, SendEmailRequest, NewAccountActivationLink
@@ -34,6 +36,7 @@ def index(request: HttpRequest):
         return redirect('posts:home')
     return render(request, 'pages/Login.html')
 
+@DeprecationWarning
 def login_view(request: HttpRequest):
     """
     this function takes the username and the password the user entered and
@@ -58,6 +61,76 @@ def login_view(request: HttpRequest):
             messages.error(request, "Wrong username or password")
     return redirect('users:index')
 
+def login_with_limit_view(request: HttpRequest):
+    """
+    Login view function
+    with the respect of the login attempts in request.sessions dict
+    """
+    if request.user.is_authenticated:
+        return redirect("index")
+    if request.method == "POST":
+        if not can_login_again(request):
+            messages.error(request, "Please wait some time before logging again")
+            return redirect("users:index")
+        username = request.POST.get("username")
+        password = request.POST.get("pass")
+        if (user := authenticate(username=username, password=password)) is not None:
+            if Profile.objects.get(user=user).verified == False:
+                if not SendEmailRequest.objects.get_or_create(user=user)[0].is_still_soon():
+                    send_activate_email(request, user, True)
+                    messages.warning(request,"Your account is not verified, check your email for the activation link")
+                else:
+                    messages.warning(request,
+                    """
+                    Your account is not activated, and cannot send an activation link to you right now, try again later
+                    """.strip()
+                    )
+            else:
+                clear_login_details_from_session(request)
+                login(request, user)
+        else:
+            messages.error(request, "Wrong username or password, please try again")
+    return redirect('users:index')
+
+def can_login_again(request: HttpRequest) -> bool:
+    """
+    if the user tried to login with wrong credentials more
+    than 3 times this function returns false
+    and this user has to wait five mimutes to login again
+
+    returns true if the user entered credentials less than 3 or
+    if the user waited for the five minutes after the third attempt
+
+    """
+    if (x := request.session.get("login_attempts")) == None:
+        return_value = bool()
+        request.session['login_attempts'] = 0
+        return_value = True
+    else:
+        request.session['login_attempts'] += 1
+        if x < 3:
+            return_value = True
+        else:
+            last_loggin_attempt_from_session = timezone.datetime.strptime(request.session.get("last_login_attempt"), "%c")
+            last_logging_attempt_from_session_aware = timezone.make_aware(last_loggin_attempt_from_session)
+            if (timezone.localtime(timezone.now()) - last_logging_attempt_from_session_aware).total_seconds() > 5 * 60:
+                return_value = True
+            else:
+                return_value = False
+    request.session['last_login_attempt'] = timezone.localtime(timezone.now()).strftime("%c")
+    return return_value
+
+def clear_login_details_from_session(request: HttpRequest) -> None:
+    """
+    Clear the login_attempts and last_login_attempt variables in
+    request.session
+    """
+    try:
+        del request.session['login_attempts']
+        del request.session['last_login_attempt']
+    except KeyError:
+        pass
+
 def logout_view(request: HttpRequest):
     logout(request)
     messages.success(request, "You have been logged out")
@@ -69,7 +142,7 @@ def forgot_password_view(request: HttpRequest):
         try:
             validate_email(email)
         except ValidationError as error:
-            return JsonResponse({"message": "not valid email"})
+            return JsonResponse({"message": error.messages})
         if (requester := User().objects.filter(email=email).first()) == None:
             return JsonResponse({"message": "no user"})
         forget_password_request = SendEmailRequest.objects.get_or_create(user=requester)[0]
@@ -91,6 +164,10 @@ def forgot_password_view(request: HttpRequest):
 
 @ensure_csrf_cookie
 def register_view(request: HttpRequest):
+    """
+    Register view that creates the profile and
+    account activation link objects without signals
+    """
     if request.user.is_authenticated:
         return redirect('users:index')
     if request.method == "POST":
@@ -114,6 +191,41 @@ def register_view(request: HttpRequest):
                 user=user,
                 link=f"{send_email[1]}/{send_email[2]}"
             ).save()
+            return JsonResponse({'message':'good'})
+        else:
+            return JsonResponse(json.loads(form.errors.as_json()))
+    else:
+        form = RegisterForm()
+    return render(request, 'pages/Register.html', {'form':form})
+
+@ImportWarning
+@ensure_csrf_cookie
+def register_view2(request: HttpRequest):
+    """
+    UNDER DEVELOPMENT
+    Register view that creates profile and
+    activation link using signals
+    """
+    if request.user.is_authenticated:
+        return redirect('users:index')
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            send_email = send_activate_email(request, user, True)
+            if not send_email[0]:
+                user.delete()
+                return JsonResponse({"message": "email not send"})
+            profile_signal = Signal()
+            profile_signal.send(
+                sender=user,
+                kwargs={
+                    'birthday': form.cleaned_data['birthday'],
+                    'gender': form.cleaned_data['gender'],
+                    'send_email_1': send_email[1],
+                    'send_email_2': send_email[2]
+                }
+            )
             return JsonResponse({'message':'good'})
         else:
             return JsonResponse(json.loads(form.errors.as_json()))
@@ -417,10 +529,13 @@ def delete_account_view(request: HttpRequest):
         return redirect('users:index')
 
 
-def send_activate_email(request: HttpRequest, user: User(), failSilently: bool = False):
+def send_activate_email(request: HttpRequest, user: User(), failSilently: bool = False) -> Tuple[int, str, str]:
     """
     This is not a view function, it sends an email with
-    an activation link
+    an activation link and returns tuple with
+    int: 1 if email send successfully
+    str: the uid of the user
+    str: the token of the user
     """
     current_site = get_current_site(request)
     mail_subject = 'Activate your Facepage account.'
@@ -440,6 +555,10 @@ def send_activate_email(request: HttpRequest, user: User(), failSilently: bool =
     return email.send(fail_silently=failSilently), uid, token
 
 def send_new_password(password, email, fail_silently: bool = False):
+    """
+    Not view function, It sends a new password to user email
+    if this user forgot his password
+    """
     mail_subject = 'Facepage: password reset'
     message = f"""
 Your new password is: {password}\nPlease do NOT share it with anyone and
@@ -452,7 +571,10 @@ AND DO NOT FORGET IT AGAIN!!! """
     )
     return email.send(fail_silently=fail_silently)
 
-def activate(request: HttpRequest, uidb64, token):
+def activate_view(request: HttpRequest, uidb64, token):
+    """
+    Activate account view function
+    """
     try:
         uid = force_text(urlsafe_base64_decode(uidb64))
         user = User().objects.get(pk=uid)
@@ -477,5 +599,6 @@ def activate(request: HttpRequest, uidb64, token):
         messages.success(request, 'Activation link is invalid!')
         return redirect('users:login')
 
+@DeprecationWarning
 def verify_email_view(request: HttpRequest):
     return render(request, 'pages/VerificationSent.html')
