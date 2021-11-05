@@ -20,6 +20,7 @@ The website is made using these technologies:
 Python libraries that has been used:
 * Pillow 8.1.2
 * six 1.16.0
+* Channels 3.0.4
 
 ## Create Virtual Environment
 * If you don't have virtualenv installed in python, install it using:
@@ -78,14 +79,20 @@ users can:
 
 ## Todo:
 - [ ] Better password reset mechanism
+- [x] Make users have finite amount of login attempts
+- [x] Make users cannot spam forget password requests
 - [x] Add styling to these buttons:
     * Send friend request
     * Cancel friend request
     * Unfriend
-- [ ] Redesign the chat app using web sockets
-- [ ] Implement some functionalities using ajax:
+- [x] Redesign the chat app using websocket (The project now uses ASGI/Channels)
+- [ ] Test the new redesigned chat
+- [ ] Implement some functionalities using AJAX:
   * [x] Like a post
   * [ ] Comment
-- [ ] Compress uploaded photos
-- [ ] Redesign the friendship system between the users
-- [ ] Redesign the notification system
+- [ ] Compress the uploaded photos
+- [ ] Make media management system (far future)
+- [ ] Redesign the friendship system between the users (if needed)
+- [ ] Use signals in:
+  * [ ] Sending notifications
+  * [ ] Creating the profile and activation link objects for the new registered users

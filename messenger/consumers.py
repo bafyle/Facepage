@@ -11,6 +11,10 @@ from django.core.exceptions import ValidationError
 class ChatWebsocket(AsyncWebsocketConsumer):
 
     async def connect(self):
+        """
+        Decides if the incoming connection is 
+        authorized or not to join this group
+        """
         self.user = self.scope['user']
         self.pk = self.scope['url_route']['kwargs']['pk']
 
@@ -24,15 +28,22 @@ class ChatWebsocket(AsyncWebsocketConsumer):
             await self.close()
 
     async def receive(self, text_data):
+        """
+        Receives data from websockets and take an action
+        """
         data_in_json = json.loads(text_data)
         message_from_socket = data_in_json.get('message_input').strip()
+        
+        # if there is an error, send the error to the user who sent
+        # the invalid data
         try:
-            message = await self.save_and_get_new_message(message=message_from_socket)
+            message = await self.save_and_get(message=message_from_socket)
         except ValidationError as error:
             await self.send(text_data=json.dumps({
                 'error': error.messages
             }))
         else:
+            # if there is no error, send the message to all people in the channel
             send_date = timezone.localtime(message.send_date).strftime("%Y/%m/%d %H:%M:%S")
             sender_link = await self.get_user_link(message.sender)
             receiver_link = await self.get_user_link(message.receiver)
@@ -48,6 +59,9 @@ class ChatWebsocket(AsyncWebsocketConsumer):
             )
     
     async def chat_message_correct(self, event):
+        """
+        send the message to the channel
+        """
         await self.send(text_data=json.dumps({
             'message': event.get('message'),
             'send_date': event.get('send_date'),
@@ -74,7 +88,7 @@ class ChatWebsocket(AsyncWebsocketConsumer):
                 Q(accepted=True)).exists()
     
     @database_sync_to_async
-    def save_and_get_new_message(self, message):
+    def save_and_get(self, message):
         relation = Friend.objects.get(pk=self.pk)
         return Message.objects.create(message_content=message, sender=self.user, receiver=relation.side1 if relation.side2 == self.user else relation.side2)
     

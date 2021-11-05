@@ -180,17 +180,16 @@ def register_view(request: HttpRequest):
                 if User().objects.filter(profile__link=id_generated).count() == 0:
                     new_link = id_generated
                     break
-            new_profile = Profile(user=user, link=new_link, birthday=form.cleaned_data['birthday'], gender=form.cleaned_data['gender'])
+            Profile.objects.create(user=user, link=new_link, birthday=form.cleaned_data['birthday'], gender=form.cleaned_data['gender'])
             form.save()
-            new_profile.save()
             send_email = send_activate_email(request, user, True)
             if not send_email[0]:
                 user.delete()
                 return JsonResponse({"message": "email not send"})
-            NewAccountActivationLink(
+            NewAccountActivationLink.objects.create(
                 user=user,
                 link=f"{send_email[1]}/{send_email[2]}"
-            ).save()
+            )
             return JsonResponse({'message':'good'})
         else:
             return JsonResponse(json.loads(form.errors.as_json()))
