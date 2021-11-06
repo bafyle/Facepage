@@ -22,6 +22,7 @@ from .forms import DeleteAccountForm, ChangePictureBioForm, RegisterForm
 from .models import Friend, Profile, SendEmailRequest, NewAccountActivationLink
 from .id_generator import *
 from .tokens import account_activation_token
+from .signals import create_activation_link_signal, create_profile_signal
 from notifications.models import Notification
 import json
 
@@ -173,6 +174,7 @@ def register_view(request: HttpRequest):
     if request.method == "POST":
         form = RegisterForm(request.POST)
         if form.is_valid():
+            user = form.save()
             user = form.instance
             new_link = ''
             while True:
@@ -197,7 +199,6 @@ def register_view(request: HttpRequest):
         form = RegisterForm()
     return render(request, 'pages/Register.html', {'form':form})
 
-@ImportWarning
 @ensure_csrf_cookie
 def register_view2(request: HttpRequest):
     """
@@ -211,19 +212,22 @@ def register_view2(request: HttpRequest):
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
+            new_link = create_user_link(user)
+            create_profile_signal.send(
+                sender=User(),
+                user=user,
+                link=new_link,
+                birthday= form.cleaned_data['birthday'],
+                gender= form.cleaned_data['gender'],
+            )
             send_email = send_activate_email(request, user, True)
             if not send_email[0]:
                 user.delete()
                 return JsonResponse({"message": "email not send"})
-            profile_signal = Signal()
-            profile_signal.send(
-                sender=user,
-                kwargs={
-                    'birthday': form.cleaned_data['birthday'],
-                    'gender': form.cleaned_data['gender'],
-                    'send_email_1': send_email[1],
-                    'send_email_2': send_email[2]
-                }
+            create_activation_link_signal.send(
+                sender=User(),
+                user=user,
+                activation_link= f"{send_email[1]}/{send_email[2]}"
             )
             return JsonResponse({'message':'good'})
         else:
@@ -499,7 +503,7 @@ def delete_account_view(request: HttpRequest):
                 for key in request.POST:
                     print(key + " " + request.POST[key])
                 if form.is_valid():
-                    if form.cleaned_data['username'] == request.user.username and form.cleaned_data['confirmation'] == "i want to delete my account":
+                    if form.cleaned_data['username'] == request.user.username and form.cleaned_data['confirmation'] == "I want to delete my account":
                         user = request.user
                         logout(request)
                         user.delete()
@@ -601,3 +605,10 @@ def activate_view(request: HttpRequest, uidb64, token):
 @DeprecationWarning
 def verify_email_view(request: HttpRequest):
     return render(request, 'pages/VerificationSent.html')
+
+
+def create_user_link(user: User()) -> str:
+    while True:
+        id_generated = id_generator(user, settings.ID_LENGTH)
+        if not User().objects.filter(profile__link=id_generated).exists():
+            return id_generated

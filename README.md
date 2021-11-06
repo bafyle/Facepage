@@ -95,4 +95,4 @@ users can:
 - [ ] Redesign the friendship system between the users (if needed)
 - [ ] Use signals in:
   * [ ] Sending notifications
-  * [ ] Creating the profile and activation link objects for the new registered users
+  * [x] Creating the profile and activation link objects for the new registered users

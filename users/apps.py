@@ -6,4 +6,8 @@ class UsersConfig(AppConfig):
     name = 'users'
 
     def ready(self) -> None:
-        from .signals import delete_profile_pictures_receiver
+        from .signals import (
+            delete_profile_pictures_receiver,
+            account_register_receiver
+        )
+
