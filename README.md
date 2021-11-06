@@ -22,6 +22,8 @@ Python libraries that has been used:
 * six 1.16.0
 * Channels 3.0.4
 
+All dependencies needed are in requirement.txt file. Installing dependencies are in [create virtual environment](#create-virtual-environment) section
+
 ## Create Virtual Environment
 * If you don't have virtualenv installed in python, install it using:
 ~~~
@@ -41,6 +43,10 @@ $ ./activate
 * Now you can install any python library you want without affecting your main python interpreter
 
 * From here you can install django and the dependencies into your new environment
+~~~
+$ pip install django
+$ pip install -r requirements.txt
+~~~
 
 ## Running the server
 After installing Pillow and six using pip, you can clone the repo and run the server by going the repo folder (which is Facepage) and running this command:
