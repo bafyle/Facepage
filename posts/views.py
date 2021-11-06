@@ -1,4 +1,4 @@
-from django.http.response import Http404, HttpResponseNotAllowed, JsonResponse
+from django.http.response import HttpResponseNotAllowed, JsonResponse
 from django.http import HttpResponseRedirect, HttpRequest
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth import get_user_model as User

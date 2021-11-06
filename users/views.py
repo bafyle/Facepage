@@ -20,8 +20,8 @@ from django.dispatch import Signal
 
 from .forms import DeleteAccountForm, ChangePictureBioForm, RegisterForm
 from .models import Friend, Profile, SendEmailRequest, NewAccountActivationLink
-from .id_generator import *
-from .tokens import account_activation_token
+from .utils.id_generator import generate_random_characters, generator_letters, id_generator
+from .utils.tokens import account_activation_token
 from .signals import create_activation_link_signal, create_profile_signal
 from notifications.models import Notification
 import json
@@ -366,7 +366,7 @@ def unfriend_view(request: HttpRequest, link: str):
         messages.error(request, "you need to login first")
         return redirect('users:index')
         
-def accout_settings_view(request: HttpRequest):
+def account_settings_view(request: HttpRequest):
     """
     Takes the new user email and password and check if they are valid and save them
     after saving it redirects to the login page to login again with the new data
