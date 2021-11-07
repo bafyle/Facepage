@@ -400,6 +400,14 @@
 					}
 					else
 					{
+						let arr = response.message_input
+						for(let error in arr)
+						{
+							for(let key in arr[error])
+							{
+								alert(`${key}: ${arr[error][key]}`)
+							}
+						}
 						$messageInput.attr("placeholder", "cannot send empty message")
 					}
 					$chat.scrollTop($chat.scrollTop() + $chat.height());
