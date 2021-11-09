@@ -16,7 +16,6 @@ from django.utils.translation import gettext as _
 from django.core.mail import EmailMessage
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from django.dispatch import Signal
 
 from .forms import DeleteAccountForm, ChangePictureBioForm, RegisterForm
 from .models import Friend, Profile, SendEmailRequest, NewAccountActivationLink
@@ -24,6 +23,7 @@ from .utils.id_generator import generate_random_characters, generator_letters, i
 from .utils.tokens import account_activation_token
 from .signals import create_activation_link_signal, create_profile_signal
 from notifications.models import Notification
+from notifications.signals import send_friend_request_signal
 import json
 
 from django.template.loader import render_to_string
@@ -247,15 +247,9 @@ def send_friend_request_view(request: HttpRequest, link: str):
         else:
             messages.error(request, "you are already friends")
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-        notification = Notification.objects.filter(
-            user_from=request.user,
-            user_to=user,
-            route_id=request.user.profile.link
-        ).first()
-        if notification:
-            notification.delete()
         notification_content = f"{request.user.profile.name()} sent you a friend request"
-        new_notification = Notification(
+        send_friend_request_signal.send(
+            sender=User(), 
             user_from=request.user,
             user_to=user,
             content=notification_content,
@@ -264,7 +258,6 @@ def send_friend_request_view(request: HttpRequest, link: str):
             content_object=new_relation,
             route_id=request.user.profile.link,
         )
-        new_notification.save()
         messages.success(request, "friend request sent")
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:

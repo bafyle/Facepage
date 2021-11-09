@@ -424,7 +424,7 @@ function likeButtonAction(buttonID)
                 i.classList.replace("fa-thumbs-up", "fa-thumbs-down");
                 button.innerHTML = '';
                 button.appendChild(i);
-                button.innerHTML += ' ' + response.likes
+                button.innerHTML += ' ' + response.likes;
             }
             else
             {
@@ -443,7 +443,7 @@ function likeButtonAction(buttonID)
                 i.classList.replace("fa-thumbs-down", "fa-thumbs-up");
                 button.innerHTML = '';
                 button.appendChild(i);
-                button.innerHTML += ' ' + response.likes
+                button.innerHTML += ' ' + response.likes;
             }
             else
             {
@@ -454,7 +454,7 @@ function likeButtonAction(buttonID)
 
     xhr.onerror = (e) =>
     {
-        errorInLiking(button)
+        errorInLiking(button);
     };
     xhr.send()
 }

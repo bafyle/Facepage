@@ -2,12 +2,15 @@ from django.db import models
 from django.contrib.auth import get_user_model as User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.db.models.constraints import UniqueConstraint
 # Create your models here.
 
 
 class Notification(models.Model):
-    class Meta:
-        unique_together = (('route_id', 'type', 'user_from'), )
+    # class Meta:
+    #     constraints = [
+    #         UniqueConstraint(fields=['route_id', 'type', 'user_from'], name='notification_uniqueness_constraint')
+    #     ]
 
     user_from = models.ForeignKey(to=User(), on_delete=models.CASCADE, related_name='notification_from')
     user_to = models.ForeignKey(to=User(), on_delete=models.SET_NULL, related_name='notification_to', null=True)

@@ -100,5 +100,5 @@ users can:
 - [ ] Make media management system (far future)
 - [ ] Redesign the friendship system between the users (if needed)
 - [ ] Use signals in:
-  * [ ] Sending notifications
+  * [x] Sending notifications (alpha version, needs some redesigns)
   * [x] Creating the profile and activation link objects for the new registered users

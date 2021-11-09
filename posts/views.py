@@ -11,6 +11,7 @@ from notifications.models import Notification
 from users.models import Friend
 from .forms import CreatePostForm
 from .models import Post, Comment, Like
+from notifications.signals import comment_signal, like_signal
 
 def home_view(request):
     """
@@ -284,33 +285,28 @@ def like_post_view(request, post_id):
 def like_post_ajax(request, post_id):
     if request.user.is_authenticated:
         post = Post.objects.get(id=post_id)
-        isPostLiked = bool(Like.objects.filter(post=post, liker=request.user))
-        if not isPostLiked:
-            new_like = Like(post=post, liker=request.user)
-            new_like.save()
-            post.likes = Like.objects.filter(post=post).count()
-            post.save()
-
+        if not Like.objects.filter(post=post, liker=request.user).exists():
+            like_object = Like.objects.create(post=post, liker=request.user)
             if request.user != post.creator:
-                if Notification.objects.filter(user_from=request.user, type='L', route_id=post_id).count() <= 0:
-                    notification_content = f"{request.user.profile.name()} liked your post: "
-                    if not post.shared_post:
-                        if len(post.post_content) > 20:
-                            notification_content += f"{post.post_content[0:20]}..."
-                        else:
-                            notification_content += f"{post.post_content}"
+                notification_content = f"{request.user.profile.name()} liked your post: "
+                if not post.shared_post:
+                    if len(post.post_content) > 20:
+                        notification_content += f"{post.post_content[0:20]}..."
                     else:
-                        notification_content = f"{request.user.profile.name()} liked your you shared"
-                    newNotification = Notification(
-                        user_from=request.user,
-                        user_to=post.creator,
-                        content=notification_content,
-                        type='L',
-                        picture=request.user.profile.profile_picture.url,
-                        content_object=post,
-                        route_id=post.id,
-                    )
-                    newNotification.save()
+                        notification_content += f"{post.post_content}"
+                else:
+                    notification_content = f"{request.user.profile.name()} liked your you shared"
+                like_signal.send(
+                    sender=Like,
+                    user_from=request.user,
+                    user_to=post.creator,
+                    content=notification_content,
+                    type='L',
+                    picture=request.user.profile.profile_picture.url,
+                    content_object=like_object,
+                    route_id=post.id,
+                )
+        # missing the elses of each if
         return JsonResponse({"message":"good", 'likes': post.likes})
     else:
         messages.error(request, "You must be logged in first")
@@ -324,12 +320,9 @@ def unlike_post_view(request, post_id):
     """
     if request.user.is_authenticated:
         post = Post.objects.get(id=post_id)
-        likeObject = Like.objects.filter(post=post, liker=request.user)
-        isPostLiked = bool(likeObject)
-        if isPostLiked:
-            likeObject.delete()
-            post.likes = Like.objects.filter(post=post).count()
-            post.save()
+        query = Like.objects.filter(post=post, liker=request.user)
+        if query.exists():
+            query.first().delete()
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         messages.error(request, "You must be logged in first")
@@ -343,12 +336,10 @@ def unlike_post_ajax(request, post_id):
     """
     if request.user.is_authenticated:
         post = Post.objects.get(id=post_id)
-        likeObject = Like.objects.filter(post=post, liker=request.user)
-        isPostLiked = bool(likeObject)
-        if isPostLiked:
-            likeObject.delete()
-            post.likes = Like.objects.filter(post=post).count()
-            post.save()
+        query = Like.objects.filter(post=post, liker=request.user)
+        if query.exists():
+            query.first().delete()
+        post.refresh_from_db()
         return JsonResponse({"message":"good", 'likes': post.likes})
     else:
         JsonResponse({"message":"not-authed"})
@@ -360,33 +351,29 @@ def add_comment_view(request, post_id):
     the comment counter for that post
     """
     if request.user.is_authenticated:
-        comment = request.GET['comment-content']
+        comment_text = request.GET.get('comment-content')
         commented_post = Post.objects.get(id=post_id)
 
-        new_comment = Comment(comment_content=comment, post=commented_post, creator=request.user)
-        new_comment.save()
-        commented_post.comments = Comment.objects.filter(post=commented_post).count()
-        commented_post.save()
+        comment_object = Comment.objects.create(comment_content=comment_text, post=commented_post, creator=request.user)
         if request.user != commented_post.creator:
-            if Notification.objects.filter(user_from=request.user, type='C', route_id=post_id).count() <= 0:
-                notification_content = f"{request.user.profile.name()} commented on your post: "
-                if not commented_post.shared_post:
-                    if len(comment) > 20:
-                        notification_content += f"{comment[0:20]}..."
-                    else:
-                        notification_content += f"{comment}"
+            notification_content = f"{request.user.profile.name()} commented on your post: "
+            if not commented_post.shared_post:
+                if len(comment_text) > 20:
+                    notification_content += f"{comment_text[0:20]}..."
                 else:
-                    notification_content = f"{request.user.profile.name()} commented on a post you shared"
-                newNotification = Notification(
-                    user_from=request.user,
-                    user_to=commented_post.creator,
-                    content=notification_content,
-                    type='C',
-                    picture=request.user.profile.profile_picture.url,
-                    content_object=commented_post,
-                    route_id=commented_post.id,
-                )
-                newNotification.save()
+                    notification_content += f"{comment_text}"
+            else:
+                notification_content = f"{request.user.profile.name()} commented on a post you shared"
+            comment_signal.send(
+                sender=Comment,
+                user_from=request.user,
+                user_to=commented_post.creator,
+                content=notification_content,
+                type='C',
+                picture=request.user.profile.profile_picture.url,
+                content_object=comment_object,
+                route_id=commented_post.id,
+            )
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         messages.error(request, "You must be logged in first")
@@ -399,33 +386,30 @@ def add_comment_ajax(request, post_id):
     the comment counter for that post
     """
     if request.user.is_authenticated:
-        comment = request.GET['comment-content']
+        comment_text = request.GET.get('comment-content')
         commented_post = Post.objects.get(id=post_id)
 
-        new_comment = Comment(comment_content=comment, post=commented_post, creator=request.user)
-        new_comment.save()
-        commented_post.comments = Comment.objects.filter(post=commented_post).count()
-        commented_post.save()
+        comment_object = Comment.objects.create(comment_content=comment_text, post=commented_post, creator=request.user)
         if request.user != commented_post.creator:
             if Notification.objects.filter(user_from=request.user, type='C', route_id=post_id).count() <= 0:
                 notification_content = f"{request.user.profile.name()} commented on your post: "
                 if not commented_post.shared_post:
-                    if len(comment) > 20:
-                        notification_content += f"{comment[0:20]}..."
+                    if len(comment_text) > 20:
+                        notification_content += f"{comment_text[0:20]}..."
                     else:
-                        notification_content += f"{comment}"
+                        notification_content += f"{comment_text}"
                 else:
                     notification_content = f"{request.user.profile.name()} commented on a post you shared"
-                newNotification = Notification(
+                comment_signal.send(
+                    sender=Comment,
                     user_from=request.user,
                     user_to=commented_post.creator,
                     content=notification_content,
                     type='C',
                     picture=request.user.profile.profile_picture.url,
-                    content_object=commented_post,
+                    content_object=comment_object,
                     route_id=commented_post.id,
                 )
-                newNotification.save()
         return JsonResponse({"message":"good"})
     else:
         JsonResponse({"message":"not-authed"})
