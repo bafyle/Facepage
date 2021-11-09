@@ -9,5 +9,6 @@ posts/__pycache__
 posts/migrations/__pycache__
 users/__pycache__
 users/migrations/__pycache__
+users/utils/__pycache__
 usermodel/__pycache__
 usermodel/migrations/__pycache__
