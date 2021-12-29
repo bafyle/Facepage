@@ -177,5 +177,3 @@ SESSION_COOKIE_AGE = 60*60*24
 # to be logged out automatically for inactivity
 SESSION_SAVE_EVERY_REQUEST = True
 
-# The length of profile link
-ID_LENGTH = 7

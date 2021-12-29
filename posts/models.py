@@ -10,7 +10,7 @@ class Post(models.Model):
     create_date = models.DateTimeField(default=timezone.now)
     likes = models.IntegerField(default=0)
     comments = models.IntegerField(default=0)
-    image = models.ImageField(default='', blank=True)
+    image = models.ImageField(default='', blank=True, upload_to='posts_pics')
     shared_post = models.BooleanField(default=False)
     original_post = models.ForeignKey(to='self', on_delete=models.SET_NULL, null=True, blank=True)
 
@@ -50,6 +50,7 @@ class Comment(models.Model):
 class Like(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     liker = models.ForeignKey(User(), on_delete=models.CASCADE)
+
 
     def __str__(self):
         return f"Like ID: {self.id} On Post: {self.post.id} from: {self.liker.username}"

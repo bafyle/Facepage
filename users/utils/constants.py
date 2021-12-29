@@ -1,0 +1,10 @@
+#CONSTANTS
+
+FIVE_MINUTES = 5 * 60
+THREE_MINUTES = 3 * 60
+TEN_MINUTES = 10 * 60
+HOUR = 60*60
+DAY = 60*60*24
+
+# The length of profile link
+ID_LENGTH = 7

@@ -55,62 +55,8 @@ def chat_view(request, link:str = None):
         return render(request, 'pages/Chat.html', context)
 
 
-@DeprecationWarning
-def chat(request, link:str = None):
-    if request.user.is_authenticated:
-        username = User().objects.filter(profile__link=link).first()
-        my_username = request.user.username
-        get_friends_query = Friend.objects.filter(
-            (Q(side1__username=my_username) | Q(side2__username=my_username))
-            & Q(accepted=True)
-        )
-        friends = list()
-        found = False
-        for friend in get_friends_query:
-            if not found and (friend.side1 == username or friend.side2 == username):
-                found = True 
-            if friend.side1.username == my_username:
-                friends.append(friend.side2)
-            else:
-                friends.append(friend.side1)
-
-        if username is not None and not found:
-            messages.error(request, "You can chat only with your friends")
-            return redirect('posts:home')
-        
-        chat_information = dict()
-        new_received_messages = Message.objects.filter(Q(receiver__username=my_username) & Q(seen=False))
-        unseen_messages = int(new_received_messages.count())
-        if username != None:
-            chat = Message.objects.filter(
-                (Q(sender__username=my_username) & Q(receiver__username=username)) | 
-                (Q(sender__username=username) & Q(receiver__username=my_username))
-            ).order_by('send_date')
-        else:
-            chat = []
-        for message in new_received_messages:
-            message.seen = True
-            message.save()
-        
-        chat_information['chat'] = chat
-        chat_information['my_name'] = request.user.profile.name()
-        if username:
-            chat_information['his_username'] = username.profile.name()
-            chat_information['his_link'] = username.profile.link
-            chat_information['his_profile_picture_url'] = username.profile.profile_picture.url
-        chat_information['friends'] = friends
-        chat_information['unseen_messages'] = unseen_messages
-        chat_information['form'] = SendMessageForm()
-        chat_information['profile_pic'] = request.user.profile.profile_picture.url
-        chat_information['navbar_name'] = request.user.first_name
-        chat_information['navbar_link'] = request.user.profile.link
-        chat_information['username'] = request.user.username
-        return render(request, 'pages/Chat.html', context=chat_information)
-    else:
-        messages.error(request, "You must login first")
-        return redirect('users:index')
-
-
+# These functions are used when i was sending and receiving messages through http requests
+# don't use them please, use web sockets
 def user_send_message_ajax(request, link: str):
     username = User().objects.filter(profile__link=link).first()
     if request.method == 'POST':
@@ -125,8 +71,6 @@ def user_send_message_ajax(request, link: str):
             response["content"] = message
             response["time"] = timezone.localtime(new_message.send_date).strftime("%Y/%m/%d %H:%M:%S")
     return JsonResponse(response)
-
-
 def user_receiver_message_ajax(request, link: str):
     my_username = request.user
     username = username = User().objects.filter(profile__link=link).first()

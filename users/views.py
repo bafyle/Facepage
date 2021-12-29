@@ -5,29 +5,33 @@ from django.http import HttpResponseRedirect, HttpRequest
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.sites.shortcuts import get_current_site
+
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import get_user_model as User
 from django.conf import settings
 from django.utils import timezone
-from django.utils.encoding import force_bytes, force_text
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_text
+from django.utils.http import urlsafe_base64_decode
 from django.utils.translation import gettext as _
-from django.core.mail import EmailMessage
+
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 
 from .forms import DeleteAccountForm, ChangePictureBioForm, RegisterForm
 from .models import Friend, Profile, SendEmailRequest, NewAccountActivationLink
-from .utils.id_generator import generate_random_characters, generator_letters, id_generator
-from .utils.tokens import account_activation_token
+
 from .signals import create_activation_link_signal, create_profile_signal
 from notifications.models import Notification
 from notifications.signals import send_friend_request_signal
 import json
 
-from django.template.loader import render_to_string
+from .utils.utils import create_user_link, send_activate_email, send_new_password
+from .utils.id_generator import generate_random_characters, generator_letters, id_generator
+from .utils.tokens import account_activation_token
+
 from django.views.decorators.csrf import ensure_csrf_cookie
+from .utils.constants import FIVE_MINUTES
+
 
 def index(request: HttpRequest):
     """
@@ -64,8 +68,7 @@ def login_view(request: HttpRequest):
 
 def login_with_limit_view(request: HttpRequest):
     """
-    Login view function
-    with the respect of the login attempts in request.sessions dict
+    Login view function, it prevents logging more than 3 times 
     """
     if request.user.is_authenticated:
         return redirect("index")
@@ -87,7 +90,7 @@ def login_with_limit_view(request: HttpRequest):
                     """.strip()
                     )
             else:
-                clear_login_details_from_session(request)
+                clear_login_attempts_data_from_session(request)
                 login(request, user)
         else:
             messages.error(request, "Wrong username or password, please try again")
@@ -103,25 +106,22 @@ def can_login_again(request: HttpRequest) -> bool:
     if the user waited for the five minutes after the third attempt
 
     """
-    if (x := request.session.get("login_attempts")) == None:
-        return_value = bool()
-        request.session['login_attempts'] = 0
-        return_value = True
-    else:
-        request.session['login_attempts'] += 1
-        if x < 3:
-            return_value = True
-        else:
-            last_loggin_attempt_from_session = timezone.datetime.strptime(request.session.get("last_login_attempt"), "%c")
-            last_logging_attempt_from_session_aware = timezone.make_aware(last_loggin_attempt_from_session)
-            if (timezone.localtime(timezone.now()) - last_logging_attempt_from_session_aware).total_seconds() > 5 * 60:
-                return_value = True
-            else:
-                return_value = False
     request.session['last_login_attempt'] = timezone.localtime(timezone.now()).strftime("%c")
-    return return_value
+    if (x := request.session.get("login_attempts")) == None:
+        request.session['login_attempts'] = 1
+        return True
+    request.session['login_attempts'] += 1
+    if x < 3:
+        return True
+    last_loggin_attempt_from_session = timezone.datetime.strptime(request.session.get("last_login_attempt"), "%c")
+    last_logging_attempt_from_session_aware = timezone.make_aware(last_loggin_attempt_from_session)
+    if (timezone.localtime(timezone.now()) - last_logging_attempt_from_session_aware).total_seconds() > FIVE_MINUTES:
+        return True
+    else:
+        return False
 
-def clear_login_details_from_session(request: HttpRequest) -> None:
+
+def clear_login_attempts_data_from_session(request: HttpRequest) -> None:
     """
     Clear the login_attempts and last_login_attempt variables in
     request.session
@@ -130,12 +130,14 @@ def clear_login_details_from_session(request: HttpRequest) -> None:
         del request.session['login_attempts']
         del request.session['last_login_attempt']
     except KeyError:
-        pass
+        return
+
 
 def logout_view(request: HttpRequest):
     logout(request)
     messages.success(request, "You have been logged out")
     return redirect('users:index')
+
 
 def forgot_password_view(request: HttpRequest):
     if request.method == "POST":
@@ -166,42 +168,6 @@ def forgot_password_view(request: HttpRequest):
 @ensure_csrf_cookie
 def register_view(request: HttpRequest):
     """
-    Register view that creates the profile and
-    account activation link objects without signals
-    """
-    if request.user.is_authenticated:
-        return redirect('users:index')
-    if request.method == "POST":
-        form = RegisterForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            user = form.instance
-            new_link = ''
-            while True:
-                id_generated = id_generator(user, settings.ID_LENGTH)
-                if User().objects.filter(profile__link=id_generated).count() == 0:
-                    new_link = id_generated
-                    break
-            Profile.objects.create(user=user, link=new_link, birthday=form.cleaned_data['birthday'], gender=form.cleaned_data['gender'])
-            form.save()
-            send_email = send_activate_email(request, user, True)
-            if not send_email[0]:
-                user.delete()
-                return JsonResponse({"message": "email not send"})
-            NewAccountActivationLink.objects.create(
-                user=user,
-                link=f"{send_email[1]}/{send_email[2]}"
-            )
-            return JsonResponse({'message':'good'})
-        else:
-            return JsonResponse(json.loads(form.errors.as_json()))
-    else:
-        form = RegisterForm()
-    return render(request, 'pages/Register.html', {'form':form})
-
-@ensure_csrf_cookie
-def register_view2(request: HttpRequest):
-    """
     UNDER DEVELOPMENT
     Register view that creates profile and
     activation link using signals
@@ -220,14 +186,14 @@ def register_view2(request: HttpRequest):
                 birthday= form.cleaned_data['birthday'],
                 gender= form.cleaned_data['gender'],
             )
-            send_email = send_activate_email(request, user, True)
-            if not send_email[0]:
+            send_email_success, uid, token = send_activate_email(request, user, True)
+            if not send_email_success:
                 user.delete()
                 return JsonResponse({"message": "email not send"})
             create_activation_link_signal.send(
                 sender=User(),
                 user=user,
-                activation_link= f"{send_email[1]}/{send_email[2]}"
+                activation_link= f"{uid}/{token}"
             )
             return JsonResponse({'message':'good'})
         else:
@@ -235,6 +201,7 @@ def register_view2(request: HttpRequest):
     else:
         form = RegisterForm()
     return render(request, 'pages/Register.html', {'form':form})
+
 
 def send_friend_request_view(request: HttpRequest, link: str):
     if request.user.is_authenticated:
@@ -410,14 +377,15 @@ def personal_settings_view(request: HttpRequest):
                     if old_image.split('/')[-1] != 'default.jpg':
                         request.user.profile.profile_cover.delete(False)
                     request.user.profile.profile_cover = bio_form.cleaned_data['profile_cover']
-                request.user.profile.bio = bio_form.cleaned_data['bio']
-                request.user.first_name = bio_form.cleaned_data['first_name']
-                request.user.last_name = bio_form.cleaned_data['last_name']
-                request.user.profile.phone_number = bio_form.cleaned_data['phone_number']
-                request.user.profile.gender = bio_form.cleaned_data['gender']
-                request.user.profile.birthday = bio_form.cleaned_data['birthday']
-                request.user.profile.save()
-                request.user.save()
+                request.user.profile.copy_new_data(bio_form.cleaned_data)
+                # request.user.first_name = bio_form.cleaned_data['first_name']
+                # request.user.last_name = bio_form.cleaned_data['last_name']
+                # request.user.profile.phone_number = bio_form.cleaned_data['phone_number']
+                # request.user.profile.gender = bio_form.cleaned_data['gender']
+                # request.user.profile.birthday = bio_form.cleaned_data['birthday']
+                # request.user.profile.bio = bio_form.cleaned_data['bio']
+                # request.user.profile.save()
+                # request.user.save()
                 messages.success(request, "changes saved")
             else:
                 messages.error(request, "invalid data has been entered")
@@ -525,47 +493,7 @@ def delete_account_view(request: HttpRequest):
         return redirect('users:index')
 
 
-def send_activate_email(request: HttpRequest, user: User(), failSilently: bool = False) -> Tuple[int, str, str]:
-    """
-    This is not a view function, it sends an email with
-    an activation link and returns tuple with
-    int: 1 if email send successfully
-    str: the uid of the user
-    str: the token of the user
-    """
-    current_site = get_current_site(request)
-    mail_subject = 'Activate your Facepage account.'
-    uid = urlsafe_base64_encode(force_bytes(user.pk))
-    token = account_activation_token.make_token(user)
-    message = render_to_string('pages/AccountActivation.html', {
-        'user': user,
-        'domain': current_site.domain,
-        'uid':uid,
-        'token':token,
-    })
-    email = EmailMessage(
-            mail_subject,
-            message,
-            to=[user.email],
-    )
-    return email.send(fail_silently=failSilently), uid, token
 
-def send_new_password(password, email, fail_silently: bool = False):
-    """
-    Not view function, It sends a new password to user email
-    if this user forgot his password
-    """
-    mail_subject = 'Facepage: password reset'
-    message = f"""
-Your new password is: {password}\nPlease do NOT share it with anyone and
-don't forget to change your password once you log in to Facepage again\n
-AND DO NOT FORGET IT AGAIN!!! """
-    email = EmailMessage(
-            mail_subject,
-            message,
-            to=[email],
-    )
-    return email.send(fail_silently=fail_silently)
 
 def activate_view(request: HttpRequest, uidb64, token):
     """
@@ -594,14 +522,3 @@ def activate_view(request: HttpRequest, uidb64, token):
     else:
         messages.success(request, 'Activation link is invalid!')
         return redirect('users:login')
-
-@DeprecationWarning
-def verify_email_view(request: HttpRequest):
-    return render(request, 'pages/VerificationSent.html')
-
-
-def create_user_link(user: User()) -> str:
-    while True:
-        id_generated = id_generator(user, settings.ID_LENGTH)
-        if not User().objects.filter(profile__link=id_generated).exists():
-            return id_generated
