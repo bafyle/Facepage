@@ -48,17 +48,16 @@ class Profile(models.Model):
 class Friend(models.Model):
     class Meta:
         constraints = [
-            UniqueConstraint(fields=['side1', 'side2'], name='Unique_frienship')
+            UniqueConstraint(fields=['side1', 'side2'], name='Unique_friendship')
         ]
     
     side1 = models.ForeignKey(User(), on_delete=models.CASCADE, related_name="Side1")
     side2 = models.ForeignKey(User(), on_delete=models.CASCADE, related_name="Side2")
-    accepted = models.BooleanField(default=False)
     acceptance_date = models.DateField(blank=True, null=True)
 
 
     def clean(self) -> None:
-        if self.accepted == True and self.acceptance_date == None:
+        if self.acceptance_date == None:
             raise ValidationError(_("Friendship must have acceptance date if it has been accepted"))
         return super().clean()
     
@@ -88,6 +87,30 @@ class SendEmailRequest(models.Model):
             return True
         return False
 
+
+class FriendRequest(models.Model):
+    FRIEND_REQUEST_ACCEPTED = 1
+    FRIEND_REQUEST_DECLINED = 2
+    FRIEND_REQUEST_WAITING = 3
+    STATUS_CHOICES = (
+        (FRIEND_REQUEST_ACCEPTED, "accepted"),
+        (FRIEND_REQUEST_DECLINED, "declined"),
+        (FRIEND_REQUEST_WAITING, "waiting"),
+    )
+    user_from = models.ForeignKey(User(), on_delete=models.CASCADE, related_name="request_from")
+    user_to = models.ForeignKey(User(), on_delete=models.CASCADE, related_name="request_to")
+    created = models.DateTimeField(default=timezone.now, null=False, blank=False)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=3)
+
+    def accept_friend_request(self):
+        new_relation = Friend(side1=self.user_from, side2=self.user_to, acceptance_date=timezone.localtime(timezone.now()))
+        new_relation.save()
+        self.status = self.FRIEND_REQUEST_ACCEPTED
+        self.save()
+    
+    def decline_friend_request(self):
+        self.status = self.FRIEND_REQUEST_DECLINED
+        self.save()
 
 class NewAccountActivationLink(models.Model):
     user = models.ForeignKey(User(), on_delete=models.CASCADE)

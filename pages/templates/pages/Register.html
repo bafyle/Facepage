@@ -135,6 +135,10 @@
         <script>
             var errorsDiv = document.getElementById("errors")
             var form = document.getElementById("register-form");
+            form.addEventListener("submit", function()
+            {
+                let xhr = new XMLHttpRequest
+            });
             form.addEventListener("submit", (submitEvent)=>{
                 submitEvent.preventDefault();
                 var xhr = new XMLHttpRequest();
