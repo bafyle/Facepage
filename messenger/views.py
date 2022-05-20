@@ -15,8 +15,7 @@ def chat_view(request, link:str = None):
         context = dict()
         friends_query = Friend.objects.filter(
             (Q(side1=request.user) | Q(side2=request.user))
-            & Q(accepted=True)
-        )
+        ).select_related("side1", "side2")
         context['profile_pic'] = request.user.profile.profile_picture.url
         context['navbar_name'] = request.user.first_name
         context['navbar_link'] = request.user.profile.link
@@ -30,8 +29,8 @@ def chat_view(request, link:str = None):
         if link:
             user = User().objects.filter(profile__link=link).first()
             relation = Friend.objects.filter(
-                ((Q(side1=user) & Q(side2=request.user)) | (Q(side1=request.user) & Q(side2=user))) &  
-                Q(accepted=True)).first()
+                ((Q(side1=user) & Q(side2=request.user)) | (Q(side1=request.user) & Q(side2=user)))
+                ).select_related("side1", "side2").first()
             if not user:
                 messages.error(request, "there is no user with this link")
                 return redirect('posts:home')
@@ -39,7 +38,7 @@ def chat_view(request, link:str = None):
                 messages.error(request, "You can chat only with your friends")
                 return redirect('posts:home')
             else:
-                chat = Message.objects.filter(
+                chat = Message.objects.select_related("sender", "receiver").filter(
                     (Q(sender=request.user) & Q(receiver=user)) | 
                     (Q(sender=user) & Q(receiver=request.user))
                 ).order_by('send_date')

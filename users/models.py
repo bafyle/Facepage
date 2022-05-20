@@ -89,9 +89,9 @@ class SendEmailRequest(models.Model):
 
 
 class FriendRequest(models.Model):
-    FRIEND_REQUEST_ACCEPTED = 1
-    FRIEND_REQUEST_DECLINED = 2
-    FRIEND_REQUEST_WAITING = 3
+    FRIEND_REQUEST_ACCEPTED = 'a'
+    FRIEND_REQUEST_DECLINED = 'b'
+    FRIEND_REQUEST_WAITING = 'c'
     STATUS_CHOICES = (
         (FRIEND_REQUEST_ACCEPTED, "accepted"),
         (FRIEND_REQUEST_DECLINED, "declined"),
@@ -100,7 +100,7 @@ class FriendRequest(models.Model):
     user_from = models.ForeignKey(User(), on_delete=models.CASCADE, related_name="request_from")
     user_to = models.ForeignKey(User(), on_delete=models.CASCADE, related_name="request_to")
     created = models.DateTimeField(default=timezone.now, null=False, blank=False)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=3)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='c')
 
     def accept_friend_request(self):
         new_relation = Friend(side1=self.user_from, side2=self.user_to, acceptance_date=timezone.localtime(timezone.now()))

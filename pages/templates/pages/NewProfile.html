@@ -63,31 +63,33 @@
             <div class="desc">{{user_bio}}</div>
             <div class="friendship">
                 {% if friendship_status == 'not-friends' %}
-                <form action="{% url 'users:add-friend' user_profile_link %}" method="post">
-                    {%csrf_token%}
-                    <button type="submit" class="btn btn-primary">Add friend</button>
-                </form>
+                    <form action="{% url 'users:add-friend' user_profile_link %}" method="post">
+                        {%csrf_token%}
+                        <button type="submit" class="btn btn-primary">Add friend</button>
+                    </form>
                 {% elif friendship_status == 'accepted' %}
                     <a href="{% url 'messenger:chat' user_profile_link %}">Send a message</a>
                     <form action="{% url 'users:unfriend' user_profile_link %}" method="post">
                         {%csrf_token%}
-                        <button type="submit" class="btn btn-primary" style="background-color: #efefef; color: black; border: none;">unfriend</button>
+                        <button type="submit" class="btn btn-primary" style="background-color: #efefef; color: black; border: none;">Unfriend</button>
                     </form>
                 {% elif friendship_status == 'received' %}
                     <span>{{user_profile_name}} wants to be friend with you: </span>
                     <form action="{% url 'users:create-friend' user_profile_link %}" method="post">
                         {%csrf_token%}
-                        <button type="submit" class="btn btn-primary">Accept</button>
+                        <button type="submit" class="btn btn-primary">Accept Friend Request</button>
                     </form>
                     <form action="{% url 'users:decline-friend' user_profile_link %}" method="post">
                         {%csrf_token%}
-                        <button type="submit" class="btn btn-primary" style="background-color: #efefef; color: black; border: none;">Decline</button>
+                        <button type="submit" class="btn btn-primary" style="background-color: #efefef; color: black; border: none;">Decline Friend Request</button>
                     </form>
                 {% elif friendship_status == 'sent' %}
-                <form action="{% url 'users:cancel-friend' user_profile_link %}" method="post">
-                    {%csrf_token%}
-                    <button type="submit" class="btn btn-primary" style="background-color: #efefef; color: black; border: none;">Cancel</button>
-                </form>
+                    <form action="{% url 'users:cancel-friend' user_profile_link %}" method="post">
+                        {%csrf_token%}
+                        <button type="submit" class="btn btn-primary" style="background-color: #efefef; color: black; border: none;">Cancel Friend Request</button>
+                    </form>
+                {% else %}
+                    <div></div>
                 {% endif %}
             </div>
         </div>

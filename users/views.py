@@ -225,7 +225,9 @@ def accept_friend_request_view(request: HttpRequest, link: str):
     if not friend_request:
         messages.error(request, "no such friend request to accept")
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-    
+    if friend_request.status == FriendRequest.FRIEND_REQUEST_ACCEPTED:
+        messages.success(request, "you are already friends")
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     friend_request.accept_friend_request()
     notification = Notification.objects.filter(
         user_from=sender,
@@ -268,7 +270,7 @@ def cancel_friend_request_view(request: HttpRequest, link: str):
     """ delete a request that has been sent by the request.user"""
 
     user = get_object_or_404(User(), profile__link = link)
-    friend_request = FriendRequest.objects.filter(user_from=request.user, user_to=user)
+    friend_request = FriendRequest.objects.filter(user_from=request.user, user_to=user).first()
     if friend_request.status == FriendRequest.FRIEND_REQUEST_ACCEPTED:
         messages.error(request, "Friend request is accepted, cannot be cancelled right now")
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -289,8 +291,7 @@ def unfriend_view(request: HttpRequest, link: str):
     user = User().objects.filter(profile__link=link).first()
     if user:
         friendship = Friend.objects.filter(
-            ((Q(side1=user) & Q(side2=request.user)) | (Q(side1=request.user) & Q(side2=user))) &  
-            Q(accepted=True)).first()
+            ((Q(side1=user) & Q(side2=request.user)) | (Q(side1=request.user) & Q(side2=user)))).first()
         friend_request = FriendRequest.objects.filter((Q(user_from=request.user) & Q(user_to=user)) | (Q(user_from=user) & Q(user_to=request.user)))
         if friendship:
             friendship.delete()

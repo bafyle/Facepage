@@ -83,8 +83,7 @@ class ChatWebsocket(AsyncWebsocketConsumer):
     def is_user_authenticated(self) -> Union[Tuple, bool]:
         relation = Friend.objects.get(pk=self.pk)
         if (return_value := Friend.objects.filter(
-                ((Q(side1=relation.side1) & Q(side2=relation.side2)) | (Q(side1=relation.side2) & Q(side2=relation.side1))) &  
-                Q(accepted=True)).exists()):
+                ((Q(side1=relation.side1) & Q(side2=relation.side2)) | (Q(side1=relation.side2) & Q(side2=relation.side1))) ).exists()):
             return return_value, relation
         else:
             return return_value
