@@ -12,16 +12,9 @@ Facepage is a two-person project to make a minimal website that looks like Faceb
 
 ## Technologies and Dependencies
 The website is made using these technologies:
-* Python 3.9.1 64bit
-* Django 3.2.5 library
-* SQLite3 Database
-* HTML, CSS, bootstrap, Javascript, jQuery
-
-Python libraries that has been used:
-* Pillow 8.1.2
-* six 1.16.0
-* Channels 3.0.4
-
+* Python 3
+* Django 3.2 library
+* Django channels for handling sockets
 All dependencies needed are in requirement.txt file. Installing dependencies are in [create virtual environment](#create-virtual-environment) section
 
 ## Create Virtual Environment
@@ -42,9 +35,8 @@ $ ./activate
 ~~~
 * Now you can install any python library you want without affecting your main python interpreter
 
-* From here you can install django and the dependencies into your new environment
+* From here you can install the dependencies into your new environment
 ~~~
-$ pip install django
 $ pip install -r requirements.txt
 ~~~
 
