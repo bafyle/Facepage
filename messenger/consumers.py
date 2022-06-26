@@ -19,8 +19,9 @@ class ChatWebsocket(AsyncWebsocketConsumer):
             self.pk,
             self.channel_name
         )
-        if (authentication := await self.is_user_authenticated())[0]:
-            self.relation = authentication[1]
+
+        if (relation_existence := await self.are_they_friends())[0]:
+            self.relation = relation_existence[1]
             await self.accept()
         else:
             await self.close()
@@ -80,13 +81,13 @@ class ChatWebsocket(AsyncWebsocketConsumer):
         )
     
     @database_sync_to_async
-    def is_user_authenticated(self) -> Union[Tuple, bool]:
+    def are_they_friends(self):
         relation = Friend.objects.get(pk=self.pk)
-        if (return_value := Friend.objects.filter(
+        if (relation_existence := Friend.objects.filter(
                 ((Q(side1=relation.side1) & Q(side2=relation.side2)) | (Q(side1=relation.side2) & Q(side2=relation.side1))) ).exists()):
-            return return_value, relation
+            return relation_existence, relation
         else:
-            return return_value
+            return relation_existence
     
     @database_sync_to_async
     def save_and_get(self, message: str):
