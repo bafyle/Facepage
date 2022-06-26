@@ -10,7 +10,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import get_user_model as User
 from django.conf import settings
 from django.utils import timezone
-from django.utils.encoding import force_str
+from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode
 from django.utils.translation import gettext as _
 
@@ -468,7 +468,7 @@ def activate_view(request: HttpRequest, uidb64, token):
     Activate account view function
     """
     try:
-        uid = force_str(urlsafe_base64_decode(uidb64))
+        uid = force_text(urlsafe_base64_decode(uidb64))
         user = User().objects.get(pk=uid)
         if (x := NewAccountActivationLink.objects.filter(
                     user=user,
