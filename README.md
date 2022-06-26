@@ -95,7 +95,7 @@ users can:
   * Sending notifications (alpha version, needs some redesigns)
   * Creating the profile and activation link objects for the new registered users
 - [ ] Implement background processes using Celery like:
-  * [ ] Compress the uploaded photos
+  * [x] Compress the uploaded photos
 
   
 
