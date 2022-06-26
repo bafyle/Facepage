@@ -1,6 +1,15 @@
+from re import I
 from django.db.models.signals import post_delete, post_save
+from django.dispatch import Signal
+from django.conf import settings
+import os
 from django.dispatch.dispatcher import receiver
 from .models import Post, Comment, Like
+from PIL import Image
+
+from .utils import image_resize, save_compressed_image
+
+create_post_signal = Signal()
 
 @receiver(post_delete, sender=Post)
 def delete_post_photo(instance, **kwargs):
@@ -14,3 +23,13 @@ def update_post_counters(instance, **kwargs):
     instance.post.likes = Like.objects.filter(post=instance.post).count()
     instance.post.comments = Comment.objects.filter(post=instance.post).count()
     instance.post.save()
+
+
+@receiver(post_save, sender=Post)
+def compress_image(instance, **kwargs):
+    instance.image.open()
+    image_path = os.path.join(settings.MEDIA_ROOT, instance.image.__str__())
+    image = Image.open(instance.image)
+    image_resize(image)
+    save_compressed_image(image, image_path)
+

@@ -14,7 +14,7 @@ from users.models import Friend
 from .forms import CreatePostForm
 from .models import Post, Comment, Like
 from notifications.signals import comment_signal, like_signal
-
+from .signals import create_post_signal
 
 @login_required
 def home_view(request):
@@ -158,9 +158,10 @@ def create_post_view(request):
     from a post request and redirects to the same page
     """
     post_creation_form = CreatePostForm(request.POST, request.FILES)
-    if post_creation_form.is_valid():   
+    if post_creation_form.is_valid():
         new_post = Post(post_content=post_creation_form.cleaned_data['content'], creator=request.user, image=post_creation_form.cleaned_data['image'])
         new_post.save()
+        create_post_signal.send(sender=Post, instance=new_post)
     else:
         # debug
         print(post_creation_form.errors)
