@@ -1,4 +1,3 @@
-from django.http.request import host_validation_re
 from django.http.response import HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import redirect, render
 from django.contrib import messages
