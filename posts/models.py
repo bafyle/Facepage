@@ -33,7 +33,7 @@ class Post(models.Model):
         string = self.post_content[0:30]
         if len(string) == 30:
             string += "..."
-        return f"{string}, Post ID: {self.id} for: {self.creator}"
+        return f"{string}, Post ID: {self.id} from: {self.creator}"
 
 class Comment(models.Model):
     comment_content = models.CharField(max_length=1000)
