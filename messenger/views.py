@@ -8,50 +8,54 @@ from django.contrib.auth import get_user_model as User
 from .forms import SendMessageForm
 from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.contrib.auth.decorators import login_required
 
+
+@login_required
 @ensure_csrf_cookie
 def chat_view(request, link:str = None):
-    if request.user.is_authenticated:
-        context = dict()
-        friends_query = Friend.objects.filter(
-            (Q(side1=request.user) | Q(side2=request.user))
-        ).select_related("side1", "side2")
-        context['profile_pic'] = request.user.profile.profile_picture.url
-        context['navbar_name'] = request.user.first_name
-        context['navbar_link'] = request.user.profile.link
-        friends = list()
-        for friend in friends_query:
-            if friend.side1 != request.user:
-                friends.append(friend.side1)
-            else:
-                friends.append(friend.side2)
-        context['friends'] = friends
-        if link:
-            user = User().objects.filter(profile__link=link).first()
-            relation = Friend.objects.filter(
-                ((Q(side1=user) & Q(side2=request.user)) | (Q(side1=request.user) & Q(side2=user)))
-                ).select_related("side1", "side2").first()
-            if not user:
-                messages.error(request, "there is no user with this link")
-                return redirect('posts:home')
-            if user not in friends:
-                messages.error(request, "You can chat only with your friends")
-                return redirect('posts:home')
-            else:
-                chat = Message.objects.select_related("sender", "receiver").filter(
+    context = dict()
+    friends_query = Friend.objects.filter(
+        (Q(side1=request.user) | Q(side2=request.user))
+    ).select_related("side1", "side2")
+    context['profile_pic'] = request.user.profile.profile_picture.url
+    context['navbar_name'] = request.user.first_name
+    context['navbar_link'] = request.user.profile.link
+    friends_list = []
+    for friend in friends_query:
+        if friend.side1 != request.user:
+            friends_list.append(friend.side1)
+        else:
+            friends_list.append(friend.side2)
+    context['friends'] = friends_list
+    if link:
+        user = User().objects.filter(profile__link=link).first()
+        relation = Friend.objects.filter(
+            ((Q(side1=user) & Q(side2=request.user)) | (Q(side1=request.user) & Q(side2=user)))
+            ).select_related("side1", "side2").first()
+        if not user:
+            messages.error(request, "there is no user with this link")
+            return redirect('posts:home')
+        if user not in friends_list:
+            messages.error(request, "You can chat only with your friends")
+            return redirect('posts:home')
+        else:
+            chat = Message.objects.select_related("sender", "receiver").filter(
+                (Q(sender=request.user) & Q(receiver=user)) | 
                     (Q(sender=request.user) & Q(receiver=user)) | 
-                    (Q(sender=user) & Q(receiver=request.user))
-                ).order_by('send_date')
-                for message in chat:
-                    message.seen = True
-                    message.save()
-                context['form'] = SendMessageForm()
-                context['chat'] = chat
-                context['his_username'] = user.profile.name()
-                context['his_link'] = user.profile.link
-                context['his_profile_picture_url'] = user.profile.profile_picture.url
-                context['pk'] = relation.pk
-        return render(request, 'pages/Chat.html', context)
+                (Q(sender=request.user) & Q(receiver=user)) | 
+                (Q(sender=user) & Q(receiver=request.user))
+            ).order_by('send_date')
+            for message in chat:
+                message.seen = True
+                message.save()
+            context['form'] = SendMessageForm()
+            context['chat'] = chat
+            context['his_username'] = user.profile.name()
+            context['his_link'] = user.profile.link
+            context['his_profile_picture_url'] = user.profile.profile_picture.url
+            context['pk'] = relation.pk
+    return render(request, 'pages/Chat.html', context)
 
 
 # These functions are used when i was sending and receiving messages through http requests
