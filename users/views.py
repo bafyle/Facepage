@@ -461,7 +461,20 @@ def delete_account_view(request: HttpRequest):
         messages.error(request, "Can not delete a superuser account")
         return redirect('posts:home')
 
-
+@login_required
+def show_all_friends_view(request: HttpRequest):
+    active_user = request.user
+    friends_query = Friend.objects.filter(Q(side1=active_user) | Q(side2=active_user))
+    friends_list = []
+    for friend in friends_query:
+        if friend.side1 != request.user:
+            friends_list.append(friend.side1)
+        else:
+            friends_list.append(friend.side2)
+    context = {
+        'users': friends_list,
+    }
+    return render(request, "pages/FriendList.html", context)
 
 def activate_view(request: HttpRequest, uidb64, token):
     """

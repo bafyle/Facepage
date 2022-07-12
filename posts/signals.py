@@ -1,3 +1,4 @@
+from multiprocessing.sharedctypes import Value
 from re import I
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import Signal
@@ -27,7 +28,11 @@ def update_post_counters(instance, **kwargs):
 
 @receiver(post_save, sender=Post)
 def compress_image(instance, **kwargs):
-    instance.image.open()
+    print("i am executed")
+    try:
+        instance.image.open()
+    except ValueError as e:
+        return
     image_path = os.path.join(settings.MEDIA_ROOT, instance.image.__str__())
     image = Image.open(instance.image)
     image_resize(image)

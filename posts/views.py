@@ -161,7 +161,6 @@ def create_post_view(request):
     if post_creation_form.is_valid():
         new_post = Post(post_content=post_creation_form.cleaned_data['content'], creator=request.user, image=post_creation_form.cleaned_data['image'])
         new_post.save()
-        create_post_signal.send(sender=Post, instance=new_post)
     else:
         # debug
         print(post_creation_form.errors)
