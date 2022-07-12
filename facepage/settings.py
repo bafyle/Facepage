@@ -169,7 +169,7 @@ MEDIA_URL = '/media/'
 EMAIL_USE_SSL = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'androw240@gmail.com'
-EMAIL_HOST_PASSWORD = 'qfqxffaebisjzfto'
+EMAIL_HOST_PASSWORD = 'ninfdomlbkkkohik'
 EMAIL_PORT = 465
 
 
