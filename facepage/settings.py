@@ -50,6 +50,9 @@ INSTALLED_APPS = [
     'messenger',
     'notifications',
     'pages',
+
+    'django_heroku',
+
     
     
 ]
