@@ -183,3 +183,6 @@ SESSION_SAVE_EVERY_REQUEST = True
 LOGIN_URL = "/login/"
 
 from .deploy_settings import *
+
+import django_heroku
+django_heroku.settings(locals())
