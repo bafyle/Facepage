@@ -181,3 +181,5 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 
 LOGIN_URL = "/login/"
+
+from .deploy_settings import *
