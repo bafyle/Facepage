@@ -1,18 +1,29 @@
-from typing import Tuple, Union
-from channels.consumer import AsyncConsumer
-from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.utils import timezone
-from users.models import Friend
-from messenger.models import Message
+# from users.models import Friend
+# from messenger.models import Message
 from django.db.models import Q
 import json
-from .forms import SendMessageForm
+# from .forms import SendMessageForm
+import sys
+from importlib import import_module
+
 from django.contrib.auth import authenticate, get_user_model as User
 
 class ChatWebsocket(AsyncWebsocketConsumer):
+    # from .forms import SendMessageForm
+    # from users.models import Friend
+    # from messenger.models import Message
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.users_models_module = import_module('users.models')
+        self.forms_module = import_module('.forms')
+        self.messenger_module = import_module('messenger.models')
+        
     async def connect(self):
+        
         self.pk = self.scope['url_route']['kwargs']['pk']
         self.user = self.scope['user']
         await self.channel_layer.group_add(
@@ -36,7 +47,7 @@ class ChatWebsocket(AsyncWebsocketConsumer):
         # validate the message using the SendMessageForm
         # from the primitive chat implementation
         # (the one with the js worker that sends ajax request every 10 second, yes xD)
-        message_form = SendMessageForm(data_in_json)
+        message_form = self.forms_module.SendMessageForm(data_in_json)
         if not message_form.is_valid():
             # if message_form is invalid then send the errors dict to sender
             # of the message
@@ -82,8 +93,8 @@ class ChatWebsocket(AsyncWebsocketConsumer):
     
     @database_sync_to_async
     def are_they_friends(self):
-        relation = Friend.objects.get(pk=self.pk)
-        if (relation_existence := Friend.objects.filter(
+        relation = self.users_models_module.Friend.objects.get(pk=self.pk)
+        if (relation_existence := self.users_models_module.Friend.objects.filter(
                 ((Q(side1=relation.side1) & Q(side2=relation.side2)) | (Q(side1=relation.side2) & Q(side2=relation.side1))) ).exists()):
             return relation_existence, relation
         else:
@@ -92,7 +103,7 @@ class ChatWebsocket(AsyncWebsocketConsumer):
     @database_sync_to_async
     def save_and_get(self, message: str):
         relation = self.relation
-        return Message.objects.create(message_content=message, sender=self.user, receiver=relation.side1 if relation.side2 == self.user else relation.side2)
+        return self.messenger_module.Message.objects.create(message_content=message, sender=self.user, receiver=relation.side1 if relation.side2 == self.user else relation.side2)
 
     @database_sync_to_async
     def get_user_link(self, user: User()) -> str:
