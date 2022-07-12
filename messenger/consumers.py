@@ -6,22 +6,18 @@ from django.utils import timezone
 from django.db.models import Q
 import json
 # from .forms import SendMessageForm
-import sys
 from importlib import import_module
 
-from django.contrib.auth import authenticate, get_user_model as User
+# from django.contrib.auth import authenticate, get_user_model as User
 
 class ChatWebsocket(AsyncWebsocketConsumer):
-    # from .forms import SendMessageForm
-    # from users.models import Friend
-    # from messenger.models import Message
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.users_models_module = import_module('users.models')
         self.forms_module = import_module('.forms')
         self.messenger_module = import_module('messenger.models')
-        
+
     async def connect(self):
         
         self.pk = self.scope['url_route']['kwargs']['pk']
@@ -106,5 +102,5 @@ class ChatWebsocket(AsyncWebsocketConsumer):
         return self.messenger_module.Message.objects.create(message_content=message, sender=self.user, receiver=relation.side1 if relation.side2 == self.user else relation.side2)
 
     @database_sync_to_async
-    def get_user_link(self, user: User()) -> str:
+    def get_user_link(self, user) -> str:
         return user.profile.link
