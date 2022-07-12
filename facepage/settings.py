@@ -163,7 +163,7 @@ MEDIA_URL = '/media/'
 
 # sending emails to the console for now
 # delete if if you want to send real emails
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
 EMAIL_USE_SSL = True
