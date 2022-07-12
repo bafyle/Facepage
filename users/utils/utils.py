@@ -9,7 +9,7 @@ from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.contrib.sites.shortcuts import get_current_site
-
+from django.conf import settings
 from .tokens import account_activation_token
 from .constants import ID_LENGTH
 
@@ -37,6 +37,7 @@ def send_activate_email(request: HttpRequest, user: User(), failSilently: bool =
         'domain': current_site.domain,
         'uid':uid,
         'token':token,
+        'protocol': 'https' if settings.SECURE_SSL_REDIRECT else 'http' 
     })
     email = EmailMessage(
             mail_subject,
