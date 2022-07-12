@@ -13,7 +13,7 @@ def id_generator(user, k) -> str:
         id += user.first_name
     if id != '' and id is not None and user.last_name:
         id += user.last_name
-    with open('users/bad-words.txt', 'r') as file:
+    with open('users/utils/bad-words.txt', 'r') as file:
         bad_words = file.readlines()
     all_letters = generator_letters()
     while True:
