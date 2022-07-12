@@ -19,4 +19,5 @@ urlpatterns = [
     path(r'unfriend/<slug:link>/', views.unfriend_view, name='unfriend'),
     path(r'cancel-friend-request/<slug:link>/', views.cancel_friend_request_view, name='cancel-friend'),
     path(r'forgot-password/', views.forgot_password_view, name='forgot-password'),   
+    path(r'friends/', views.show_all_friends_view, name='friend-list'),
 ]

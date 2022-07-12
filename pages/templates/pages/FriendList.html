@@ -1,0 +1,122 @@
+{% extends 'pages/Base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+Search: {{search}}
+{% endblock title%}
+
+{% block style_link %}
+<link href="{% static 'pages/css/search.css'%}" rel="stylesheet">
+{% endblock style_link %}
+
+{% block style%}{% endblock style%}
+
+{% block sidebar %}
+<div class="column col-sm-2 col-xs-1 sidebar-offcanvas" id="sidebar">
+					  
+    <ul class="nav">
+        <li><a href="#" data-toggle="offcanvas" class="visible-xs text-center"><i class="glyphicon glyphicon-chevron-right"></i></a></li>
+    </ul>
+   
+    <ul class="nav hidden-xs" id="lg-menu">
+        <li class="active"><a href=""><i class="glyphicon glyphicon-refresh"></i> Refresh</a></li>
+        <li><a style="cursor: pointer;" onclick="allBtnClick();"><i class="fas fa-object-group"></i> All</a></li>
+        <li><a style="cursor: pointer;" onclick="postBtnClick();"><i class="fas fa-sticky-note"></i> Posts</a></li>
+        <li><a style="cursor: pointer;" onclick="peopleBtnClick();"><i class="fas fa-user-friends"></i> People</a></li>								
+    </ul>
+    <ul class="list-unstyled hidden-xs" id="sidebar-footer">
+        <li>
+         <p style="font-size: 11px;">Privacy· Terms· Advertising· <br>Ad Choices <i class="fas fa-angle-double-right"></i>· Cookies· More· Facepage © 2021</p>
+        </li>
+    </ul>
+  
+    <!-- tiny only nav-->
+    <ul class="nav visible-xs" id="xs-menu">
+        <li><a href="" class="text-center"><i class="glyphicon glyphicon-refresh"></i></a></li>
+        <li><a href="#" class="text-center"><i class="fas fa-object-group"></i></a></li>
+        <li><a href="#" class="text-center"><i class="fas fa-sticky-note"></i></a></li>
+        <li><a href="#" class="text-center"><i class="fas fa-user-friends"></i></a></li>
+        <li><a href="#" class="text-center"><i class="fas fa-images"></i></a></li>
+        <li><a href="#" class="text-center"><i class="fas fa-users"></i></a></li>
+        <li><a href="#" class="text-center"><i class="fas fa-video"></i></a></li>
+    </ul>
+  
+</div>
+{% endblock sidebar %}
+
+{% block main %}
+<div class="column col-sm-10 col-xs-11" id="main">
+						
+
+					  
+    <div class="padding">
+        <div class="full col-sm-9" >
+          
+            <!-- content -->                      
+            <div class="row">
+              
+             <!-- main col left --> 
+             <div class="col-sm-5">
+               
+                    <!-- Search Results --> 
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="people-nearby">
+                            {% if users|length > 0%}
+                            <h3 id="people-label">Your friend list: </h3>
+                            {% for user in users %}
+                            <div class="nearby-user">
+                                <div class="row">
+                                    <div class="col-md-2 col-sm-2">
+                                        <a href="{% url 'profile' user.profile.link %}"><img src="{{user.profile.profile_picture.url}}" alt="{{user.get_full_name}}" class="profile-photo-lg"></a>
+                                    </div>
+                                    <div class="col-md-7 col-sm-7">
+                                        <h5><a href="{% url 'profile' user.profile.link %}" class="profile-link">{{user.get_full_name}}</a></h5>
+                                        <!-- <p><i class="fas fa-user-friends"> </i> 80 mutual friends</p>
+                                        <p class="text-muted"><i class="fas fa-map-marker-alt"></i> Lives in Cairo, Egypt</p> -->
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+             <!-- End Search Results --> 
+
+             </div><!--/main col left-->
+            
+            <div id="no-results"
+                {% if users|length == 0 and posts|length == 0 %}
+                    style="display: block";
+                {% else %}
+                    style="display: none;"
+                {%endif%}
+            class="no-result">
+                <center><img src="{% static 'pages/img/no result.png'%}" style="margin: auto"></center>
+                <center><h3>You currently has no friends :(</h3></center>
+                <center><p>You can search for people in the search bar and have friends :)</p></center>
+            </div>
+
+           </div><!--/row-->
+           <hr>
+           <h4 class="text-center">
+            <p style="font-size: 11px;">Privacy· Terms· Advertising· Ad Choices <i class="fas fa-angle-double-right"></i>· Cookies· More· Facepage © 2021</p>
+           </h4>
+           <hr>
+    
+            
+          
+        </div><!-- /col-9 -->
+    </div><!-- /padding -->
+</div>
+{% endblock main%}
+
+{% block scripts %}
+{{block.super}}
+
+
+{% endblock %}
