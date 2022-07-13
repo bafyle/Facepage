@@ -15,7 +15,9 @@ from .forms import CreatePostForm
 from .models import Post, Comment, Like
 from notifications.signals import comment_signal, like_signal
 from .signals import create_post_signal
-from django.db.models.query import QuerySet
+from itertools import chain
+
+
 @login_required
 def home_view(request):
     """
@@ -23,19 +25,13 @@ def home_view(request):
     """
     friends = Friend.objects.filter(Q(side2=request.user) | Q(side1=request.user)).select_related("side1", "side2")
     
-    friends_posts = None
+    friends_posts = []
     for friend in friends:
         if friend.side1.username == request.user.username:
-            if friends_posts is None:
-                friends_posts = Post.objects.filter(creator=friend.side2).order_by('-create_date')[:2].select_related("creator")
-            else:
-                friends_posts.union(Post.objects.filter(creator=friend.side2).order_by('-create_date')[:2].select_related("creator"))
+            friends_posts = list(chain(friends_posts, Post.objects.filter(creator=friend.side2).order_by('-create_date')[:2].select_related("creator")))
         else:
-            if friends_posts is None:
-                friends_posts = Post.objects.filter(creator=friend.side1).order_by('-create_date')[:2].select_related("creator")
-            else:
-                friends_posts.union(Post.objects.filter(creator=friend.side1).order_by('-create_date')[:2].select_related("creator"))
-    friends_posts = list(friends_posts)
+            friends_posts = list(chain(friends_posts, Post.objects.filter(creator=friend.side1).order_by('-create_date')[:2].select_related("creator")))
+            
     friends_posts.sort(key=lambda x: x.create_date, reverse=True)
     last_post = Post.objects.filter(creator=request.user).select_related("creator").last()
     if last_post is not None:
