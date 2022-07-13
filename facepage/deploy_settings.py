@@ -8,7 +8,7 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+STATICFILES_STORAGE = 'facepage.storage.WhiteNoiseStaticFilesStorage'
 
 ALLOWED_HOSTS = [
     'facepage.herokuapp.com', '127.0.0.1'
