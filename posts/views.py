@@ -25,9 +25,9 @@ def home_view(request):
     friends_posts = []
     for friend in friends:
         if friend.side1.username == request.user.username:
-            friends_posts.append(Post.objects.filter(creator=friend.side2).order_by('-create_date')[:2].select_related("creator"))
+            friends_posts.append(Post.objects.filter(creator=friend.side2).order_by('create_date')[:2].select_related("creator"))
         else:
-            friends_posts.append(Post.objects.filter(creator=friend.side1).order_by('-create_date')[:2].select_related("creator"))
+            friends_posts.append(Post.objects.filter(creator=friend.side1).order_by('create_date')[:2].select_related("creator"))
     
     last_post = Post.objects.filter(creator=request.user).select_related("creator").last()
     my_last_post = [last_post] if last_post is not None else list() 
