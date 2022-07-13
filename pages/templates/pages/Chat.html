@@ -327,7 +327,7 @@
 			
 			const protocol = window.location.protocol;
 			const websocket = new WebSocket(
-					`${protocol == "https"? 'wss' : 'ws'}://`
+					`${protocol == "https:"? 'wss' : 'ws'}://`
 					+ window.location.host + '/chat/'
 					+ '{{pk}}'
 					+ '/'
