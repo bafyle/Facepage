@@ -15,7 +15,7 @@ class ChatWebsocket(AsyncWebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.users_models_module = import_module('users.models')
-        self.forms_module = import_module('.forms')
+        self.forms_module = import_module('messenger.forms')
         self.messenger_module = import_module('messenger.models')
 
     async def connect(self):
