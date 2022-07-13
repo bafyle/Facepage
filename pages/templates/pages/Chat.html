@@ -324,9 +324,10 @@
 			const $chat = $("#chat-text-container");
 			const $submitButton = $("#submit-button");
 			$chat.scrollTop($chat.scrollTop() + $chat.height());
-
+			
+			const protocol = window.location.protocol;
 			const websocket = new WebSocket(
-					'ws://'
+					`${protocol == "https"? 'wss' : 'ws'}://`
 					+ window.location.host + '/chat/'
 					+ '{{pk}}'
 					+ '/'
