@@ -392,6 +392,7 @@
 						if(response.sender === "{{navbar_link}}")
 						{
 							var $message = createSendMessage(response)
+							$messageInput.val("").focus();
 						}
 						else
 						{
@@ -412,7 +413,7 @@
 						$messageInput.attr("placeholder", "cannot send empty message")
 					}
 					$chat.scrollTop($chat.scrollTop() + $chat.height());
-					$messageInput.val("").focus();
+					
 				}
 			});
 		</script>
