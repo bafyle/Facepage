@@ -26,9 +26,7 @@ def update_post_counters(instance, **kwargs):
     instance.post.save()
 
 
-@receiver(post_save, sender=Post)
 def compress_image(instance, **kwargs):
-    print("i am executed")
     try:
         instance.image.open()
     except ValueError as e:
