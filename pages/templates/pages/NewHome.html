@@ -73,8 +73,7 @@ Facepage
                 </div>
 
                     <!--  -->
-                    {% for friend_post in friends_posts %}
-                    {% for post in friend_post %}
+                    {% for post in friends_posts %}
                     <div class="panel panel-default">
                         <div class="panel-heading" style="border-bottom: none;"	>
                             <img src="{{ post.creator.profile.profile_picture.url }}" class="img-circle pull-left" >
@@ -170,7 +169,6 @@ Facepage
                             {% endfor%}     
                         </div>
                     </div>
-                    {% endfor %}
                     {% endfor %}
                 </div>
             </div><!--/row-->

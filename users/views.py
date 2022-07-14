@@ -82,7 +82,9 @@ def can_login_again(request: HttpRequest) -> bool:
     if the user waited for the five minutes after the third attempt
 
     """
-    request.session['last_login_attempt'] = timezone.localtime(timezone.now()).strftime("%c")
+    
+    if request.session.get('last_login_attempt') is None:
+        request.session['last_login_attempt'] = timezone.localtime(timezone.now()).strftime("%c")
     if (x := request.session.get("login_attempts")) == None:
         request.session['login_attempts'] = 1
         return True
@@ -91,7 +93,9 @@ def can_login_again(request: HttpRequest) -> bool:
         return True
     last_loggin_attempt_from_session = timezone.datetime.strptime(request.session.get("last_login_attempt"), "%c")
     last_logging_attempt_from_session_aware = timezone.make_aware(last_loggin_attempt_from_session)
-    if (timezone.localtime(timezone.now()) - last_logging_attempt_from_session_aware).total_seconds() > FIVE_MINUTES:
+    time_after_last_login_attempt = (timezone.localtime(timezone.now()) - last_logging_attempt_from_session_aware).total_seconds()
+    if time_after_last_login_attempt > FIVE_MINUTES:
+        request.session['last_login_attempt'] = timezone.localtime(timezone.now()).strftime("%c")
         return True
     else:
         return False

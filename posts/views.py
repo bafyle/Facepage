@@ -15,23 +15,27 @@ from .forms import CreatePostForm
 from .models import Post, Comment, Like
 from notifications.signals import comment_signal, like_signal
 from .signals import create_post_signal
+from itertools import chain
+
 
 @login_required
 def home_view(request):
     """
     Home view, get your latest post and all your friends posts
     """
-    friends = Friend.objects.filter((Q(side2=request.user) | Q(side1=request.user))).select_related("side1", "side2")
+    friends = Friend.objects.filter(Q(side2=request.user) | Q(side1=request.user)).select_related("side1", "side2")
+    
     friends_posts = []
     for friend in friends:
         if friend.side1.username == request.user.username:
-            friends_posts.append(Post.objects.filter(creator=friend.side2).order_by('-create_date')[:2].select_related("creator"))
+            friends_posts = list(chain(friends_posts, Post.objects.filter(creator=friend.side2).order_by('-create_date')[:2].select_related("creator")))
         else:
-            friends_posts.append(Post.objects.filter(creator=friend.side1).order_by('-create_date')[:2].select_related("creator"))
-    
+            friends_posts = list(chain(friends_posts, Post.objects.filter(creator=friend.side1).order_by('-create_date')[:2].select_related("creator")))
+            
+    friends_posts.sort(key=lambda x: x.create_date, reverse=True)
     last_post = Post.objects.filter(creator=request.user).select_related("creator").last()
-    my_last_post = [last_post] if last_post is not None else list() 
-    friends_posts.insert(0, my_last_post)
+    if last_post is not None:
+        friends_posts.insert(0, last_post)
     likes = Like.objects.filter(liker=request.user).select_related("post")
     liked_posts = [like.post for like in likes]
     
