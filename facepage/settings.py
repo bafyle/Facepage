@@ -90,7 +90,7 @@ ASGI_APPLICATION = 'facepage.asgi.application'
 
 CHANNEL_LAYERS ={
     'default':{
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
+        "BACKEND": "channels.layers.InMemoryChannelLayer" # redis is not enabled yet on my heroku account 
     }
 }
 
@@ -169,7 +169,7 @@ MEDIA_URL = '/media/'
 EMAIL_USE_SSL = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'androw240@gmail.com'
-EMAIL_HOST_PASSWORD = 'ninfdomlbkkkohik'
+EMAIL_HOST_PASSWORD = config("EMAIL_PASSWORD")
 EMAIL_PORT = 465
 
 
