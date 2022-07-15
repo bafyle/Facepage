@@ -11,7 +11,7 @@ class PostsConfig(AppConfig):
             create_post_signal, compress_image
         )
         from .models import Post
-        create_post_signal.connect(
-            receiver=compress_image,
-            sender=Post
-        )
+        # create_post_signal.connect(
+        #     receiver=compress_image,
+        #     sender=Post
+        # )
