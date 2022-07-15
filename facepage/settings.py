@@ -56,8 +56,6 @@ INSTALLED_APPS = [
     # for s3 storage
     'storages',
 
-    
-    
 ]
 
 MIDDLEWARE = [
