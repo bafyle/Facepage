@@ -53,6 +53,9 @@ INSTALLED_APPS = [
 
     'django_heroku',
 
+    # for s3 storage
+    'storages',
+
     
     
 ]
@@ -138,11 +141,6 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
-
-STATIC_URL = '/static/'
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
@@ -154,10 +152,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Setting my custom user model
 AUTH_USER_MODEL = 'usermodel.User'
 
-# Media files (images, videos, sounds)
+# # Media files (images, videos, sounds)
 
-MEDIA_ROOT = Path.joinpath(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
+# MEDIA_ROOT = Path.joinpath(BASE_DIR, 'media')
+# MEDIA_URL = '/media/'
 
 # Email settings
 
@@ -181,11 +179,32 @@ SESSION_COOKIE_AGE = 60*60*24
 # to be logged out automatically for inactivity
 SESSION_SAVE_EVERY_REQUEST = True
 
-
-
 LOGIN_URL = "/login/"
+
+
+#AWS S3 Static and Media storage configurations
+
+DEFAULT_FILE_STORAGE = 'facepage.storage.MediaStorage'
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = 'facepagebucket'
+AWS_QUERYSTRING_AUTH = False
+
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+STATICFILES_DIRS = [
+    Path.joinpath(BASE_DIR, 'pages/static'),
+]
+STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
+AWS_LOCATION = 'static' # static files location
+# heroku configs
 
 from .deploy_settings import *
 
 import django_heroku
-django_heroku.settings(locals())
+django_heroku.settings(locals(), staticfiles=False)
