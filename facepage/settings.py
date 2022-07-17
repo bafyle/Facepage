@@ -183,7 +183,6 @@ LOGIN_URL = "/login/"
 #AWS S3 Static and Media storage configurations
 
 DEFAULT_FILE_STORAGE = 'facepage.storage.MediaStorage'
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")
@@ -197,12 +196,12 @@ AWS_S3_OBJECT_PARAMETERS = {
 STATICFILES_DIRS = [
     Path.joinpath(BASE_DIR, 'pages/static'),
 ]
-STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
+
 MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
-AWS_LOCATION = 'static' # static files location
+
 # heroku configs
 
 from .deploy_settings import *
 
 import django_heroku
-django_heroku.settings(locals(), staticfiles=False)
+django_heroku.settings(locals())
