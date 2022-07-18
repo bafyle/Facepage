@@ -90,12 +90,13 @@ users can:
   * [x] Like a post
   * [ ] Comment
 - [ ] Make media management system (far future)
+- [x] Deploy the project with aws
 - [x] Redesign the friendship system between the users (if needed)
 - [x] Use signals in:
   * Sending notifications (alpha version, needs some redesigns)
   * Creating the profile and activation link objects for the new registered users
 - [ ] Implement background processes using Celery like:
-  * [x] Compress the uploaded photos
+  * [ ] Compress the uploaded media before storing them in aws
 
   
 
