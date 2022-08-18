@@ -335,11 +335,12 @@ def account_settings_view(request: HttpRequest):
             return redirect('users:account-settings')
     else:
         context = {
-            'profile_pic': request.user.profile.profile_picture.url,
-            'navbar_name': request.user.first_name,
-            'navbar_link': request.user.profile.link,
+            # 'profile_pic': request.user.profile.profile_picture.url,
+            # 'navbar_name': request.user.first_name,
+            # 'navbar_link': request.user.profile.link,
             'email': request.user.email,
             'username': request.user.username,
+            'active_user': User().objects.select_related('profile').get(pk=request.user.pk)
         }
         return render(request, 'pages/newAccountSettings.html', context)
 
@@ -382,11 +383,10 @@ def personal_settings_view(request: HttpRequest):
     context = {
         'profile_pic': request.user.profile.profile_picture.url,
         'profile_cover': request.user.profile.profile_cover.url,
-        'navbar_name': request.user.first_name,
-        'navbar_link': request.user.profile.link,
         'email': request.user.email,
         'username': request.user.username,
         'bio_form': bio_form,
+        'active_user': User().objects.select_related('profile').get(pk=request.user.pk)
     }
     return render(request, 'pages/newPersonalSettings.html', context)
 
@@ -467,8 +467,8 @@ def delete_account_view(request: HttpRequest):
 
 @login_required
 def show_all_friends_view(request: HttpRequest):
-    active_user = request.user
-    friends_query = Friend.objects.filter(Q(side1=active_user) | Q(side2=active_user))
+    active_user = User().objects.select_related('profile').get(pk=request.user.pk)
+    friends_query = Friend.objects.filter(Q(side1=active_user) | Q(side2=active_user)).select_related("side1", "side2", "side1__profile", "side2__profile")
     friends_list = []
     for friend in friends_query:
         if friend.side1 != request.user:
@@ -477,6 +477,7 @@ def show_all_friends_view(request: HttpRequest):
             friends_list.append(friend.side2)
     context = {
         'users': friends_list,
+        'active_user': active_user
     }
     return render(request, "pages/FriendList.html", context)
 
