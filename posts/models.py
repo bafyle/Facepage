@@ -45,12 +45,15 @@ class Comment(models.Model):
         comment = self.comment_content[0:10]
         if len(comment) > 10:
             comment += "..."
-        return f"{comment}, Comment ID: {self.id} for: {self.creator}"
+        return f"{comment}, Comment ID: {self.id} from: {self.creator} to post: {self.post}"
 
 class Like(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     liker = models.ForeignKey(User(), on_delete=models.CASCADE)
 
-
+    @staticmethod
+    def is_post_liked_by_user(user: User(), post: Post):
+        return Like.objects.filter(liker=user, post=post).exists()
+    
     def __str__(self):
         return f"Like ID: {self.id} On Post: {self.post.id} from: {self.liker.username}"

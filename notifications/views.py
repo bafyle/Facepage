@@ -12,10 +12,8 @@ def notifications_view(request):
     if request.user.is_authenticated:
         notifications = Notification.objects.filter(user_to=request.user).order_by('-date')[0:10]
         context = {
-            'navbar_name': request.user.first_name,
-            'navbar_link': request.user.profile.link,
-            'profile_pic': request.user.profile.profile_picture.url,
             'notifications': notifications,
+            'active_user': User().objects.select_related('profile').get(pk=request.user.pk)
         }
         for notification in notifications:
             notification.seen = True

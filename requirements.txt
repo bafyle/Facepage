@@ -45,3 +45,4 @@ zope.event==4.5.0
 zope.interface==5.4.0
 boto3==1.24.30
 django-storages==1.12.3
+django-debug-toolbar==3.6.0

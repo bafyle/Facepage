@@ -15,33 +15,40 @@ from .forms import CreatePostForm
 from .models import Post, Comment, Like
 from notifications.signals import comment_signal, like_signal
 from .signals import create_post_signal
-from itertools import chain
-
+from itertools import groupby
 
 @login_required
 def home_view(request):
     """
     Home view, get your latest post and all your friends posts
     """
-    friends = Friend.objects.filter(Q(side2=request.user) | Q(side1=request.user)).select_related("side1", "side2")
+    # friends = Friend.objects.filter(Q(side2=request.user) | Q(side1=request.user)).select_related("side1", "side2")
     
-    friends_posts = []
-    for friend in friends:
-        if friend.side1.username == request.user.username:
-            friends_posts = list(chain(friends_posts, Post.objects.filter(creator=friend.side2).order_by('-create_date')[:2].select_related("creator")))
-        else:
-            friends_posts = list(chain(friends_posts, Post.objects.filter(creator=friend.side1).order_by('-create_date')[:2].select_related("creator")))
+    # friends_posts = []
+    # for friend in friends:
+    #     if friend.side1.username == request.user.username:
+    #         friends_posts = list(chain(friends_posts, Post.objects.filter(creator=friend.side2).order_by('-create_date')[:2].select_related("creator")))
+    #     else:
+    #         friends_posts = list(chain(friends_posts, Post.objects.filter(creator=friend.side1).order_by('-create_date')[:2].select_related("creator")))
             
-    friends_posts.sort(key=lambda x: x.create_date, reverse=True)
+    # friends_posts.sort(key=lambda x: x.create_date, reverse=True)
+    friends_query = Friend.objects.filter(Q(side2=request.user) | Q(side1=request.user)).select_related("side1", "side2")
+    friends = [friend.side2 if friend.side1 == request.user else friend.side1 for friend in friends_query]
+    friends_posts = Post.objects.filter(creator__in=friends).order_by('-create_date').select_related("creator", 'original_post', 'creator__profile')
+    liked_friends_posts_ids = Like.objects.filter(liker=request.user, post__in=friends_posts).select_related('post').values_list('post', flat=True)
+
+    friends_posts_and_likes_and_comments = []
+    comments = Comment.objects.filter(post__in=friends_posts).select_related('creator', 'post').order_by('creator')
+    comments_seperated_by_post_id = {key:list(value) for key, value in groupby(comments, lambda x: x.post.id)}
+    for post in friends_posts:
+        friends_posts_and_likes_and_comments.append((post, True if post.id in liked_friends_posts_ids else False, comments_seperated_by_post_id.get(post.id)))
+
     last_post = Post.objects.filter(creator=request.user).select_related("creator").last()
     if last_post is not None:
-        friends_posts.insert(0, last_post)
-    likes = Like.objects.filter(liker=request.user).select_related("post")
-    liked_posts = [like.post for like in likes]
-    
+        friends_posts_and_likes_and_comments.insert(0, (last_post, Like.is_post_liked_by_user(request.user, last_post), comments_seperated_by_post_id.get(post.id)))
     context = {
-        'friends_posts':friends_posts,
-        'liked_posts': liked_posts,
+        'friends_posts':friends_posts_and_likes_and_comments,
+        'active_user': User().objects.select_related('profile').get(pk=request.user.pk)
     }
     
     return render(request, 'pages/NewHome.html', context)
@@ -82,15 +89,17 @@ def profile_view(request, link):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    context['user_profile_link'] = link
-    context['page_obj'] = page_obj
-    context['liked_posts'] = liked_posts
-    context['user_profile_pic'] = user.profile.profile_picture
-    context['user_profile_cover'] = user.profile.profile_cover
-    context['user_profile_name'] = user.profile.name()
-    context['user_bio'] = user.profile.bio
-
-    context['pages_count'] = len(profile_posts) // 5
+    context = {
+        'user_profile_link': link,
+        'page_obj': page_obj,
+        'liked_posts': liked_posts,
+        'user_profile_pic':user.profile.profile_picture,
+        'user_profile_cover': user.profile.profile_cover,
+        'user_profile_name': user.profile.name(),
+        'user_bio': user.profile.bio,
+        'pages_count': len(profile_posts) // 5,
+        'active_user': User().objects.select_related('profile').get(pk=request.user.pk),
+    }
     return render(request, 'pages/NewProfile.html', context)
 
 
@@ -152,7 +161,7 @@ def search_view(request: HttpRequest):
                         )).exists()
                     
                 users.add((user, are_they_friends))
-    context = {'search': search, 'posts': posts, 'users': users}
+    context = {'search': search, 'posts': posts, 'users': users, 'active_user': User().objects.select_related('profile').get(pk=request.user.pk)}
     return render(request, 'pages/NewSearch.html', context)
 
 @login_required
@@ -189,7 +198,7 @@ def update_post_view(request: HttpRequest, post_id):
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
         else:
             return redirect('profile', link=request.user.profile.link)
-    return render(request, 'pages/NewUpdate.html', {'post': post})
+    return render(request, 'pages/NewUpdate.html', {'post': post, 'active_user': User().objects.select_related('profile').get(pk=request.user.pk)})
 
 # def update_post_view(request: HttpRequest, post_id):
 #     """
@@ -225,6 +234,7 @@ def view_post_view(request: HttpRequest, post_id):
         'post': post,
         'liked': Like.objects.filter(liker=request.user, post=post).exists(),
         'my_post': post.creator == request.user,
+        'active_user': User().objects.select_related('profile').get(pk=request.user.pk)
     }
     return render(request, 'pages/ViewPost.html', context)
     

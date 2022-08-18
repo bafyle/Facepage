@@ -17,7 +17,7 @@ def chat_view(request, link:str = None):
     context = dict()
     friends_query = Friend.objects.filter(
         (Q(side1=request.user) | Q(side2=request.user))
-    ).select_related("side1", "side2")
+    ).select_related("side1", "side2", 'side1__profile', 'side2__profile')
     context['profile_pic'] = request.user.profile.profile_picture.url
     context['navbar_name'] = request.user.first_name
     context['navbar_link'] = request.user.profile.link
@@ -29,7 +29,7 @@ def chat_view(request, link:str = None):
             friends_list.append(friend.side2)
     context['friends'] = friends_list
     if link:
-        user = User().objects.filter(profile__link=link).first()
+        user = User().objects.filter(profile__link=link).select_related('profile').first()
         relation = Friend.objects.filter(
             ((Q(side1=user) & Q(side2=request.user)) | (Q(side1=request.user) & Q(side2=user)))
             ).select_related("side1", "side2").first()
@@ -40,21 +40,19 @@ def chat_view(request, link:str = None):
             messages.error(request, "You can chat only with your friends")
             return redirect('posts:home')
         else:
-            chat = Message.objects.select_related("sender", "receiver").filter(
+            chat = Message.objects.select_related("sender", "receiver", 'sender__profile').filter(
                 (Q(sender=request.user) & Q(receiver=user)) | 
                     (Q(sender=request.user) & Q(receiver=user)) | 
                 (Q(sender=request.user) & Q(receiver=user)) | 
                 (Q(sender=user) & Q(receiver=request.user))
             ).order_by('send_date')
-            for message in chat:
-                message.seen = True
-                message.save()
             context['form'] = SendMessageForm()
             context['chat'] = chat
             context['his_username'] = user.profile.name()
             context['his_link'] = user.profile.link
             context['his_profile_picture_url'] = user.profile.profile_picture.url
             context['pk'] = relation.pk
+            # context['active_user'] = User().objects.select_related('profile').get(pk=request.user.pk)
     return render(request, 'pages/Chat.html', context)
 
 
