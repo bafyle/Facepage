@@ -56,9 +56,14 @@ INSTALLED_APPS = [
     # for s3 storage
     'storages',
 
+    #django debug toolbar
+    "debug_toolbar",
+
 ]
 
+
 MIDDLEWARE = [
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -69,7 +74,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'facepage.urls'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -193,11 +197,16 @@ AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',
 }
-STATICFILES_DIRS = [
-    Path.joinpath(BASE_DIR, 'pages/static'),
-]
-
+STATIC_URL = "static/"
 MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
+
+# debug toolbar settings
+INTERNAL_IPS = [
+    "127.0.0.1",
+    'localhost',
+]
+import mimetypes
+mimetypes.add_type("application/javascript", ".js", True)
 
 # heroku configs
 
