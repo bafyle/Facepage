@@ -1,68 +1,28 @@
 # Facepage
 
-Facepage is a two-person project to make a minimal website that looks like Facebook as a challenge for ourselves using Python programming language and Django web framework
+Facepage is a two-person project to make a minimal website that looks similar to Facebook as a challenge and practice for ourselves on backend development and frontend development.
+Facepage is built using Python programming language and Django web framework and other technologies that explained in the [Technologies and Dependencies](#technologies-and-dependencies) section.
 
 ## Content:
 - [Facepage](#facepage)
   - [Content:](#content)
   - [Technologies and Dependencies](#technologies-and-dependencies)
-  - [Create Virtual Environment](#create-virtual-environment)
   - [Running the server](#running-the-server)
   - [User interactions](#user-interactions)
 
 ## Technologies and Dependencies
-The website is made using these technologies:
-* Python 3
+The main packages are:
+* Python 3.7+
 * Django 3.2 library
-* Django channels for handling sockets
-All dependencies needed are in requirement.txt file. Installing dependencies are in [create virtual environment](#create-virtual-environment) section
-
-## Create Virtual Environment
-* If you don't have virtualenv installed in python, install it using:
-~~~
-$ pip install virtualenv
-~~~
-* After that go ahead and open the console where you want to make your virtual environment and type:
-~~~
-$ virtualenv venv
-~~~
-You can change 'venv' to anything else if you want
-
-* Activate you virtual environment by:
-~~~
-$ cd ./venv/Scripts/
-$ ./activate
-~~~
-* Now you can install any python library you want without affecting your main python interpreter
-
-* From here you can install the dependencies into your new environment
-~~~
-$ pip install -r requirements.txt
-~~~
-
-## Running the server
-After installing Pillow and six using pip, you can clone the repo and run the server by going the repo folder (which is Facepage) and running this command:
-~~~
-$ python manage.py runserver
-~~~
-a message will pop like this
-~~~
-Watching for file changes with StatReloader
-Performing system checks...
-
-System check identified no issues (0 silenced).
-July 27, 2021 - 21:25:07
-Django version 3.2.5, using settings 'facepage.settings'
-Starting development server at http://127.0.0.1:8000/
-Quit the server with CTRL-BREAK.
-~~~
-Go to https://127.0.0.1:8000/ and the login page will be there waiting for you
+* django-channels 3.0.5
+* jQuery 3.6.0
+All packages and dependencies are in requirements.txt file.
 
 ## User interactions
 users can:
 
 * Login and register
-* Create, delete, update and share posts
+* Create posts, delete and update their posts and share other people posts
 * Like and comment on posts
 * View other users posts
 * Make friends with other users
@@ -89,12 +49,14 @@ users can:
 - [ ] Implement some functionalities using AJAX:
   * [x] Like a post
   * [ ] Comment
-- [ ] Make media management system (far future)
-- [x] Deploy the project with aws
+- [ ] Implement media management system (far future)
 - [x] Redesign the friendship system between the users (if needed)
 - [x] Use signals in:
   * Sending notifications (alpha version, needs some redesigns)
   * Creating the profile and activation link objects for the new registered users
+- [x] Uploading media to AWS
+- [x] Optimize database queries
+- [x] Deploy the project on heroku
 - [ ] Implement background processes using Celery like:
   * [ ] Compress the uploaded media before storing them in aws
 
