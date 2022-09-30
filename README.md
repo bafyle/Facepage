@@ -85,7 +85,7 @@ users can:
     * Unfriend
 - [x] Redesign the chat app using websocket (The project now uses ASGI/Channels)
 - [x] Test the new redesigned chat
-- [ ] Change the backend of the web sockets from InMemoryChannelLayer to anything that can be deployed with
+- [ ] Change the backend of the WebSocket from InMemoryChannelLayer to redis
 - [ ] Implement some functionalities using AJAX:
   * [x] Like a post
   * [ ] Comment
@@ -93,9 +93,12 @@ users can:
 - [x] Redesign the friendship system between the users (if needed)
 - [x] Use signals in:
   * Sending notifications (alpha version, needs some redesigns)
+    - [x] use SSE to push notification alarm (needs a redesign for the frontend)
   * Creating the profile and activation link objects for the new registered users
 - [ ] Implement background processes using Celery like:
   * [x] Compress the uploaded photos
+  * [ ] deactivate or delete inactive users
+- [ ] Document the code
 
   
 

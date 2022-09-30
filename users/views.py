@@ -39,6 +39,7 @@ def index(request: HttpRequest):
     """
     if request.user.is_authenticated:
         return redirect('posts:home')
+    
     return render(request, 'pages/Login.html')
 
 

@@ -14,7 +14,7 @@ from users.models import Friend
 from .forms import CreatePostForm
 from .models import Post, Comment, Like
 from notifications.signals import comment_signal, like_signal
-from .signals import create_post_signal
+from .signals import create_post_signal, notification_alarm_sse_signal
 from itertools import groupby
 
 @login_required
@@ -270,47 +270,9 @@ def delete_post_ajax(request, post_id):
     else:
         raise HttpResponseNotAllowed(["DELETE", "POST"])
 
-
-@login_required
-def like_post_view(request, post_id):
-    """
-    This function add a like to the database for a particular post
-    and update that post like number by recounting how many rows in the 
-    like table for that post
-    """
-    post = Post.objects.get(id=post_id)
-    isPostLiked = bool(Like.objects.filter(post=post, liker=request.user))
-    if not isPostLiked:
-        new_like = Like(post=post, liker=request.user)
-        new_like.save()
-        post.likes = Like.objects.filter(post=post).count()
-        post.save()
-
-        if request.user != post.creator:
-            if Notification.objects.filter(user_from=request.user, type='L', route_id=post_id).count() <= 0:
-                notification_content = f"{request.user.profile.name()} liked your post: "
-                if not post.shared_post:
-                    if len(post.post_content) > 20:
-                        notification_content += f"{post.post_content[0:20]}..."
-                    else:
-                        notification_content += f"{post.post_content}"
-                else:
-                    notification_content = f"{request.user.profile.name()} liked your you shared"
-                newNotification = Notification(
-                    user_from=request.user,
-                    user_to=post.creator,
-                    content=notification_content,
-                    type='L',
-                    picture=request.user.profile.profile_picture.url,
-                    content_object=post,
-                    route_id=post.id,
-                )
-                newNotification.save()
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
 @login_required
 def like_post_ajax(request, post_id):
-    post = Post.objects.get(id=post_id)
+    post = Post.objects.select_related("creator__profile").get(id=post_id)
     if not Like.objects.filter(post=post, liker=request.user).exists():
         like_object = Like.objects.create(post=post, liker=request.user)
         if request.user != post.creator:
@@ -332,6 +294,7 @@ def like_post_ajax(request, post_id):
                 content_object=like_object,
                 route_id=post.id,
             )
+            notification_alarm_sse_signal.send(sender=None, channel_name="event-stream-"+post.creator.profile.link, type="like")
     # missing the elses of each if
     return JsonResponse({"message":"good", 'likes': post.likes})
 
@@ -359,7 +322,7 @@ def unlike_post_ajax(request, post_id):
     if not request.user.is_authenticated:
         return JsonResponse({"message":"not-authed"})
     
-    post = Post.objects.get(id=post_id)
+    post = Post.objects.select_related("creator", "creator__profile").get(id=post_id)
     query = Like.objects.filter(post=post, liker=request.user)
     if query.exists():
         query.first().delete()
@@ -375,7 +338,7 @@ def add_comment_view(request, post_id):
     the comment counter for that post
     """
     comment_text = request.GET.get('comment-content')
-    commented_post = Post.objects.get(id=post_id)
+    commented_post = Post.select_related("creator__profile").get(id=post_id)
 
     comment_object = Comment.objects.create(comment_content=comment_text, post=commented_post, creator=request.user)
     if request.user != commented_post.creator:
@@ -397,6 +360,7 @@ def add_comment_view(request, post_id):
             content_object=comment_object,
             route_id=commented_post.id,
         )
+        notification_alarm_sse_signal.send(channel_name="event-stream-"+commented_post.creator.profile.link, type='comment')
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     
 
@@ -409,7 +373,7 @@ def add_comment_ajax(request, post_id):
     if not request.user.is_authenticated:
         return JsonResponse({"message":"not-authed"})
     comment_text = request.GET.get('comment-content')
-    commented_post = Post.objects.get(id=post_id)
+    commented_post = Post.objects.select_related("creator__profile").get(id=post_id)
 
     comment_object = Comment.objects.create(comment_content=comment_text, post=commented_post, creator=request.user)
     if request.user != commented_post.creator:
@@ -432,4 +396,5 @@ def add_comment_ajax(request, post_id):
                 content_object=comment_object,
                 route_id=commented_post.id,
             )
+            notification_alarm_sse_signal.send(channel_name="event-stream-"+commented_post.creator.profile.link, type='comment')
     return JsonResponse({"message":"good"})

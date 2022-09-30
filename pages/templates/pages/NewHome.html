@@ -249,5 +249,11 @@ function errorInLiking(button)
     button.parentElement.appendChild(p);
 }
 </script>
+<script>
+    const evtSource = new EventSource(window.location.protocol + "//" + window.location.host + "/events/{{active_user.profile.link}}/");
+    evtSource.onmessage = (event) => {
+        console.log(event.data);
+      }
+</script>
 
 {% endblock scripts %}

@@ -13,13 +13,20 @@ from importlib import import_module
 class ChatWebsocket(AsyncWebsocketConsumer):
 
     def __init__(self, *args, **kwargs):
+        """
+        Importing the needed modules in the Consumer because importing them globally cause problems
+        in deployment
+        """
         super().__init__(*args, **kwargs)
         self.users_models_module = import_module('users.models')
         self.forms_module = import_module('messenger.forms')
         self.messenger_module = import_module('messenger.models')
 
     async def connect(self):
-        
+        """
+        joining a channel with a friend
+        pk holds the primary key of the friendship between the active user and the other user
+        """
         self.pk = self.scope['url_route']['kwargs']['pk']
         self.user = self.scope['user']
         await self.channel_layer.group_add(
@@ -27,6 +34,7 @@ class ChatWebsocket(AsyncWebsocketConsumer):
             self.channel_name
         )
 
+        #if they are friends, accept the connection, else refuse the connection
         if (relation_existence := await self.are_they_friends())[0]:
             self.relation = relation_existence[1]
             await self.accept()

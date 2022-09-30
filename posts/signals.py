@@ -7,10 +7,12 @@ import os
 from django.dispatch.dispatcher import receiver
 from .models import Post, Comment, Like
 from PIL import Image
+from django_eventstream import send_event
 
 from .utils import image_resize, save_compressed_image
 
 create_post_signal = Signal()
+notification_alarm_sse_signal = Signal()
 
 @receiver(post_delete, sender=Post)
 def delete_post_photo(instance, **kwargs):
@@ -24,6 +26,11 @@ def update_post_counters(instance, **kwargs):
     instance.post.likes = Like.objects.filter(post=instance.post).count()
     instance.post.comments = Comment.objects.filter(post=instance.post).count()
     instance.post.save()
+
+
+def new_notification_alarm_sse(**kwargs):
+    channel_name = kwargs.get("channel_name")
+    send_event(channel_name, "message", {"type":"new-alarm"})
 
 
 def compress_image(instance, **kwargs):

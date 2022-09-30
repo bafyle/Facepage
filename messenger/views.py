@@ -14,6 +14,10 @@ from django.contrib.auth.decorators import login_required
 @login_required
 @ensure_csrf_cookie
 def chat_view(request, link:str = None):
+    """
+    View method for rendering the template and managing all logic
+    related to friends and messages
+    """
     context = dict()
     friends_query = Friend.objects.filter(
         (Q(side1=request.user) | Q(side2=request.user))
