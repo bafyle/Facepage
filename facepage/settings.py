@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config("SECRET_KEY")
+SECRET_KEY = config("SECRET_KEY", default='!@#$$')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -51,8 +51,6 @@ INSTALLED_APPS = [
     'messenger',
     'notifications',
     'pages',
-
-    'django_heroku',
 
     # for s3 storage
     'storages',
@@ -170,8 +168,8 @@ AUTH_USER_MODEL = 'usermodel.User'
 
 EMAIL_USE_SSL = True
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'androw240@gmail.com'
-EMAIL_HOST_PASSWORD = config("EMAIL_PASSWORD")
+EMAIL_HOST_USER = config("EMAIL", default='!@#$') 
+EMAIL_HOST_PASSWORD = config("EMAIL_PASSWORD", default='!@#$') 
 EMAIL_PORT = 465
 
 
@@ -190,9 +188,9 @@ LOGIN_URL = "/login/"
 
 DEFAULT_FILE_STORAGE = 'facepage.storage.MediaStorage'
 
-AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")
-AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME")
+AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID", default='!@#$') 
+AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY", default='!@#$')
+AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME", default='!@#$')
 AWS_QUERYSTRING_AUTH = False
 
 AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
@@ -210,9 +208,5 @@ INTERNAL_IPS = [
 import mimetypes
 mimetypes.add_type("application/javascript", ".js", True)
 
-# heroku configs
 
 from .deploy_settings import *
-
-import django_heroku
-django_heroku.settings(locals())
