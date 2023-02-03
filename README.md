@@ -7,8 +7,8 @@ Facepage is built using Python programming language and Django web framework and
 - [Facepage](#facepage)
   - [Content:](#content)
   - [Technologies and Dependencies](#technologies-and-dependencies)
-  - [Running the server](#running-the-server)
   - [User interactions](#user-interactions)
+  - [Todo:](#todo)
 
 ## Technologies and Dependencies
 The main packages are:
@@ -16,6 +16,7 @@ The main packages are:
 * Django 3.2 library
 * django-channels 3.0.5
 * jQuery 3.6.0
+
 All packages and dependencies are in requirements.txt file.
 
 ## User interactions
@@ -53,7 +54,7 @@ users can:
 - [x] Redesign the friendship system between the users (if needed)
 - [x] Use signals in:
   * Sending notifications (alpha version, needs some redesigns)
-    - [x] use SSE to push notification alarm (needs a redesign for the frontend)
+    - [ ] use SSE to push notification alarm (needs a redesign for the frontend to work)
   * Creating the profile and activation link objects for the new registered users
 - [x] Uploading media to AWS
 - [x] Optimize database queries
@@ -63,6 +64,7 @@ users can:
   * [ ] deactivate or delete inactive users
 - [ ] Document the code
   * [ ] Compress the uploaded media before storing them in aws
+- [x] Adding a limit to login attempts (users have to wait 5 minutes after 3 failed login attempts)
 
   
 
